@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using AT_Utils;
 
-namespace ConfigurableContainers
+namespace AT_Utils
 {
 	public class SimpleTextureSwitcher : PartModule
 	{

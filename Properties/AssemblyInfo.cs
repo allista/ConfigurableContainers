@@ -34,7 +34,7 @@ using AT_Utils;
 //[assembly: AssemblyDelaySign(false)]
 //[assembly: AssemblyKeyFile("")]
 
-namespace ConfigurableContainers
+namespace AT_Utils
 {
 	public class ModInfo : KSP_AVC_Info //FIXME: fill in ConfigurableContainers credentials
 	{

@@ -10,7 +10,7 @@ using System.Linq;
 using System.Collections.Generic;
 using AT_Utils;
 
-namespace ConfigurableContainers
+namespace AT_Utils
 {
 	/// <summary>
 	/// Type of a switchable tank. 

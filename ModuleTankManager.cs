@@ -1,9 +1,8 @@
 ﻿using System;
 using UnityEngine;
 using AT_Utils;
-using AnisotropicPartResizer;
 
-namespace ConfigurableContainers
+namespace AT_Utils
 {
 	public class ModuleTankManager : PartModule, ITankManager, ISerializationCallbackReceiver
 	{

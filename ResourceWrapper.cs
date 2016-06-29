@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using AT_Utils;
 
-namespace ConfigurableContainers
+namespace AT_Utils
 {
 	public abstract class ResourceWrapper<Res> where Res : ResourceWrapper<Res>, new()
 	{

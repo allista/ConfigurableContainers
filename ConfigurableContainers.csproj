@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{BD074812-7105-46D7-A252-53C20DAB698B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>ConfigurableContainers</RootNamespace>
+    <RootNamespace>AT_Utils</RootNamespace>
     <AssemblyName>ConfigurableContainers</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>

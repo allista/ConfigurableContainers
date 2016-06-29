@@ -10,9 +10,8 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using AT_Utils;
-using AnisotropicPartResizer;
 
-namespace ConfigurableContainers
+namespace AT_Utils
 {
 	/// <summary>
 	/// This is a different approach than in ModularFuelTanks, more suitable for "cargo" resources than fuels:
@@ -102,7 +101,6 @@ namespace ConfigurableContainers
 			return Cost + 
 				(current_resource == null? 0 : (float)current_resource.maxAmount*current_resource.info.unitCost);
 		}
-
 		public ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
 
 		void OnDestroy() { Utils.UpdateEditorGUI(); }
