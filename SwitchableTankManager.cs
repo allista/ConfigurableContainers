@@ -1,4 +1,11 @@
-﻿using System;
+﻿//   SwitchableTankManager.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;

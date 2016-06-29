@@ -13,7 +13,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>GameData\ConfigurableContainers\Plugins</OutputPath>
+    <OutputPath>..\AT_Utils\GameData\000_AT_Utils</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -22,7 +22,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>GameData\ConfigurableContainers\Plugins</OutputPath>
+    <OutputPath>..\AT_Utils\GameData\000_AT_Utils</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -88,6 +88,10 @@
       <Project>{64CC36A2-0610-4F74-9F31-3D4E22866B7E}</Project>
       <Name>AT_Utils</Name>
       <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\AnisotropicPartResizer\AnisotropicPartResizer.csproj">
+      <Project>{19ABDD5C-1F12-4D67-B72E-E36071ABFF2C}</Project>
+      <Name>AnisotropicPartResizer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

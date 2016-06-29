@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using AT_Utils;
+using AnisotropicPartResizer;
 
 namespace ConfigurableContainers
 {
@@ -142,6 +143,15 @@ namespace ConfigurableContainers
 			}
 		}
 		#endregion
+	}
+
+	public class TankManagerUpdater : ModuleUpdater<ModuleTankManager>
+	{
+		protected override void on_rescale(ModulePair<ModuleTankManager> mp, Scale scale)
+		{ 
+			mp.module.RescaleTanks(scale.relative.cube * scale.relative.aspect); 
+			mp.module.Volume = mp.base_module.Volume * scale.absolute.cube * scale.absolute.aspect;
+		}
 	}
 }
 

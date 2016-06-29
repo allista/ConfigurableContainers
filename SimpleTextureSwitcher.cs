@@ -1,4 +1,11 @@
-﻿using System;
+﻿//   SimpleTextureSwitcher.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using AT_Utils;

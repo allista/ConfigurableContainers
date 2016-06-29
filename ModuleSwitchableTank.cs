@@ -1,8 +1,16 @@
-﻿using System;
+﻿//   ModuleSwitchableTank.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using AT_Utils;
+using AnisotropicPartResizer;
 
 namespace ConfigurableContainers
 {
@@ -325,6 +333,12 @@ namespace ConfigurableContainers
 				yield return new WaitForSeconds(0.1f);
 			}
 		}
+	}
+
+	public class SwitchableTankUpdater : ModuleUpdater<ModuleSwitchableTank>
+	{
+		protected override void on_rescale(ModulePair<ModuleSwitchableTank> mp, Scale scale)
+		{ mp.module.Volume *= scale.relative.cube * scale.relative.aspect;	}
 	}
 
 	public class SwitchableTankInfo : ConfigNodeObject
