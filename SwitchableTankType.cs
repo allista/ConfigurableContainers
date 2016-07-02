@@ -8,7 +8,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using AT_Utils;
 
 namespace AT_Utils
 {
@@ -37,16 +36,18 @@ namespace AT_Utils
 					{
 						var tank_type = new SwitchableTankType();
 						#if DEBUG
-						Utils.Log("\n{0}", n.ToString());
+						Utils.Log("\n{}", n.ToString());
 						#endif
 						tank_type.Load(n);
 						if(!tank_type.Valid)
 						{
-							Utils.Message(6, "Hangar: configuration of \"{0}\" tank type is INVALID.", tank_type.name);
+							var msg = string.Format("ConfigurableContainers: configuration of \"{0}\" tank type is INVALID.", tank_type.name);
+							Utils.Message(6, msg);
+							Utils.Log(msg);
 							continue;
 						}
 						try { _tank_types.Add(tank_type.name, tank_type); }
-						catch { Utils.Log("SwitchableTankType: ignoring duplicate configuration of {0} tank type", tank_type.name); }
+						catch { Utils.Log("SwitchableTankType: ignoring duplicate configuration of {} tank type", tank_type.name); }
 					}
 				}
 				return _tank_types;

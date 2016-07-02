@@ -9,7 +9,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using AT_Utils;
 
 namespace AT_Utils
 {
@@ -73,7 +72,7 @@ namespace AT_Utils
 					tank.EnablePartControls = EnablePartControls;
 					tanks.Add(tank);
 				}
-				else Utils.Log("SwitchableTankManager: unable to load module from config:\n{0}", n.ToString());
+				else Utils.Log("SwitchableTankManager: unable to load module from config:\n{}", n.ToString());
 			}
 			//no need to OnStart tanks here, as Part.ModulesOnStart will do it for us
 		}
@@ -90,7 +89,7 @@ namespace AT_Utils
 			if(!AddRemoveEnabled) return false;
 			if(!SwitchableTankType.TankTypes.ContainsKey(tank_type))
 			{
-				Utils.Log("SwitchableTankManager: no such tank type: {0}", tank_type);
+				Utils.Log("SwitchableTankManager: no such tank type: {}", tank_type);
 				return false;
 			}
 			var tank = part.AddModule(typeof(ModuleSwitchableTank).Name) as ModuleSwitchableTank;
@@ -148,15 +147,15 @@ namespace AT_Utils
 				var manager_module = p.Modules.GetModule(ind) as ITankManager;
 				if(manager_module == null)
 				{
-					Utils.Log("SwitchableTankManager: counterparts should have ITankManager module at {0} position, " +
-					          "but {1} does not. This should never happen!", ind, p);
+					Utils.Log("SwitchableTankManager: counterparts should have ITankManager module at {} position, " +
+					          "but {} does not. This should never happen!", ind, p);
 					continue;
 				}
 				var manager = manager_module.GetTankManager();
 				if(manager == null)
 				{
 					Utils.Log("SwitchableTankManager: WARNING, trying to update " +
-					          "ITankManager {0} with uninitialized SwitchableTankManager", manager_module);
+					          "ITankManager {} with uninitialized SwitchableTankManager", manager_module);
 					continue;
 				}
 				action(manager);
@@ -170,7 +169,7 @@ namespace AT_Utils
 			{
 				var tank1 = m.GetTank(tank.id);
 				if(tank1 == null)
-					Utils.Log("SwitchableTankManager: WARNING, no tank with {0} id", tank.id);
+					Utils.Log("SwitchableTankManager: WARNING, no tank with {} id", tank.id);
 				else action(tank1);
 			});
 		}

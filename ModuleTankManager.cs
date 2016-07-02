@@ -1,6 +1,12 @@
-﻿using System;
+﻿//   ModuleTankManager.cs
+//
+//  Author:
+//       Allis Tauri <allista@gmail.com>
+//
+//  Copyright (c) 2016 Allis Tauri
+
+using System;
 using UnityEngine;
-using AT_Utils;
 
 namespace AT_Utils
 {
@@ -99,7 +105,7 @@ namespace AT_Utils
 		#endregion
 
 		#region GUI
-		enum TankWindows { EditTanks } //maybe we'll need more in the future
+		enum TankWindows { None, EditTanks } //maybe we'll need more in the future
 		readonly Multiplexer<TankWindows> selected_window = new Multiplexer<TankWindows>();
 
 		[KSPEvent (guiActiveEditor = true, guiName = "Edit Tanks", active = true)]
@@ -129,7 +135,7 @@ namespace AT_Utils
 		{ 
 			if(Event.current.type != EventType.Layout) return;
 			if(!HighLogic.LoadedSceneIsEditor) return;
-			if(!selected_window.Any()) return;
+			if(!selected_window) return;
 			if(tank_manager == null) return;
 			Styles.Init();
 			if(selected_window[TankWindows.EditTanks])

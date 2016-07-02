@@ -78,7 +78,6 @@
     <Compile Include="SimpleTextureSwitcher.cs" />
     <Compile Include="SwitchableTankManager.cs" />
     <Compile Include="SwitchableTankType.cs" />
-    <Compile Include="ResourceWrapper.cs" />
     <Compile Include="ModuleTankManager.cs" />
     <Compile Include="ModuleSwitchableTank.cs" />
   </ItemGroup>
@@ -92,6 +91,7 @@
     <ProjectReference Include="..\AnisotropicPartResizer\AnisotropicPartResizer.csproj">
       <Project>{19ABDD5C-1F12-4D67-B72E-E36071ABFF2C}</Project>
       <Name>AnisotropicPartResizer</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
