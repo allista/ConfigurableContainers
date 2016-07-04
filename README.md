@@ -1,4 +1,5 @@
 ## ConfigurableContainers is a plugin for KSP mod development.
+### It is a part of the [AT_Utils](https://github.com/allista/AT_Utils) framework.
 
 It provide a module that allows creation of container parts for a predefined set of resources **switchable in-flight**. Sets are configured in a separate cfg file and are indendet to contain similar things like gasses (one set), liquid chemicals (another) and so on.
 
