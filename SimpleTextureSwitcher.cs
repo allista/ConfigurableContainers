@@ -86,9 +86,9 @@ namespace AT_Utils
 				if(GameDatabase.Instance.ExistsTexture(RootFolder+tex))
 				{
 					try { textures.Add(tex); }
-					catch { this.Log("Duplicate texture in the replacement list: {0}", tex); }
+					catch { this.Log("Duplicate texture in the replacement list: {}", tex); }
 				}
-				else this.Log("No such texture: {0}", RootFolder+tex);
+				else this.Log("No such texture: {}", RootFolder+tex);
 			}
 			if(textures.Count > 0 && 
 				(CurrentTexture == string.Empty || 
