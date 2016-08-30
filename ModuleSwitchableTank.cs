@@ -95,12 +95,14 @@ namespace AT_Utils
 			return info;
 		}
 
-		public float GetModuleCost(float default_cost, ModifierStagingSituation situation) 
+		#region IPart*Modifiers
+		public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation sit) 
 		{ 
 			return Cost + 
 				(current_resource == null? 0 : (float)current_resource.maxAmount*current_resource.info.unitCost);
 		}
-		public ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+		public virtual ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
+		#endregion
 
 		void OnDestroy() { Utils.UpdateEditorGUI(); }
 
@@ -228,8 +230,9 @@ namespace AT_Utils
 			{ TankType = SwitchableTankType.TankTypeNames[0]; }
 			//select tank type from the library
 			if(!SwitchableTankType.TankTypes.TryGetValue(TankType, out tank_type))
-				Utils.Message(6, "Hangar: No \"{0}\" tank type in the library. Configuration of \"{1}\" is INVALID.", 
-					TankType, this.Title());
+				Utils.Message(6, "Hangar: No \"{0}\" tank type in the library.\n" +
+				              "Configuration of \"{1}\" is INVALID.", 
+				              TankType, this.Title());
 			//switch off the UI
 			Utils.EnableField(Fields["CurrentResource"], false);
 			Utils.UpdateEditorGUI();
