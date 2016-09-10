@@ -47,7 +47,11 @@ namespace AT_Utils
 							continue;
 						}
 						try { _tank_types.Add(tank_type.name, tank_type); }
-						catch { Utils.Log("SwitchableTankType: ignoring duplicate configuration of {} tank type", tank_type.name); }
+						catch
+						{ 
+							Utils.Log("SwitchableTankType: ignoring duplicate configuration of {} tank type. " +
+							"Use ModuleManager to change the existing one.", tank_type.name); 
+						}
 					}
 				}
 				return _tank_types;
