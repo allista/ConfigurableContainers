@@ -17,9 +17,9 @@ namespace AT_Utils
 	/// Such tank may contain only one type of resources, but this type may be switched in-flight, 
 	/// if the part has zero amount of the current resource.
 	/// </summary>
-	public class ModuleSwitchableTank : PartModule, IPartCostModifier
+	public class ModuleSwitchableTank : AbstractResourceTank
 	{
-		const string   RES_MANAGED = "RES";
+		const string   RES_MANAGED = "Res";
 		const string RES_UNMANAGED = "N/A";
 
 		bool enable_part_controls = true;
@@ -35,6 +35,7 @@ namespace AT_Utils
 					init_res_control();
 			}
 		}
+
 		[KSPField(isPersistant = true)] public int id = -1;
 
 		/// <summary>
@@ -43,30 +44,37 @@ namespace AT_Utils
 		[KSPField] public bool ChooseTankType;
 
 		/// <summary>
+		/// Excluded tank types. If empty, all types are supported.
+		/// </summary>
+		[KSPField] public string ExcludeTankTypes = string.Empty;
+		string[] exclude;
+
+		/// <summary>
+		/// Supported tank types. If empty, all types are supported. Overrides ExcludedTankTypes.
+		/// </summary>
+		[KSPField] public string IncludeTankTypes = string.Empty;
+		string[] include;
+
+		/// <summary>
 		/// The type of the tank. Types are defined in separate config nodes. Cannot be changed in flight.
 		/// </summary>
-		[KSPField(isPersistant = true, guiActiveEditor = true, guiName = "Tank Type")]
+		[KSPField(isPersistant = true, guiActiveEditor = true, guiName = "Type")]
 		[UI_ChooseOption(scene = UI_Scene.Editor)]
 		public string TankType;
 		SwitchableTankType tank_type;
 		public SwitchableTankType Type { get { return tank_type; } }
-
-		/// <summary>
-		/// The volume of a tank in m^3. It is defined in a config or calculated from the part volume in editor.
-		/// Cannot be changed in flight.
-		/// </summary>
-		[KSPField(isPersistant = true)] public float Volume = -1f;
+		public List<string> SupportedTypes = new List<string>();
 
 		/// <summary>
 		/// Cost of an empty tank of current type and volume
 		/// </summary>
-		public float Cost { get { return tank_type != null? Volume*tank_type.TankCostPerVolume : 0; } }
+		public float Cost { get { return tank_type != null? Utils.CubeSurface(Volume)*tank_type.TankCostPerSurface : 0; } }
 
 		/// <summary>
 		/// The initial partial amount of the CurrentResource.
 		/// Should be in the [0, 1] interval.
 		/// </summary>
-		[KSPField] public float InitialAmount;
+		[KSPField(isPersistant = true)] public float InitialAmount;
 
 		/// <summary>
 		/// The name of a currently selected resource. Can be changed in flight if resource amount is zero.
@@ -78,44 +86,57 @@ namespace AT_Utils
 		string previous_resource = string.Empty;
 		public float Usage { get { return current_resource != null? (float)(current_resource.amount/current_resource.maxAmount) : 0; } }
 		public string ResourceInUse { get { return current_resource != null? CurrentResource : string.Empty; } }
+		public PartResource Resource { get { return current_resource; } }
 
 		readonly List<ModuleSwitchableTank> other_tanks = new List<ModuleSwitchableTank>();
-
-		public ConfigNode ModuleSave;
 
 		public override string GetInfo()
 		{
 			var info = "";
+			init_supported_types();
 			if(ChooseTankType) 
-				info += SwitchableTankType.TypesInfo;
+				info += SwitchableTankType.TypesInfo(include, exclude);
 			if(!init_tank_type()) return info;
 			info += tank_type.Info;
-			init_tank_volume();
 			info += "Tank Volume: " + Utils.formatVolume(Volume);
 			return info;
 		}
 
-		#region IPart*Modifiers
-		public virtual float GetModuleCost(float defaultCost, ModifierStagingSituation sit) 
+		protected override float TankCost(float defaultCost)
 		{ 
-			return Cost + 
-				(current_resource == null? 0 : (float)current_resource.maxAmount*current_resource.info.unitCost);
+			if(tank_type == null && !init_tank_type()) return 0;
+			return Cost;
 		}
-		public virtual ModifierChangeWhen GetModuleCostChangeWhen() { return ModifierChangeWhen.CONSTANTLY; }
-		#endregion
+
+		protected override float ResourcesCost(bool maxAmount = true)
+		{
+			if(current_resource == null && !switch_resource()) return 0;
+			var cost = (float)current_resource.maxAmount*current_resource.info.unitCost;
+			return maxAmount? cost : cost * InitialAmount;
+		}
 
 		void OnDestroy() { Utils.UpdateEditorGUI(); }
 
+		void init_supported_types()
+		{
+			include = Utils.ParseLine(IncludeTankTypes, Utils.Comma);
+			exclude = Utils.ParseLine(ExcludeTankTypes, Utils.Comma);
+			SupportedTypes = SwitchableTankType.TankTypeNames(include, exclude);
+		}
+
 		public override void OnStart(StartState state)
 		{
+			init_supported_types();
 			//get other tanks in this part
-			other_tanks.AddRange(from t in part.Modules.OfType<ModuleSwitchableTank>()
+			other_tanks.AddRange(from t in part.Modules.GetModules<ModuleSwitchableTank>()
 								 where t != this select t);
 			//initialize tank type chooser
 			disable_part_controls();
-			if(state == StartState.Editor) init_type_control();
-			init_tank_volume();
+			if(state == StartState.Editor) 
+				init_type_control();
 			init_tank_type();
+			switch_resource();
+			init_res_control();
 			StartCoroutine(slow_update());
 		}
 
@@ -123,15 +144,23 @@ namespace AT_Utils
 		{
 			//if the tank is managed, save its config
 			if(node.HasValue(SwitchableTankManager.MANAGED)) ModuleSave = node;
-			//if the nod is not from a TankManager, but we have a saved config, reload it
+			//if the node is not from a TankManager, but we have a saved config, reload it
 			else if(ModuleSave != null && 
-			        ModuleSave.HasValue(SwitchableTankManager.MANAGED))	Load(ModuleSave);
+			        ModuleSave.HasValue(SwitchableTankManager.MANAGED))	
+			{ Load(ModuleSave); return; }
 			//deprecated config conversion
 			if(node.HasNode(SwitchableTankType.NODE_NAME))
 			{
 				var tn = node.GetNode(SwitchableTankType.NODE_NAME);
 				if(tn.HasValue("name")) TankType = tn.GetValue("name");
 			}
+		}
+
+		public override void OnSave(ConfigNode node)
+		{
+			if(current_resource != null)
+				InitialAmount = (float)(current_resource.amount/current_resource.maxAmount);
+			base.OnSave(node);
 		}
 
 		//workaround for ConfigNode non-serialization
@@ -183,27 +212,34 @@ namespace AT_Utils
 			Utils.UpdateEditorGUI();
 		}
 
-		void init_tank_volume()
-		{ if(Volume < 0) Volume = Metric.Volume(part); }
-
 		void init_type_control()
 		{
-			if(!enable_part_controls || !ChooseTankType || 
-			   SwitchableTankType.TankTypes.Count <= 1) return;
-			var names = SwitchableTankType.TankTypeNames;
-			var tank_types = names.ToArray();
-			var tank_names = names.Select(Utils.ParseCamelCase).ToArray();
-			Utils.SetupChooser(tank_names, tank_types, Fields["TankType"]);
+			if(!enable_part_controls || !ChooseTankType || SupportedTypes.Count <= 1) return;
+			var tank_names = SupportedTypes.Select(Utils.ParseCamelCase).ToArray();
+			Utils.SetupChooser(tank_names, SupportedTypes.ToArray(), Fields["TankType"]);
 			Utils.EnableField(Fields["TankType"]);
 		}
 
 		void init_res_control()
 		{
-			if(!enable_part_controls || tank_type.Resources.Count <= 1) return;
-			var res_values = tank_type.ResourceNames.ToArray();
-			var res_names  = tank_type.ResourceNames.Select(Utils.ParseCamelCase).ToArray();
-			Utils.SetupChooser(res_names, res_values, Fields["CurrentResource"]);
-			Utils.EnableField(Fields["CurrentResource"]);
+			if(tank_type == null || !enable_part_controls || tank_type.Resources.Count <= 1) 
+				Utils.EnableField(Fields["CurrentResource"], false);
+			else
+			{
+				var res_values = tank_type.ResourceNames.ToArray();
+				var res_names  = tank_type.ResourceNames.Select(Utils.ParseCamelCase).ToArray();
+				Utils.SetupChooser(res_names, res_values, Fields["CurrentResource"]);
+				Utils.EnableField(Fields["CurrentResource"]);
+			}
+			update_part_menu();
+			Utils.UpdateEditorGUI();
+		}
+
+		void update_res_control()
+		{
+			Fields["CurrentResource"].guiName = current_resource == null ? RES_UNMANAGED : RES_MANAGED;
+			update_part_menu();
+			Utils.UpdateEditorGUI();
 		}
 
 		void disable_part_controls()
@@ -214,41 +250,43 @@ namespace AT_Utils
 
 		bool init_tank_type()
 		{
-			//check if the tank is in use
-			if( tank_type != null && 
-				current_resource != null &&
-				current_resource.amount > 0)
-				{ 
-					Utils.Message("Cannot change tank type while tank is in use");
-					TankType = tank_type.name;
-					return false;
-				}
-			//setup new tank type
-			tank_type = null;
+			if(Volume < 0) Volume = Metric.Volume(part);
+			if(tank_type != null) return true;
 			//if tank type is not provided, use the first one from the library
 			if(string.IsNullOrEmpty(TankType))
-			{ TankType = SwitchableTankType.TankTypeNames[0]; }
+			{ TankType = SwitchableTankType.TankTypeNames(include, exclude)[0]; }
 			//select tank type from the library
 			if(!SwitchableTankType.TankTypes.TryGetValue(TankType, out tank_type))
-				Utils.Message(6, "Hangar: No \"{0}\" tank type in the library.\n" +
+				Utils.Message(6, "No \"{0}\" tank type in the library.\n" +
 				              "Configuration of \"{1}\" is INVALID.", 
 				              TankType, this.Title());
-			//switch off the UI
-			Utils.EnableField(Fields["CurrentResource"], false);
-			Utils.UpdateEditorGUI();
 			if(tank_type == null) return false;
-			//initialize new tank UI if needed
-			init_res_control();
 			//initialize current resource
 			if(CurrentResource == string.Empty || 
-				!tank_type.Resources.ContainsKey(CurrentResource)) 
+			   !tank_type.Resources.ContainsKey(CurrentResource)) 
 				CurrentResource = tank_type.DefaultResource.Name;
-			switch_resource();
 			return true;
 		}
 
+		void change_tank_type()
+		{
+			//check if the tank is in use
+			if(tank_type != null && 
+			   current_resource != null &&
+			   current_resource.amount > 0)
+			{ 
+				Utils.Message("Cannot change tank type while tank is in use");
+				TankType = tank_type.name;
+			}
+			//setup new tank type
+			tank_type = null;
+			init_tank_type();
+			switch_resource();
+			init_res_control();
+		}
+
 		/// <summary>
-		/// Check if resource 'res' is managed by any other tank.
+		/// Check if the resource 'res' is managed by any other tank.
 		/// </summary>
 		/// <returns><c>true</c>, if resource is used, <c>false</c> otherwise.</returns>
 		/// <param name="res">resource name</param>
@@ -264,13 +302,13 @@ namespace AT_Utils
 		}
 
 		[KSPEvent]
-		void resource_changed(string resource)
+		void resource_changed()
 		{
 			if(current_resource != null) return;
-			switch_resource(false);
+			switch_resource();
 		}
 
-		bool switch_resource(bool update_menu = true)
+		bool switch_resource()
 		{
 			if(tank_type == null) return false;
 			//remove the old resource, if any
@@ -283,11 +321,8 @@ namespace AT_Utils
 			if(resource_in_use(CurrentResource)) 
 			{
 				Utils.Message(6, "A part cannot have more than one resource of any type");
-				Fields["CurrentResource"].guiName = RES_UNMANAGED;
-				if(update_menu) update_part_menu();
 				return false;
 			}
-			Fields["CurrentResource"].guiName = RES_MANAGED;
 			//get definition of the next not-managed resource
 			var res = tank_type[CurrentResource];
 			//calculate maxAmount (FIXME)
@@ -309,8 +344,7 @@ namespace AT_Utils
 				node.AddValue("maxAmount", maxAmount);
 				current_resource = part.Resources.Add(node);
 			}
-			part.SendEvent("resource_changed");
-			if(update_menu) update_part_menu();
+			if(part.Events != null) part.SendEvent("resource_changed");
 			return true;
 		}
 
@@ -320,8 +354,8 @@ namespace AT_Utils
 			{
 				if(HighLogic.LoadedSceneIsEditor)
 				{
-					if(tank_type == null || tank_type.name != TankType)
-						init_tank_type();
+					if(tank_type == null || tank_type.name != TankType) 
+						change_tank_type();
 				}
 				else if(tank_type != null && tank_type.name != TankType)
 				{
@@ -329,7 +363,7 @@ namespace AT_Utils
 					TankType = tank_type.name;
 				}
 				if(CurrentResource != previous_resource)
-					switch_resource();
+				{ switch_resource(); update_res_control(); }
 				yield return new WaitForSeconds(0.1f);
 			}
 		}
@@ -339,40 +373,6 @@ namespace AT_Utils
 	{
 		protected override void on_rescale(ModulePair<ModuleSwitchableTank> mp, Scale scale)
 		{ mp.module.Volume *= scale.relative.cube * scale.relative.aspect;	}
-	}
-
-	public class SwitchableTankInfo : ConfigNodeObject
-	{
-		[Persistent] public float  Volume;
-		[Persistent] public string TankType;
-		[Persistent] public string CurrentResource;
-
-		public SwitchableTankType Type 
-		{ 
-			get 
-			{ 
-				SwitchableTankType t;
-				return SwitchableTankType.TankTypes.TryGetValue(TankType, out t) ? t : null;
-			}
-		}
-
-		public float Cost 
-		{ 
-			get 
-			{ 
-				var t = Type;
-				return t == null ? 0 : Volume * t.TankCostPerVolume;
-			}
-		}
-
-		public static string Info(ConfigNode n)
-		{
-			var ti = new SwitchableTankInfo(); ti.Load(n);
-			var info = " - " + ti.TankType;
-			if(ti.CurrentResource != string.Empty) info += " : "+ti.CurrentResource;
-			info += string.Format("\n      {0} {1:F1} Cr", Utils.formatVolume(ti.Volume), ti.Cost);
-			return info+"\n";
-		}
 	}
 }
 

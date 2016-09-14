@@ -21,8 +21,7 @@ namespace AT_Utils
 	{
 		#region Tank Type Library
 		/// <summary>
-		/// The library of preconfigured tank types 
-		/// that is loaded on game start by HangarConfigLoader.
+		/// The library of preconfigured tank types.
 		/// </summary>
 		public static SortedList<string, SwitchableTankType> TankTypes 
 		{ 
@@ -31,14 +30,13 @@ namespace AT_Utils
 				if(_tank_types == null)
 				{
 					var nodes = GameDatabase.Instance.GetConfigNodes(NODE_NAME);
-					_tank_types = new SortedList<string, SwitchableTankType>(nodes.Length);
+					_tank_types = new SortedList<string, SwitchableTankType>();
 					foreach(ConfigNode n in nodes)
 					{
-						var tank_type = new SwitchableTankType();
 						#if DEBUG
 						Utils.Log("\n{}", n.ToString());
 						#endif
-						tank_type.Load(n);
+						var tank_type = ConfigNodeObject.FromConfig<SwitchableTankType>(n);
 						if(!tank_type.Valid)
 						{
 							var msg = string.Format("ConfigurableContainers: configuration of \"{0}\" tank type is INVALID.", tank_type.name);
@@ -62,19 +60,43 @@ namespace AT_Utils
 		/// <summary>
 		/// Sorted list of tank type names.
 		/// </summary>
-		public static IList<string> TankTypeNames { get { return TankTypes.Keys; } }
+		public static List<string> TankTypeNames(string[] include = null, string[] exclude = null) 
+		{ 
+			IEnumerable<string> names = null;
+			if(include != null && include.Length > 0)
+				names = TankTypes.Keys.Where(n => include.IndexOf(n) >= 0);
+			else if(exclude != null && exclude.Length > 0)
+				names = TankTypes.Keys.Where(n => exclude.IndexOf(n) < 0);
+			else names = TankTypes.Keys;
+			return names.ToList();
+		}
+
+		/// <summary>
+		/// Determines if the library contains the specified tank type.
+		/// </summary>
+		/// <param name="tank_type">Tank type name.</param>
+		public static bool HaveTankType(string tank_type)
+		{ return TankTypes.ContainsKey(tank_type); }
+
+		/// <summary>
+		/// Returns the TankType from the library, if it exists; null otherwise.
+		/// </summary>
+		/// <param name="tank_type">Tank type name.</param>
+		public static SwitchableTankType GetTankType(string tank_type)
+		{
+			SwitchableTankType t;
+			return TankTypes.TryGetValue(tank_type, out t) ? t : null;
+		}
 
 		/// <summary>
 		/// Returns info string describing available tank types
 		/// </summary>
-		public static string TypesInfo
+		public static string TypesInfo(string[] include = null, string[] exclude = null)
 		{
-			get
-			{
-				var info = "Available Tank Types:\n";
-				info += TankTypeNames.Aggregate("", (i, t) => i+"- "+t+"\n");
-				return info;
-			}
+			var info = "Supported Tank Types:\n";
+			info += TankTypeNames(include, exclude)
+				.Aggregate("", (i, t) => string.Concat(i, "- ", t, "\n"));
+			return info;
 		}
 		#endregion
 
@@ -96,7 +118,7 @@ namespace AT_Utils
 		/// <summary>
 		/// The cost of a tank of this type per tank volume.
 		/// </summary>
-		[Persistent] public float  TankCostPerVolume = 10f;
+		[Persistent] public float  TankCostPerSurface = 10f;
 
 		public SortedList<string, TankResource> Resources { get; private set; }
 		public bool Valid { get { return Resources != null && Resources.Count > 0; } }

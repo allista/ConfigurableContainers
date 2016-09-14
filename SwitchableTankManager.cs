@@ -17,7 +17,6 @@ namespace AT_Utils
 	public class SwitchableTankManager : ConfigNodeObject
 	{
 		new public const string NODE_NAME = "TANKMANAGER";
-		public const string TANK_NODE = "TANK";
 		public const string MANAGED = "MANAGED";
 
 		readonly Part part;
@@ -25,8 +24,30 @@ namespace AT_Utils
 		readonly List<ModuleSwitchableTank> tanks = new List<ModuleSwitchableTank>();
 		int max_id = -1;
 
+		/// <summary>
+		/// If true, tanks may be added and removed.
+		/// </summary>
 		[Persistent] public bool AddRemoveEnabled = true;
+
+		/// <summary>
+		/// If true, type of tanks may be changed.
+		/// </summary>
 		[Persistent] public bool TypeChangeEnabled = true;
+
+		/// <summary>
+		/// Excluded tank types. If empty, all types are supported.
+		/// </summary>
+		[Persistent] public string ExcludeTankTypes = string.Empty;
+		string[] exclude;
+
+		/// <summary>
+		/// Supported tank types. If empty, all types are supported. Overrides ExcludedTankTypes.
+		/// </summary>
+		[Persistent] public string IncludeTankTypes = string.Empty;
+		string[] include;
+
+		public List<string> SupportedTypes = new List<string>();
+
 		public bool EnablePartControls;
 
 		public int TanksCount { get { return tanks.Count; } }
@@ -35,46 +56,86 @@ namespace AT_Utils
 		public IEnumerable<float> TanksVolumes { get { return tanks.Select(t => t.Volume); } }
 		public ModuleSwitchableTank GetTank(int id) { return tanks.Find(t => t.id == id); }
 
+		public static string GetInfo(PartModule host, ConfigNode node)
+		{
+			var mgr = new SwitchableTankManager(host);
+			return mgr.GetInfo(node);
+		}
+
+		public string GetInfo(ConfigNode node)
+		{
+			base.Load(node);
+			var info = "";
+			if(TypeChangeEnabled) 
+				info += SwitchableTankType.TypesInfo(include, exclude);
+			var volumes = ConfigNodeObject.FromConfig<VolumeConfiguration>(node);
+			if(volumes.Valid)
+				info = string.Concat(info, "Preconfigured Tanks:\n", volumes.Info());
+			return info;
+		}
+
 		public SwitchableTankManager(PartModule host) 
 		{ 
 			part = host.part;
 			this.host = host;
-			tank_types_list.Items = SwitchableTankType.TankTypeNames.ToList();
+			tank_types_list.Items = SwitchableTankType.TankTypeNames();
+		}
+
+		void init_supported_types()
+		{
+			exclude = Utils.ParseLine(ExcludeTankTypes, Utils.Comma);
+			include = Utils.ParseLine(IncludeTankTypes, Utils.Comma);
+			SupportedTypes = SwitchableTankType.TankTypeNames(include, exclude);
+			SupportedTypes.AddRange(VolumeConfigsLibrary.AllConfigNames(include, exclude));
+			TypeChangeEnabled &= SupportedTypes.Count > 1;
+			tank_types_list.Items = SupportedTypes;
 		}
 
 		public override void Save(ConfigNode node)
 		{
 			base.Save(node);
 			if(tanks.Count == 0) return;
-			tanks.ForEach(t => t.Save(node.AddNode(TANK_NODE)));
+			tanks.ForEach(t => t.Save(node.AddNode(TankVolume.NODE_NAME)));
+			node.AddValue(MANAGED, true);
 		}
 
 		public override void Load(ConfigNode node)
 		{
 			base.Load(node);
 			tanks.Clear();
-			var existing_tanks = part.Modules.OfType<ModuleSwitchableTank>().ToList();
-			foreach(var n in node.GetNodes(TANK_NODE))
+			init_supported_types();
+			if(node.HasNode(SwitchableTankManager.MANAGED))
 			{
-				n.AddValue("name", typeof(ModuleSwitchableTank).Name);
-				n.AddValue(MANAGED, true);
-				ModuleSwitchableTank tank;
-				var id = n.HasValue("id")? int.Parse(n.GetValue("id")) : -1;
-				if(id >= 0 && (tank = existing_tanks.Find(t => t.id == id)) != null)
-				{ tank.Load(n); max_id = Mathf.Max(max_id, id); }
-				else 
+				var existing_tanks = part.Modules.GetModules<ModuleSwitchableTank>();
+				foreach(var n in node.GetNodes(TankVolume.NODE_NAME))
 				{
-					tank = part.AddModule(n) as ModuleSwitchableTank;
-					tank.id = ++max_id;
+					n.AddValue(MANAGED, true);
+					n.AddValue("name", typeof(ModuleSwitchableTank).Name);
+					n.SetValue("ExcludeTankTypes", ExcludeTankTypes);
+					n.SetValue("IncludeTankTypes", IncludeTankTypes);
+					ModuleSwitchableTank tank;
+					var id = n.HasValue("id")? int.Parse(n.GetValue("id")) : -1;
+					if(id >= 0 && (tank = existing_tanks.Find(t => t.id == id)) != null)
+					{ tank.Load(n); max_id = Mathf.Max(max_id, id); }
+					else 
+					{
+						tank = part.AddModule(n) as ModuleSwitchableTank;
+						tank.id = ++max_id;
+					}
+					if(tank != null) 
+					{
+						tank.EnablePartControls = EnablePartControls;
+						tanks.Add(tank);
+					}
+					else Utils.Log("SwitchableTankManager: unable to load module from config:\n{}", n);
 				}
-				if(tank != null) 
-				{
-					tank.EnablePartControls = EnablePartControls;
-					tanks.Add(tank);
-				}
-				else Utils.Log("SwitchableTankManager: unable to load module from config:\n{}", n.ToString());
+				tanks.ForEach(t => t.OnStart(part.StartState()));
 			}
-			//no need to OnStart tanks here, as Part.ModulesOnStart will do it for us
+			else 
+			{
+				var cfg = ConfigNodeObject.FromConfig<VolumeConfiguration>(node);
+				AddConfiguration(cfg, cfg.Volume);
+			}
 		}
 
 		/// <summary>
@@ -83,11 +144,13 @@ namespace AT_Utils
 		/// <returns><c>true</c>, if tank was added, <c>false</c> otherwise.</returns>
 		/// <param name="tank_type">Tank type.</param>
 		/// <param name="volume">Tank volume.</param>
+		/// <param name="resource">Current resource name.</param>
+		/// <param name="amount">Initial amount of a resource in the tank: [0, 1]</param>
 		/// <param name="update_counterparts">If counterparts are to be updated.</param>
-		public bool AddTank(string tank_type, float volume, bool update_counterparts = true)
+		public bool AddTank(string tank_type, float volume, string resource = "", float amount = 0, bool update_counterparts = true)
 		{
 			if(!AddRemoveEnabled) return false;
-			if(!SwitchableTankType.TankTypes.ContainsKey(tank_type))
+			if(!SwitchableTankType.HaveTankType(tank_type))
 			{
 				Utils.Log("SwitchableTankManager: no such tank type: {}", tank_type);
 				return false;
@@ -98,12 +161,65 @@ namespace AT_Utils
 			tank.Volume = volume;
 			tank.TankType = tank_type;
 			tank.EnablePartControls = EnablePartControls;
+			tank.IncludeTankTypes = IncludeTankTypes;
+			tank.ExcludeTankTypes = ExcludeTankTypes;
+			tank.InitialAmount = Mathf.Clamp01(amount);
+			if(!string.IsNullOrEmpty(resource)) tank.CurrentResource = resource;
 			tank.OnStart(part.StartState());
 			tanks.ForEach(t => t.RegisterOtherTank(tank));
 			tanks.Add(tank);
 			if(update_counterparts)
-				update_symmetry_managers(m => m.AddTank(tank_type, volume, false));
+				update_symmetry_managers(m => m.AddTank(tank_type, volume, resource, amount, false));
 			return true;
+		}
+
+		/// <summary>
+		/// Adds tanks accodring to the configuration.
+		/// </summary>
+		/// <returns><c>true</c>, if configuration was added, <c>false</c> otherwise.</returns>
+		/// <param name="cfg">Predefined configuration of tanks.</param>
+		/// <param name="volume">Total volume of the configuration.</param>
+		/// <param name="update_counterparts">If counterparts are to be updated.</param>
+		public bool AddConfiguration(VolumeConfiguration cfg, float volume, bool update_counterparts = true)
+		{
+			if(!AddRemoveEnabled || !cfg.Valid) return false;
+			var V = cfg.TotalVolume;
+			foreach(var v in cfg.Volumes)
+			{
+				var t = v as TankVolume;
+				if(t != null) 
+				{ 
+					AddTank(t.TankType, volume*v.Volume/V, t.CurrentResource, t.InitialAmount, update_counterparts);
+					continue;
+				}
+				var c = v as VolumeConfiguration;
+				if(c != null)
+				{
+					AddConfiguration(c, volume*v.Volume/V, update_counterparts);
+					continue;
+				}
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Searches for a named tank type or configuration and adds tanks accordingly.
+		/// </summary>
+		/// <returns><c>true</c>, if configuration was added, <c>false</c> otherwise.</returns>
+		/// <param name="name">A name of a tank type or tank configuration.</param>
+		/// <param name="volume">Total volume of the configuration.</param>
+		/// <param name="update_counterparts">If counterparts are to be updated.</param>
+		public bool AddVolume(string name, float volume, bool update_counterparts = true)
+		{
+			if(!AddRemoveEnabled) return false;
+			if(AddTank(name, volume, update_counterparts:update_counterparts)) return true;
+			var cfg = VolumeConfigsLibrary.GetConfig(name);
+			if(cfg == null)
+			{
+				Utils.Log("SwitchableTankManager: no such tank configuration: {}", name);
+				return false;
+			}
+			return AddConfiguration(cfg, volume, update_counterparts);
 		}
 
 		/// <summary>
@@ -175,7 +291,7 @@ namespace AT_Utils
 		}
 
 		#region GUI
-		const int scroll_width  = 550;
+		const int scroll_width  = 600;
 		const int scroll_height = 200;
 		const string eLock      = "SwitchableTankManager.EditingTanks";
 		Vector2 tanks_scroll    = Vector2.zero;
@@ -184,6 +300,7 @@ namespace AT_Utils
 		Func<string, float, float> add_tank_delegate;
 		Action<ModuleSwitchableTank> remove_tank_delegate;
 		string volume_field = "0.0";
+		string config_name = "";
 
 		public bool Closed { get; private set; }
 
@@ -196,12 +313,12 @@ namespace AT_Utils
 		void tank_type_gui(ModuleSwitchableTank tank)
 		{
 			var choice = Utils.LeftRightChooser(tank.TankType, 120);
-			SwitchableTankType new_type = null;
-			if(choice < 0) new_type = SwitchableTankType.TankTypes.Prev(tank.TankType);
-			else if(choice > 0) new_type = SwitchableTankType.TankTypes.Next(tank.TankType);
-			if(new_type != null) 
+			string new_type = null;
+			if(choice < 0) new_type = tank.SupportedTypes.Prev(tank.TankType);
+			else if(choice > 0) new_type = tank.SupportedTypes.Next(tank.TankType);
+			if(!string.IsNullOrEmpty(new_type))
 			{
-				tank.TankType = new_type.name;
+				tank.TankType = new_type;
 				update_symmetry_tanks(tank, t => t.TankType = tank.TankType);
 			}
 		}
@@ -226,13 +343,17 @@ namespace AT_Utils
 				tank_type_gui(tank);
 			tank_resource_gui(tank);
 			GUILayout.FlexibleSpace();
-			GUILayout.Label(Utils.formatVolume(tank.Volume), GUILayout.ExpandWidth(true));
+			GUILayout.Label(Utils.formatVolume(tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
 			var usage = tank.Usage;
 			GUILayout.Label("Filled: "+usage.ToString("P1"), Styles.fracStyle(usage), GUILayout.Width(95));
+			if(GUILayout.Button("F", Styles.add_button, GUILayout.Width(20)) && tank.Resource != null)
+				tank.Resource.amount = tank.Resource.maxAmount;
+			if(GUILayout.Button("E", Styles.active_button, GUILayout.Width(20)) && tank.Resource != null)
+				tank.Resource.amount = 0;
 			if(AddRemoveEnabled)
 			{
 				if(tank.Usage > 0) GUILayout.Label("X", Styles.grey, GUILayout.Width(20));
-				else if(GUILayout.Button("X", Styles.red_button, GUILayout.Width(20)))
+				else if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(20)))
 					remove_tank_delegate(tank);
 			}
 			GUILayout.EndHorizontal();
@@ -265,7 +386,7 @@ namespace AT_Utils
 			GUILayout.EndHorizontal();
 			//warning label
 			GUILayout.BeginHorizontal();
-			if(volume_valid) volume_field = volume.ToString("n1");
+			if(volume_valid) volume_field = volume.ToString("n3");
 			else GUILayout.Label("Volume should be a number.", Styles.red);
 			GUILayout.EndHorizontal();
 			GUILayout.EndVertical();
@@ -277,6 +398,47 @@ namespace AT_Utils
 			//finish the dropdown list
 			tank_types_list.DrawDropDown();
 			tank_types_list.CloseOnOutsideClick();
+		}
+
+		public void VolumeConfigsGUI()
+		{
+			if(!AddRemoveEnabled) return;
+			GUILayout.BeginHorizontal();
+			VolumeConfiguration cfg = null;
+			GUILayout.Label("Configuration Name:", GUILayout.ExpandWidth(false));
+			config_name = GUILayout.TextField(config_name, GUILayout.ExpandWidth(true), GUILayout.MinWidth(50));
+			if(GUILayout.Button(VolumeConfigsLibrary.HaveUserConfig(config_name)? "Save" : "Add", 
+			                    Styles.add_button, GUILayout.ExpandWidth(false)) && 
+			   !string.IsNullOrEmpty(config_name))
+			{
+				//add new config
+				var node = new ConfigNode();
+				Save(node);
+				cfg = ConfigNodeObject.FromConfig<VolumeConfiguration>(node);
+				if(cfg.Valid) 
+				{
+					cfg.name = config_name;
+					cfg.Volume = TotalVolume;
+					if(!VolumeConfigsLibrary.AddOrSave(cfg))
+						Utils.Message("Unable to save user configuration. See the log for details.");
+					else init_supported_types();
+				}
+				else Utils.Log("Configuration is invalid:\n{}\nThis should never happen!", node);
+			}
+			cfg = null;
+			var choice = Utils.LeftRightChooser(config_name, 120);
+			if(choice < 0) cfg = VolumeConfigsLibrary.UserConfigs.Prev(config_name);
+			else if(choice > 0) cfg = VolumeConfigsLibrary.UserConfigs.Next(config_name);
+			if(cfg != null) config_name = cfg.name;
+			if(GUILayout.Button("Delete", Styles.danger_button, GUILayout.ExpandWidth(false)) && 
+			   !string.IsNullOrEmpty(config_name))
+			{
+				//remove config
+				if(VolumeConfigsLibrary.RemoveConfig(config_name))
+					init_supported_types();
+				config_name = "";
+			}
+			GUILayout.EndHorizontal();
 		}
 
 		public void TanksGUI(int windowId)
@@ -291,6 +453,7 @@ namespace AT_Utils
 			tanks.ToArray().ForEach(tank_gui);
 			GUILayout.EndVertical();
 			GUILayout.EndScrollView();
+			VolumeConfigsGUI();
 			close_button();
 			GUILayout.EndVertical();
 			AddTankGUI_end();

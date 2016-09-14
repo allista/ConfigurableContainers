@@ -76,6 +76,8 @@
     <Compile Include="SwitchableTankType.cs" />
     <Compile Include="ModuleTankManager.cs" />
     <Compile Include="ModuleSwitchableTank.cs" />
+    <Compile Include="VolumeConfiguration.cs" />
+    <Compile Include="AbstractResourceTank.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

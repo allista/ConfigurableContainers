@@ -3,3 +3,4 @@
 *.mdb
 *.dll
 obj/**
+/GameData/ConfigurableContainers/VolumeConfigs.user

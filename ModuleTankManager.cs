@@ -10,27 +10,8 @@ using UnityEngine;
 
 namespace AT_Utils
 {
-	public class ModuleTankManager : PartModule, ITankManager, ISerializationCallbackReceiver
+	public class ModuleTankManager : AbstractResourceTank, ITankManager, ISerializationCallbackReceiver
 	{
-		#region Config
-		/// <summary>
-		/// The total maximum volume of a tank.
-		/// </summary>
-		[KSPField] public float Volume;
-
-		/// <summary>
-		/// If true, tanks may be added and removed.
-		/// </summary>
-		[KSPField] public bool AddRemoveEnabled = true;
-
-		/// <summary>
-		/// If true, type of tanks may be changed.
-		/// </summary>
-		[KSPField] public bool TypeChangeEnabled = true;
-
-		public ConfigNode ModuleSave;
-		#endregion
-
 		#region Tanks
 		SwitchableTankManager tank_manager;
 		public SwitchableTankManager GetTankManager() { return tank_manager; }
@@ -38,14 +19,23 @@ namespace AT_Utils
 		public override string GetInfo()
 		{ 
 			var info = string.Format("Max. Volume: {0}\n", Utils.formatVolume(Volume)); 
-			if(TypeChangeEnabled) info += SwitchableTankType.TypesInfo;
-			if(ModuleSave != null && ModuleSave.HasNode(SwitchableTankManager.TANK_NODE))
-			{
-				info += "Preconfigured Tanks:\n";
-				ModuleSave.GetNodes(SwitchableTankManager.TANK_NODE)
-					.ForEach(n => info += SwitchableTankInfo.Info(n));
-			}
+			if(ModuleSave != null)
+				info += SwitchableTankManager.GetInfo(this, ModuleSave);
 			return info;
+		}
+
+		protected override float TankCost(float defaultCost)
+		{
+			if(ModuleSave == null || tank_manager != null) return 0;
+			var volumes = ConfigNodeObject.FromConfig<VolumeConfiguration>(ModuleSave);
+			return volumes.Cost();
+		}
+
+		protected override float ResourcesCost(bool maxAmount = true)
+		{
+			if(ModuleSave == null || tank_manager != null) return 0;
+			var volumes = ConfigNodeObject.FromConfig<VolumeConfiguration>(ModuleSave);
+			return volumes.ResourceCost(maxAmount);
 		}
 
 		void init_tank_manager()
@@ -116,7 +106,7 @@ namespace AT_Utils
 				tank_manager.UnlockEditor(); 
 		}
 
-		float add_tank(string tank_type, float volume)
+		float add_tank(string tank_name, float volume)
 		{
 			var max  = GUILayout.Button("Max");
 			var half = GUILayout.Button("1/2");
@@ -124,8 +114,8 @@ namespace AT_Utils
 			if(max || volume > max_volume) volume = max_volume;
 			else if(half) volume = max_volume/2;
 			if(volume <= 0) GUILayout.Label("Add", Styles.grey);
-			else if(GUILayout.Button("Add", Styles.green_button))
-				tank_manager.AddTank(tank_type, volume);
+			else if(GUILayout.Button("Add", Styles.add_button))
+				tank_manager.AddVolume(tank_name, volume);
 			return volume;
 		}
 		void remove_tank(ModuleSwitchableTank tank) 
@@ -144,7 +134,7 @@ namespace AT_Utils
 				                          Utils.formatVolume(Volume - tank_manager.TotalVolume), 
 				                          Utils.formatVolume(Volume));
 				tank_manager.DrawTanksWindow(GetInstanceID(), title, add_tank, remove_tank);
-				if(tank_manager.Closed) selected_window[TankWindows.EditTanks] = false;
+				if(tank_manager.Closed) selected_window.Off();
 			}
 		}
 		#endregion
