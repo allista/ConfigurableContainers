@@ -99,7 +99,11 @@ namespace AT_Utils
 			{
 				var v = volumes[i];
 				if(v.name == TankVolume.NODE_NAME)
-					Volumes.Add(ConfigNodeObject.FromConfig<TankVolume>(v));
+				{
+					var preset = VolumeConfigsLibrary.GetConfig(v.GetValue("name"));
+					if(preset != null) Volumes.Add(preset.Clone<VolumeConfiguration>());
+					else Volumes.Add(ConfigNodeObject.FromConfig<TankVolume>(v));
+				}
 				else if(v.name == NODE_NAME)
 					Volumes.Add(ConfigNodeObject.FromConfig<VolumeConfiguration>(v));
 			}
@@ -288,6 +292,7 @@ namespace AT_Utils
 
 		public static VolumeConfiguration GetConfig(string name)
 		{
+			if(string.IsNullOrEmpty(name)) return null;
 			VolumeConfiguration cfg;
 			if(PresetConfigs.TryGetValue(name, out cfg)) return cfg;
 			if(UserConfigs.TryGetValue(name, out cfg)) return cfg;
