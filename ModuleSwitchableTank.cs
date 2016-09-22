@@ -31,8 +31,7 @@ namespace AT_Utils
 				enable_part_controls = value;
 				disable_part_controls();
 				init_type_control(); 
-				if(tank_type != null)
-					init_res_control();
+				init_res_control();
 			}
 		}
 

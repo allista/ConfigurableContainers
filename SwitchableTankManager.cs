@@ -48,7 +48,16 @@ namespace AT_Utils
 
 		public List<string> SupportedTypes = new List<string>();
 
-		public bool EnablePartControls;
+		bool enable_part_controls;
+		public bool EnablePartControls
+		{
+			get { return enable_part_controls; }
+			set 
+			{ 
+				enable_part_controls = value;
+				tanks.ForEach(t => t.EnablePartControls = enable_part_controls);
+			}
+		}
 
 		public int TanksCount { get { return tanks.Count; } }
 		public float TotalVolume { get { return tanks.Aggregate(0f, (v, t) => v+t.Volume); } }
@@ -336,7 +345,7 @@ namespace AT_Utils
 			}
 		}
 
-		void tank_gui(ModuleSwitchableTank tank)
+		void tank_management_gui(ModuleSwitchableTank tank)
 		{
 			GUILayout.BeginHorizontal();
 			if(TypeChangeEnabled) 
@@ -346,16 +355,30 @@ namespace AT_Utils
 			GUILayout.Label(Utils.formatVolume(tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
 			var usage = tank.Usage;
 			GUILayout.Label("Filled: "+usage.ToString("P1"), Styles.fracStyle(usage), GUILayout.Width(95));
-			if(GUILayout.Button("F", Styles.add_button, GUILayout.Width(20)) && tank.Resource != null)
-				tank.Resource.amount = tank.Resource.maxAmount;
-			if(GUILayout.Button("E", Styles.active_button, GUILayout.Width(20)) && tank.Resource != null)
-				tank.Resource.amount = 0;
+			if(HighLogic.LoadedSceneIsEditor)
+			{
+				if(GUILayout.Button("F", Styles.add_button, GUILayout.Width(20)) && tank.Resource != null)
+					tank.Resource.amount = tank.Resource.maxAmount;
+				if(GUILayout.Button("E", Styles.active_button, GUILayout.Width(20)) && tank.Resource != null)
+					tank.Resource.amount = 0;
+			}
 			if(AddRemoveEnabled)
 			{
 				if(tank.Usage > 0) GUILayout.Label("X", Styles.grey, GUILayout.Width(20));
 				else if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(20)))
 					remove_tank_delegate(tank);
 			}
+			GUILayout.EndHorizontal();
+		}
+
+		void tank_control_gui(ModuleSwitchableTank tank)
+		{
+			GUILayout.BeginHorizontal();
+			tank_resource_gui(tank);
+			GUILayout.FlexibleSpace();
+			GUILayout.Label(Utils.formatVolume(tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
+			var usage = tank.Usage;
+			GUILayout.Label("Filled: "+usage.ToString("P1"), Styles.fracStyle(usage), GUILayout.Width(95));
 			GUILayout.EndHorizontal();
 		}
 
@@ -441,7 +464,7 @@ namespace AT_Utils
 			GUILayout.EndHorizontal();
 		}
 
-		public void TanksGUI(int windowId)
+		public void TanksManagerGUI(int windowId)
 		{
 			AddTankGUI_start(eWindowPos);
 			GUILayout.BeginVertical();
@@ -450,7 +473,7 @@ namespace AT_Utils
 				GUILayout.Width(scroll_width), 
 				GUILayout.Height(scroll_height));
 			GUILayout.BeginVertical();
-			tanks.ToArray().ForEach(tank_gui);
+			tanks.ForEach(tank_management_gui);
 			GUILayout.EndVertical();
 			GUILayout.EndScrollView();
 			VolumeConfigsGUI();
@@ -460,8 +483,23 @@ namespace AT_Utils
 			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
 		}
 
+		public void TanksControlGUI(int windowId)
+		{
+			GUILayout.BeginVertical();
+			tanks_scroll = GUILayout.BeginScrollView(tanks_scroll, 
+			                                         GUILayout.Width(scroll_width), 
+			                                         GUILayout.Height(scroll_height));
+			GUILayout.BeginVertical();
+			tanks.ForEach(tank_control_gui);
+			GUILayout.EndVertical();
+			GUILayout.EndScrollView();
+			close_button();
+			GUILayout.EndVertical();
+			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
+		}
+
 		/// <summary>
-		/// Draws the tank GUI in a separate window.
+		/// Draws the tank manager GUI in a separate window.
 		/// </summary>
 		/// <returns>New window position.</returns>
 		/// <param name="windowId">Window ID.</param>
@@ -470,13 +508,30 @@ namespace AT_Utils
 		/// check them and if appropriate add new tank by calling AddTank method.</param>
 		/// <param name="remove_tank">This function should take selected tank 
 		/// and if possible remove it using RemoveTank method.</param>
-		public void DrawTanksWindow(int windowId, string title, Func<string, float, float> add_tank, Action<ModuleSwitchableTank> remove_tank)
+		public void DrawTanksManagerWindow(int windowId, string title, 
+		                                   Func<string, float, float> add_tank, 
+		                                   Action<ModuleSwitchableTank> remove_tank)
 		{
 			add_tank_delegate = add_tank;
 			remove_tank_delegate = remove_tank;
 			Utils.LockIfMouseOver(eLock, eWindowPos, !Closed);
 			eWindowPos = GUILayout.Window(windowId, 
-			                              eWindowPos, TanksGUI, title,
+			                              eWindowPos, TanksManagerGUI, title,
+			                              GUILayout.Width(scroll_width),
+			                              GUILayout.Height(scroll_height)).clampToScreen();
+		}
+
+		/// <summary>
+		/// Draws the tanks control GUI in a separate window.
+		/// </summary>
+		/// <returns>New window position.</returns>
+		/// <param name="windowId">Window ID.</param>
+		/// <param name="title">Window title.</param>
+		public void DrawTanksControlWindow(int windowId, string title)
+		{
+			Utils.LockIfMouseOver(eLock, eWindowPos, !Closed);
+			eWindowPos = GUILayout.Window(windowId, 
+			                              eWindowPos, TanksControlGUI, title,
 			                              GUILayout.Width(scroll_width),
 			                              GUILayout.Height(scroll_height)).clampToScreen();
 		}

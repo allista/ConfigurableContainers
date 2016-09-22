@@ -42,7 +42,6 @@ namespace AT_Utils
 		{
 			if(tank_manager != null) return;
 			tank_manager = new SwitchableTankManager(this);
-			tank_manager.EnablePartControls = !HighLogic.LoadedSceneIsEditor;
 			if(ModuleSave == null) 
 			{ this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); return; }
 			tank_manager.Load(ModuleSave);
@@ -50,7 +49,8 @@ namespace AT_Utils
 			if(used_volume > Volume) 
 			{
 				this.Log("WARNING: Volume limit is less than the total volume " +
-					"of preconfigured tanks: {0} < {1}", Volume, used_volume);
+				         "of preconfigured tanks: {} - {} = {}", 
+				         Volume, used_volume, Volume-used_volume);
 				Volume = used_volume;
 			}
 		}
@@ -67,6 +67,9 @@ namespace AT_Utils
 		{
 			base.OnStart(state);
 			init_tank_manager();
+			tank_manager.EnablePartControls = !HighLogic.LoadedSceneIsEditor && tank_manager.TanksCount < 2;
+			Utils.EnableEvent(Events["EditTanks"], !tank_manager.EnablePartControls);
+			if(HighLogic.LoadedSceneIsFlight) Events["EditTanks"].guiName = "Manage Tanks";
 		}
 
 		public override void OnSave(ConfigNode node)
@@ -98,7 +101,7 @@ namespace AT_Utils
 		enum TankWindows { None, EditTanks } //maybe we'll need more in the future
 		readonly Multiplexer<TankWindows> selected_window = new Multiplexer<TankWindows>();
 
-		[KSPEvent (guiActiveEditor = true, guiName = "Edit Tanks", active = true)]
+		[KSPEvent(guiActive = true, guiActiveEditor = true, guiName = "Edit Tanks", active = true)]
 		public void EditTanks()
 		{ 
 			selected_window.Toggle(TankWindows.EditTanks);
@@ -123,17 +126,20 @@ namespace AT_Utils
 
 		public void OnGUI() 
 		{ 
-			if(Event.current.type != EventType.Layout) return;
-			if(!HighLogic.LoadedSceneIsEditor) return;
-			if(!selected_window) return;
-			if(tank_manager == null) return;
+			if(!selected_window || Event.current.type != EventType.Layout) return;
+			if(tank_manager == null || tank_manager.EnablePartControls) return;
 			Styles.Init();
 			if(selected_window[TankWindows.EditTanks])
 			{
-				var title = string.Format("Available Volume: {0} of {1}", 
-				                          Utils.formatVolume(Volume - tank_manager.TotalVolume), 
-				                          Utils.formatVolume(Volume));
-				tank_manager.DrawTanksWindow(GetInstanceID(), title, add_tank, remove_tank);
+				if(HighLogic.LoadedSceneIsEditor)
+				{
+					var title = string.Format("Available Volume: {0} of {1}", 
+					                          Utils.formatVolume(Volume - tank_manager.TotalVolume), 
+					                          Utils.formatVolume(Volume));
+					tank_manager.DrawTanksManagerWindow(GetInstanceID(), title, add_tank, remove_tank);
+				}
+				else if(HighLogic.LoadedSceneIsFlight)
+					tank_manager.DrawTanksControlWindow(GetInstanceID(), "Tank Manager");
 				if(tank_manager.Closed) selected_window.Off();
 			}
 		}
