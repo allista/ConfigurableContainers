@@ -135,7 +135,7 @@ namespace AT_Utils
 			if(state == StartState.Editor) 
 				init_type_control();
 			init_tank_type();
-			switch_resource();
+			init_resource();
 			init_res_control();
 			StartCoroutine(slow_update());
 		}
@@ -291,31 +291,18 @@ namespace AT_Utils
 		/// <returns><c>true</c>, if resource is used, <c>false</c> otherwise.</returns>
 		/// <param name="res">resource name</param>
 		bool resource_in_use(string res)
+		{ return other_tanks.Any(t => t.ResourceInUse == res); }
+
+		bool init_resource()
 		{
-			bool in_use = false;
-			foreach(var t in other_tanks)
+			if(current_resource != null)
 			{
-				in_use |= t.ResourceInUse == res;
-				if(in_use) break;
+				CurrentResource = current_resource.resourceName;
+				return false;
 			}
-			return in_use;
-		}
-
-		[KSPEvent]
-		void resource_changed()
-		{
-			if(current_resource != null) return;
-			switch_resource();
-		}
-
-		bool switch_resource()
-		{
 			if(tank_type == null) return false;
-			//remove the old resource, if any
-			if(!TryRemoveResource()) return false;
-			//check if this is tank initialization or real switching
+			//check if this is tank initialization or switching
 			var initializing = previous_resource == string.Empty;
-			//now the state is already changed
 			previous_resource = CurrentResource;
 			//check if the resource is in use by another tank
 			if(resource_in_use(CurrentResource)) 
@@ -346,6 +333,16 @@ namespace AT_Utils
 			}
 			if(part.Events != null) part.SendEvent("resource_changed");
 			return true;
+		}
+
+		bool switch_resource()
+		{ return TryRemoveResource() && init_resource(); }
+
+		[KSPEvent]
+		void resource_changed()
+		{
+			if(current_resource != null) return;
+			switch_resource();
 		}
 
 		IEnumerator<YieldInstruction> slow_update()
