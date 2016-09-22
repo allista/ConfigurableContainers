@@ -104,7 +104,7 @@ namespace AT_Utils
 			base.Load(node);
 			tanks.Clear();
 			init_supported_types();
-			if(node.HasNode(SwitchableTankManager.MANAGED))
+			if(node.HasValue(SwitchableTankManager.MANAGED))
 			{
 				var existing_tanks = part.Modules.GetModules<ModuleSwitchableTank>();
 				foreach(var n in node.GetNodes(TankVolume.NODE_NAME))
