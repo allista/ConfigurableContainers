@@ -116,29 +116,34 @@ namespace AT_Utils
 
 		static bool save_user_configs()
 		{
-			if(UserConfigs.Count == 0) return false;
 			var node = new ConfigNode();
 			foreach(var c in UserConfigs)
 				c.Value.Save(node.AddNode(VolumeConfiguration.NODE_NAME));
-			return SaveNode(node, UserFile);
+			if(SaveNode(node, UserFile)) return true;
+			Utils.Message("Unable to save tank configurations.");
+			return false;
 		}
 
-		public static bool AddConfig(VolumeConfiguration cfg)
+		public static void AddConfig(VolumeConfiguration cfg)
 		{
 			add_unique(cfg, UserConfigs);
-			return save_user_configs();
+			save_user_configs();
 		}
 
-		public static bool AddOrSave(VolumeConfiguration cfg)
+		public static void AddOrSave(VolumeConfiguration cfg)
 		{
 			if(UserConfigs.ContainsKey(cfg.name))
 				UserConfigs[cfg.name] = cfg;
 			else UserConfigs.Add(cfg.name, cfg);
-			return save_user_configs();
+			save_user_configs();
 		}
 
 		public static bool RemoveConfig(string cfg_name)
-		{ return UserConfigs.Remove(cfg_name) && save_user_configs(); }
+		{ 
+			if(!UserConfigs.Remove(cfg_name)) return false;
+			save_user_configs();
+			return true;
+		}
 
 		public static List<string> AllConfigNames(string[] include, string[] exclude)
 		{

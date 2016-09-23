@@ -96,7 +96,6 @@ namespace AT_Utils
 			include = Utils.ParseLine(IncludeTankTypes, Utils.Comma);
 			SupportedTypes = SwitchableTankType.TankTypeNames(include, exclude);
 			SupportedTypes.AddRange(VolumeConfigsLibrary.AllConfigNames(include, exclude));
-			TypeChangeEnabled &= SupportedTypes.Count > 1;
 			tank_types_list.Items = SupportedTypes;
 		}
 
@@ -321,35 +320,42 @@ namespace AT_Utils
 
 		void tank_type_gui(ModuleSwitchableTank tank)
 		{
-			var choice = Utils.LeftRightChooser(tank.TankType, 120);
-			string new_type = null;
-			if(choice < 0) new_type = tank.SupportedTypes.Prev(tank.TankType);
-			else if(choice > 0) new_type = tank.SupportedTypes.Next(tank.TankType);
-			if(!string.IsNullOrEmpty(new_type))
+			if(TypeChangeEnabled && SupportedTypes.Count > 1) 
 			{
-				tank.TankType = new_type;
-				update_symmetry_tanks(tank, t => t.TankType = tank.TankType);
+				var choice = Utils.LeftRightChooser(tank.TankType, 120);
+				string new_type = null;
+				if(choice < 0) new_type = tank.SupportedTypes.Prev(tank.TankType);
+				else if(choice > 0) new_type = tank.SupportedTypes.Next(tank.TankType);
+				if(!string.IsNullOrEmpty(new_type))
+				{
+					tank.TankType = new_type;
+					update_symmetry_tanks(tank, t => t.TankType = tank.TankType);
+				}
 			}
+			else GUILayout.Label(tank.TankType, Styles.boxed_label, GUILayout.Width(120));
 		}
 
 		void tank_resource_gui(ModuleSwitchableTank tank)
 		{
-			var choice = Utils.LeftRightChooser(tank.CurrentResource, 120);
-			TankResource new_res = null;
-			if(choice < 0) new_res = tank.Type.Resources.Prev(tank.CurrentResource);
-			else if(choice > 0) new_res = tank.Type.Resources.Next(tank.CurrentResource);
-			if(new_res != null) 
+			if(tank.Type.Resources.Count > 1)
 			{
-				tank.CurrentResource = new_res.Name;
-				update_symmetry_tanks(tank, t => t.CurrentResource = tank.CurrentResource);
+				var choice = Utils.LeftRightChooser(tank.CurrentResource, 120);
+				TankResource new_res = null;
+				if(choice < 0) new_res = tank.Type.Resources.Prev(tank.CurrentResource);
+				else if(choice > 0) new_res = tank.Type.Resources.Next(tank.CurrentResource);
+				if(new_res != null) 
+				{
+					tank.CurrentResource = new_res.Name;
+					update_symmetry_tanks(tank, t => t.CurrentResource = tank.CurrentResource);
+				}
 			}
+			else GUILayout.Label(tank.CurrentResource, Styles.boxed_label, GUILayout.Width(120));
 		}
 
 		void tank_management_gui(ModuleSwitchableTank tank)
 		{
 			GUILayout.BeginHorizontal();
-			if(TypeChangeEnabled) 
-				tank_type_gui(tank);
+			tank_type_gui(tank);
 			tank_resource_gui(tank);
 			GUILayout.FlexibleSpace();
 			GUILayout.Label(Utils.formatVolume(tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
@@ -442,9 +448,8 @@ namespace AT_Utils
 				{
 					cfg.name = config_name;
 					cfg.Volume = TotalVolume;
-					if(!VolumeConfigsLibrary.AddOrSave(cfg))
-						Utils.Message("Unable to save user configuration. See the log for details.");
-					else init_supported_types();
+					VolumeConfigsLibrary.AddOrSave(cfg);
+					init_supported_types();
 				}
 				else Utils.Log("Configuration is invalid:\n{}\nThis should never happen!", node);
 			}
