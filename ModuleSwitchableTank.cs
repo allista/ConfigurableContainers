@@ -109,8 +109,16 @@ namespace AT_Utils
 
 		protected override float ResourcesCost(bool maxAmount = true)
 		{
-			if(current_resource == null && !switch_resource()) return 0;
-			var cost = (float)current_resource.maxAmount*current_resource.info.unitCost;
+			var cost = 0f;
+			if(current_resource != null)
+				cost = (float)current_resource.maxAmount*current_resource.info.unitCost;
+			else
+			{
+				if(tank_type == null && !init_tank_type()) return 0;
+				var res = tank_type[CurrentResource];
+				if(res == null) return 0;
+				cost = Volume * tank_type.UsefulVolumeRatio * res.UnitsPerLiter*1000f * res.Resource.unitCost;
+			}
 			return maxAmount? cost : cost * InitialAmount;
 		}
 

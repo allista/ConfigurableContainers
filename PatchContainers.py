@@ -1,6 +1,6 @@
 
 import os, re
-from KSPUtils import ConfigNode, NamedObject, Part, Module
+from KSPUtils import ConfigNode, NamedObject, Part, Module, Resource
 
 tank_types_file = 'GameData/ConfigurableContainers/TankTypes.cfg'
 game_data = '/home/storage/Games/KSP_linux/PluginsArchives/Development/AT_KSP_Plugins/KSP-test/KSP_test_1.1.3/GameData'
@@ -101,10 +101,11 @@ if __name__ == '__main__':
         for part, resources in parts:
             if len(resources) == 1 and res_name in resources:
                 res = resources[res_name]
-                patch = Part.Patch(part.name, 'ConfigurableContainers')
+                patch = Part.Patch('@', part.name, ':FOR[ConfigurableContainers]')
                 V = res.maxAmount * rate
                 ini = res.amount/res.maxAmount
                 comment = '%f units of %s: conversion rate is %f m3/u' % (res.maxAmount, res_name, rate)
+                patch.AddChild(Resource.Patch('!', res_name))
                 if V < 8:
                     tank = ModuleTank()
                     tank.Volume = V
@@ -138,7 +139,9 @@ if __name__ == '__main__':
         for part, resources in parts:
             if len(resources) == 2 and 'LiquidFuel' in resources and 'Oxidizer' in resources:
                 lf = resources['LiquidFuel']
-                patch = Part.Patch(part.name, 'ConfigurableContainers', ':HAS[!MODULE[InterstellarFuelSwitch]]')
+                patch = Part.Patch('@', part.name, ':FOR[ConfigurableContainers]:HAS[!MODULE[InterstellarFuelSwitch]]')
+                patch.AddChild(Resource.Patch('!', 'LiquidFuel'))
+                patch.AddChild(Resource.Patch('!', 'Oxidizer'))
                 mgr = ModuleTankManager()
                 mgr.Volume = lf.maxAmount * rate
                 mgr.SetComment('Volume', '%f units of LF: conversion rate is %f m3/u' % (lf.maxAmount, rate))
