@@ -81,11 +81,20 @@ namespace AT_Utils
 		[KSPField(isPersistant = true, guiActive = true, guiActiveEditor = true, guiName = RES_MANAGED)]
 		[UI_ChooseOption]
 		public string CurrentResource = string.Empty;
+		TankResource resource_info;
 		PartResource current_resource;
 		string previous_resource = string.Empty;
 		public float Usage { get { return current_resource != null? (float)(current_resource.amount/current_resource.maxAmount) : 0; } }
 		public string ResourceInUse { get { return current_resource != null? CurrentResource : string.Empty; } }
 		public PartResource Resource { get { return current_resource; } }
+		public float MaxAmount 
+		{ 
+			get 
+			{ 
+				return tank_type == null || resource_info == null? 
+					0 : Volume * tank_type.UsefulVolumeRatio * resource_info.UnitsPerLiter*1000f; 
+			} 
+		}
 
 		readonly List<ModuleSwitchableTank> other_tanks = new List<ModuleSwitchableTank>();
 
@@ -115,9 +124,9 @@ namespace AT_Utils
 			else
 			{
 				if(tank_type == null && !init_tank_type()) return 0;
-				var res = tank_type[CurrentResource];
-				if(res == null) return 0;
-				cost = Volume * tank_type.UsefulVolumeRatio * res.UnitsPerLiter*1000f * res.Resource.unitCost;
+				resource_info = tank_type[CurrentResource];
+				if(resource_info == null) return 0;
+				cost = MaxAmount * resource_info.Resource.unitCost;
 			}
 			return maxAmount? cost : cost * InitialAmount;
 		}
@@ -300,6 +309,19 @@ namespace AT_Utils
 		bool resource_in_use(string res)
 		{ return other_tanks.Any(t => t.ResourceInUse == res); }
 
+		public void UpdateMaxAmount(bool update_amount = false)
+		{
+			if(current_resource == null) return;
+			var max_amount = current_resource.maxAmount;
+			current_resource.maxAmount = MaxAmount;
+			if(current_resource.amount > current_resource.maxAmount)
+				current_resource.amount = current_resource.maxAmount;
+			else if(update_amount && max_amount > 0) 
+				current_resource.amount *= current_resource.maxAmount/max_amount;
+			update_part_menu();
+			Utils.UpdateEditorGUI();
+		}
+
 		bool init_resource()
 		{
 			if(current_resource != null)
@@ -318,11 +340,10 @@ namespace AT_Utils
 				return false;
 			}
 			//get definition of the next not-managed resource
-			var res = tank_type[CurrentResource];
-			//calculate maxAmount (FIXME)
-			var maxAmount = Volume * tank_type.UsefulVolumeRatio * res.UnitsPerLiter*1000f;
+			resource_info = tank_type[CurrentResource];
+			var maxAmount = MaxAmount;
 			//if there is such resource already, just plug it in
-			var part_res = part.Resources[res.Name];
+			var part_res = part.Resources[resource_info.Name];
 			if(part_res != null) 
 			{ 
 				current_resource = part_res;
@@ -333,7 +354,7 @@ namespace AT_Utils
 			else //create the new resource
 			{
 				var node = new ConfigNode("RESOURCE");
-				node.AddValue("name", res.Name);
+				node.AddValue("name", resource_info.Name);
 				node.AddValue("amount", initializing? maxAmount*InitialAmount : 0);
 				node.AddValue("maxAmount", maxAmount);
 				current_resource = part.Resources.Add(node);
@@ -376,7 +397,7 @@ namespace AT_Utils
 	public class SwitchableTankUpdater : ModuleUpdater<ModuleSwitchableTank>
 	{
 		protected override void on_rescale(ModulePair<ModuleSwitchableTank> mp, Scale scale)
-		{ mp.module.Volume *= scale.relative.cube * scale.relative.aspect;	}
+		{ mp.module.Volume *= scale.relative.volume;	}
 	}
 }
 
