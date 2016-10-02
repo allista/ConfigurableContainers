@@ -53,14 +53,12 @@ namespace AT_Utils
 				         Volume, used_volume, Volume-used_volume);
 				Volume = used_volume;
 			}
+			tank_manager.Volume = Volume;
 		}
 
 		public override void OnLoad(ConfigNode node)
 		{
 			ModuleSave = node;
-			if(HighLogic.LoadedSceneIsEditor || 
-			   HighLogic.LoadedSceneIsFlight) 
-				init_tank_manager();
 		}
 
 		public override void OnStart(StartState state)
@@ -81,6 +79,13 @@ namespace AT_Utils
 
 		public void RescaleTanks(float relative_scale)
 		{ if(tank_manager != null) tank_manager.RescaleTanks(relative_scale); }
+
+		public void SetVolume(float volume)
+		{
+			Volume = volume;
+			if(tank_manager != null) 
+				tank_manager.Volume = volume;
+		}
 
 		//workaround for ConfigNode non-serialization
 		public byte[] _module_save;
@@ -126,8 +131,8 @@ namespace AT_Utils
 
 		public void OnGUI() 
 		{ 
-			if(!selected_window || Event.current.type != EventType.Layout) return;
-			if(tank_manager == null || tank_manager.EnablePartControls) return;
+			if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
+			if(!selected_window || tank_manager == null || tank_manager.EnablePartControls) return;
 			Styles.Init();
 			if(selected_window[TankWindows.EditTanks])
 			{
@@ -150,8 +155,8 @@ namespace AT_Utils
 	{
 		protected override void on_rescale(ModulePair<ModuleTankManager> mp, Scale scale)
 		{ 
-			mp.module.RescaleTanks(scale.relative.cube * scale.relative.aspect); 
-			mp.module.Volume = mp.base_module.Volume * scale.absolute.cube * scale.absolute.aspect;
+			mp.module.SetVolume(mp.base_module.Volume * scale.absolute.volume);
+			mp.module.RescaleTanks(scale.relative.volume);
 		}
 	}
 }

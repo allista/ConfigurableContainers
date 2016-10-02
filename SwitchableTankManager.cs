@@ -25,6 +25,11 @@ namespace AT_Utils
 		int max_id = -1;
 
 		/// <summary>
+		/// Maximum total volume of all tanks in m^3. It is used for reference and in tank controls.
+		/// </summary>
+		public float Volume = -1;
+
+		/// <summary>
 		/// If true, tanks may be added and removed.
 		/// </summary>
 		[Persistent] public bool AddRemoveEnabled = true;
@@ -59,11 +64,21 @@ namespace AT_Utils
 			}
 		}
 
+		public ModuleSwitchableTank GetTank(int id) { return tanks.Find(t => t.id == id); }
 		public int TanksCount { get { return tanks.Count; } }
-		public float TotalVolume { get { return tanks.Aggregate(0f, (v, t) => v+t.Volume); } }
 		public float TotalCost { get { return tanks.Aggregate(0f, (c, t) => c+t.Cost); } }
 		public IEnumerable<float> TanksVolumes { get { return tanks.Select(t => t.Volume); } }
-		public ModuleSwitchableTank GetTank(int id) { return tanks.Find(t => t.id == id); }
+		public float TotalVolume 
+		{ 
+			get 
+			{ 
+				if(total_volume < 0)
+					total_volume = tanks.Aggregate(0f, (v, t) => v+t.Volume); 
+				return total_volume;
+			} 
+		}
+		float total_volume = -1;
+
 
 		public static string GetInfo(PartModule host, ConfigNode node)
 		{
@@ -111,6 +126,7 @@ namespace AT_Utils
 		{
 			base.Load(node);
 			tanks.Clear();
+			total_volume = -1;
 			init_supported_types();
 			if(node.HasValue(SwitchableTankManager.MANAGED))
 			{
@@ -176,6 +192,7 @@ namespace AT_Utils
 			tank.OnStart(part.StartState());
 			tanks.ForEach(t => t.RegisterOtherTank(tank));
 			tanks.Add(tank);
+			total_volume = -1;
 			if(update_counterparts)
 				update_symmetry_managers(m => m.AddTank(tank_type, volume, resource, amount, false));
 			return true;
@@ -245,6 +262,7 @@ namespace AT_Utils
 			tanks.Remove(tank);
 			tanks.ForEach(t => t.UnregisterOtherTank(tank));
 			part.RemoveModule(tank);
+			total_volume = -1;
 			if(update_counterparts)
 				update_symmetry_managers(m => m.RemoveTank(m.GetTank(tank.id), false));
 			return true;
@@ -258,8 +276,8 @@ namespace AT_Utils
 		public void RescaleTanks(float relative_scale)
 		{
 			if(relative_scale <= 0) return;
-			foreach(var t in tanks)	
-				t.Volume *= relative_scale;
+			tanks.ForEach(t =>  t.Volume *= relative_scale);
+			total_volume = -1;
 		}
 
 		void update_symmetry_managers(Action<SwitchableTankManager> action)
@@ -358,21 +376,37 @@ namespace AT_Utils
 			tank_type_gui(tank);
 			tank_resource_gui(tank);
 			GUILayout.FlexibleSpace();
-			GUILayout.Label(Utils.formatVolume(tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
+			if(HighLogic.LoadedSceneIsEditor && Volume > TotalVolume)
+			{
+				if(GUILayout.Button(new GUIContent(Utils.formatVolume(tank.Volume), 
+				                                   "Expand the tank to fill the remaining volume"), 
+				                    Styles.add_button, GUILayout.ExpandWidth(true)))
+				{
+					tank.Volume += Volume-TotalVolume;
+					tank.UpdateMaxAmount();
+					total_volume = -1;
+				}
+			}
+			else GUILayout.Label(Utils.formatVolume(tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
 			var usage = tank.Usage;
 			GUILayout.Label("Filled: "+usage.ToString("P1"), Styles.fracStyle(usage), GUILayout.Width(95));
 			if(HighLogic.LoadedSceneIsEditor)
 			{
-				if(GUILayout.Button("F", Styles.add_button, GUILayout.Width(20)) && tank.Resource != null)
+				if(GUILayout.Button(new GUIContent("F", "Fill the tank with the resource"),
+				                    Styles.add_button, GUILayout.Width(20)) && tank.Resource != null)
 					tank.Resource.amount = tank.Resource.maxAmount;
-				if(GUILayout.Button("E", Styles.active_button, GUILayout.Width(20)) && tank.Resource != null)
+				if(GUILayout.Button(new GUIContent("E", "Empty the tank"), 
+				                    Styles.active_button, GUILayout.Width(20)) && tank.Resource != null)
 					tank.Resource.amount = 0;
 			}
 			if(AddRemoveEnabled)
 			{
-				if(tank.Usage > 0) GUILayout.Label("X", Styles.grey, GUILayout.Width(20));
-				else if(GUILayout.Button("X", Styles.danger_button, GUILayout.Width(20)))
+				if(GUILayout.Button(new GUIContent("X", "Delete the tank"), 
+				                    Styles.danger_button, GUILayout.Width(20)))
+				{
+					if(HighLogic.LoadedSceneIsEditor) tank.Resource.amount = 0;
 					remove_tank_delegate(tank);
+				}
 			}
 			GUILayout.EndHorizontal();
 		}
@@ -388,7 +422,7 @@ namespace AT_Utils
 			GUILayout.EndHorizontal();
 		}
 
-		void AddTankGUI_start(Rect windowPos)
+		void add_tank_gui_start(Rect windowPos)
 		{
 			if(!AddRemoveEnabled) return;
 			tank_types_list.styleListBox  = Styles.list_box;
@@ -397,7 +431,7 @@ namespace AT_Utils
 			tank_types_list.DrawBlockingSelector();
 		}
 
-		void AddTankGUI()
+		void add_tank_gui()
 		{
 			if(!AddRemoveEnabled) return;
 			GUILayout.BeginVertical();
@@ -421,15 +455,14 @@ namespace AT_Utils
 			GUILayout.EndVertical();
 		}
 
-		void AddTankGUI_end()
+		void add_tank_gui_end()
 		{
 			if(!AddRemoveEnabled) return;
-			//finish the dropdown list
 			tank_types_list.DrawDropDown();
 			tank_types_list.CloseOnOutsideClick();
 		}
 
-		public void VolumeConfigsGUI()
+		void volume_configs_gui()
 		{
 			if(!AddRemoveEnabled) return;
 			GUILayout.BeginHorizontal();
@@ -471,9 +504,9 @@ namespace AT_Utils
 
 		public void TanksManagerGUI(int windowId)
 		{
-			AddTankGUI_start(eWindowPos);
+			add_tank_gui_start(eWindowPos);
 			GUILayout.BeginVertical();
-			AddTankGUI();
+			add_tank_gui();
 			tanks_scroll = GUILayout.BeginScrollView(tanks_scroll, 
 				GUILayout.Width(scroll_width), 
 				GUILayout.Height(scroll_height));
@@ -481,11 +514,11 @@ namespace AT_Utils
 			tanks.ForEach(tank_management_gui);
 			GUILayout.EndVertical();
 			GUILayout.EndScrollView();
-			VolumeConfigsGUI();
+			volume_configs_gui();
 			close_button();
 			GUILayout.EndVertical();
-			AddTankGUI_end();
-			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
+			add_tank_gui_end();
+			GUIWindowBase.TooltipsAndDragWindow(eWindowPos);
 		}
 
 		public void TanksControlGUI(int windowId)
@@ -500,7 +533,7 @@ namespace AT_Utils
 			GUILayout.EndScrollView();
 			close_button();
 			GUILayout.EndVertical();
-			GUI.DragWindow(new Rect(0, 0, Screen.width, 20));
+			GUIWindowBase.TooltipsAndDragWindow(eWindowPos);
 		}
 
 		/// <summary>
