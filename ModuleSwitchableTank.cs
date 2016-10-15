@@ -216,8 +216,7 @@ namespace AT_Utils
 				if(tank_type != null) TankType = tank_type.name;
 				return false;
 			}
-			part.Resources.list.Remove(current_resource); 
-			Destroy(current_resource);
+			part.Resources.Remove(current_resource.resourceName);
 			current_resource = null;
 			return true;
 		}
