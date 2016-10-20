@@ -36,6 +36,7 @@ namespace AT_Utils
 		}
 
 		[KSPField(isPersistant = true)] public int id = -1;
+		[KSPField(isPersistant = true)] public bool managed;
 
 		/// <summary>
 		/// If a tank type can be selected in editor.
@@ -84,10 +85,21 @@ namespace AT_Utils
 		TankResource resource_info;
 		PartResource current_resource;
 		string previous_resource = string.Empty;
+
 		public float Usage { get { return current_resource != null? (float)(current_resource.amount/current_resource.maxAmount) : 0; } }
-		public string ResourceInUse { get { return current_resource != null? CurrentResource : string.Empty; } }
+		public string ResourceInUse { get { return current_resource != null? current_resource.resourceName : string.Empty; } }
 		public PartResource Resource { get { return current_resource; } }
-		public float MaxAmount 
+		public double Amount 
+		{
+			get { return current_resource != null? current_resource.amount : 0; }
+			set { if(current_resource != null) current_resource.amount = Utils.Clamp(value, 0, current_resource.maxAmount); }
+		}
+		public double MaxAmount 
+		{
+			get { return current_resource != null? current_resource.maxAmount : 0; }
+			set { if(current_resource != null) current_resource.maxAmount = value; }
+		}
+		public float MaxResourceInVolume 
 		{ 
 			get 
 			{ 
@@ -126,7 +138,7 @@ namespace AT_Utils
 				if(tank_type == null && !init_tank_type()) return 0;
 				resource_info = tank_type[CurrentResource];
 				if(resource_info == null) return 0;
-				cost = MaxAmount * resource_info.Resource.unitCost;
+				cost = MaxResourceInVolume * resource_info.Resource.unitCost;
 			}
 			return maxAmount? cost : cost * InitialAmount;
 		}
@@ -159,17 +171,15 @@ namespace AT_Utils
 		public override void OnLoad(ConfigNode node)
 		{
 			//if the tank is managed, save its config
-			if(node.HasValue(SwitchableTankManager.MANAGED)) ModuleSave = node;
+			if(node.HasValue(SwitchableTankManager.MANAGED)) 
+			{
+				ModuleSave = node;
+				managed = true;
+			}
 			//if the node is not from a TankManager, but we have a saved config, reload it
 			else if(ModuleSave != null && 
 			        ModuleSave.HasValue(SwitchableTankManager.MANAGED))	
 			{ Load(ModuleSave); return; }
-			//deprecated config conversion
-			if(node.HasNode(SwitchableTankType.NODE_NAME))
-			{
-				var tn = node.GetNode(SwitchableTankType.NODE_NAME);
-				if(tn.HasValue("name")) TankType = tn.GetValue("name");
-			}
 		}
 
 		public override void OnSave(ConfigNode node)
@@ -221,12 +231,6 @@ namespace AT_Utils
 			return true;
 		}
 
-		void update_part_menu()
-		{ 
-			MonoUtilities.RefreshContextWindows(part);
-			Utils.UpdateEditorGUI();
-		}
-
 		void init_type_control()
 		{
 			if(!enable_part_controls || !ChooseTankType || SupportedTypes.Count <= 1) return;
@@ -246,15 +250,13 @@ namespace AT_Utils
 				Utils.SetupChooser(res_names, res_values, Fields["CurrentResource"]);
 				Utils.EnableField(Fields["CurrentResource"]);
 			}
-			update_part_menu();
-			Utils.UpdateEditorGUI();
+			part.UpdatePartMenu();
 		}
 
 		void update_res_control()
 		{
 			Fields["CurrentResource"].guiName = current_resource == null ? RES_UNMANAGED : RES_MANAGED;
-			update_part_menu();
-			Utils.UpdateEditorGUI();
+			part.UpdatePartMenu();
 		}
 
 		void disable_part_controls()
@@ -312,13 +314,12 @@ namespace AT_Utils
 		{
 			if(current_resource == null) return;
 			var max_amount = current_resource.maxAmount;
-			current_resource.maxAmount = MaxAmount;
+			current_resource.maxAmount = MaxResourceInVolume;
 			if(current_resource.amount > current_resource.maxAmount)
 				current_resource.amount = current_resource.maxAmount;
 			else if(update_amount && max_amount > 0) 
 				current_resource.amount *= current_resource.maxAmount/max_amount;
-			update_part_menu();
-			Utils.UpdateEditorGUI();
+			part.UpdatePartMenu();
 		}
 
 		bool init_resource()
@@ -340,7 +341,7 @@ namespace AT_Utils
 			}
 			//get definition of the next not-managed resource
 			resource_info = tank_type[CurrentResource];
-			var maxAmount = MaxAmount;
+			var maxAmount = MaxResourceInVolume;
 			//if there is such resource already, just plug it in
 			var part_res = part.Resources[resource_info.Name];
 			if(part_res != null) 
@@ -372,6 +373,30 @@ namespace AT_Utils
 			switch_resource();
 		}
 
+		//interface for ProceduralParts
+		[KSPEvent(guiActive=false, active = true)]
+		void OnPartVolumeChanged(BaseEventData data)
+		{
+			if(managed) return;
+			var volName = data.Get<string>("volName");
+			var newTotalVolume = (float)data.Get<double>("newTotalVolume");
+			if(volName == "Tankage") 
+			{
+				Volume = newTotalVolume;
+				UpdateMaxAmount(HighLogic.LoadedSceneIsEditor);
+			}
+		}
+
+		//interface for TweakScale
+		[KSPEvent(guiActive=false, active = true)]
+		void OnPartScaleChanged(BaseEventData data)
+		{
+			if(managed) return;
+			var scale = data.Get<float>("factorRelative");
+			Volume *= scale*scale*scale;
+			UpdateMaxAmount();
+		}
+
 		IEnumerator<YieldInstruction> slow_update()
 		{
 			while(true)
@@ -396,7 +421,10 @@ namespace AT_Utils
 	public class SwitchableTankUpdater : ModuleUpdater<ModuleSwitchableTank>
 	{
 		protected override void on_rescale(ModulePair<ModuleSwitchableTank> mp, Scale scale)
-		{ mp.module.Volume *= scale.relative.volume;	}
+		{ 
+			mp.module.Volume *= scale.relative.volume;
+			mp.module.UpdateMaxAmount();
+		}
 	}
 }
 

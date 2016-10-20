@@ -44,6 +44,7 @@ namespace AT_Utils
 			tank_manager = new SwitchableTankManager(this);
 			if(ModuleSave == null) 
 			{ this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); return; }
+			ModuleSave.SetValue("Volume", Volume);
 			tank_manager.Load(ModuleSave);
 			var used_volume = tank_manager.TotalVolume;
 			if(used_volume > Volume) 
@@ -77,14 +78,40 @@ namespace AT_Utils
 				tank_manager.Save(node);
 		}
 
-		public void RescaleTanks(float relative_scale)
-		{ if(tank_manager != null) tank_manager.RescaleTanks(relative_scale); }
+		public void Rescale(float relative_scale)
+		{ 
+			if(tank_manager != null) 
+				tank_manager.RescaleTanks(relative_scale);
+			SetVolume(Volume*relative_scale);
+		}
 
 		public void SetVolume(float volume)
 		{
-			Volume = volume;
 			if(tank_manager != null) 
+			{
+				if(tank_manager.TotalVolume > volume)
+					volume = tank_manager.TotalVolume;
 				tank_manager.Volume = volume;
+			}
+			Volume = volume;
+		}
+
+		//interface for ProceduralParts
+		[KSPEvent(guiActive=false, active = true)]
+		void OnPartVolumeChanged(BaseEventData data)
+		{
+			var volName = data.Get<string>("volName");
+			var newTotalVolume = (float)data.Get<double>("newTotalVolume");
+			if(volName == "Tankage") 
+				Rescale(newTotalVolume/Volume);
+		}
+
+		//interface for TweakScale
+		[KSPEvent(guiActive=false, active = true)]
+		void OnPartScaleChanged(BaseEventData data)
+		{
+			var scale = data.Get<float>("factorRelative");
+			Rescale(scale*scale*scale);
 		}
 
 		//workaround for ConfigNode non-serialization
@@ -114,8 +141,9 @@ namespace AT_Utils
 				tank_manager.UnlockEditor(); 
 		}
 
-		float add_tank(string tank_name, float volume)
+		float add_tank(string tank_name, float volume, bool percent)
 		{
+			if(percent) volume = Volume*volume/100;
 			var max  = GUILayout.Button("Max");
 			var half = GUILayout.Button("1/2");
 			var max_volume = (Volume - tank_manager.TotalVolume);
@@ -124,7 +152,7 @@ namespace AT_Utils
 			if(volume <= 0) GUILayout.Label("Add", Styles.grey);
 			else if(GUILayout.Button("Add", Styles.add_button))
 				tank_manager.AddVolume(tank_name, volume);
-			return volume;
+			return percent? (Volume.Equals(0)? 0 : volume/Volume*100) : volume;
 		}
 		void remove_tank(ModuleSwitchableTank tank) 
 		{ tank_manager.RemoveTank(tank); }
@@ -154,10 +182,7 @@ namespace AT_Utils
 	public class TankManagerUpdater : ModuleUpdater<ModuleTankManager>
 	{
 		protected override void on_rescale(ModulePair<ModuleTankManager> mp, Scale scale)
-		{ 
-			mp.module.SetVolume(mp.base_module.Volume * scale.absolute.volume);
-			mp.module.RescaleTanks(scale.relative.volume);
-		}
+		{ mp.module.Rescale(scale.relative.volume); }
 	}
 }
 
