@@ -25,6 +25,7 @@ Configurable Containers support manu part packs and mods:
 	* Fuel Tanks Plus
 	* Modular Rocket Systems
 	* Standard Propulsion Systems
+	* Spherical and Toroidal Tank Pack
 * Supported resources:
     * Stock
     * TAC Life Support

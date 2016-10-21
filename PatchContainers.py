@@ -1,6 +1,8 @@
 
 import os, re
 from KSPUtils import ConfigNode, NamedObject, Part, Module, Resource, SearchQuery, SearchTerm
+from KSPUtils.Collections import ValueCollection
+
 
 class TankType(NamedObject):
     def __init__(self):
@@ -90,7 +92,16 @@ class Patcher(object):
         stream.write('\n//%s\n//Automatically generated using PyKSPutils library\n' % header)
         stream.write('\n\n'.join(str(p) for p in patches))
 
-    def patch_1RES(self, stream, parts, tank_type, res_name, monotype=None, add_values={}, add_spec=''):
+    @staticmethod
+    def add_patches(part, patch, addons):
+        for term, addon in addons:
+            if term.match(part):
+                if isinstance(addon, ValueCollection.Value):
+                    patch.AddValueItem(addon)
+                elif isinstance(addon, NamedObject):
+                    patch.AddChild(addon)
+
+    def patch_1RES(self, stream, parts, tank_type, res_name, monotype=None, addons=None, add_spec=''):
         patches = []
         rate = self.volume(tank_type, res_name, 1)
         polytype = lambda part: True
@@ -137,13 +148,13 @@ class Patcher(object):
                     tank.Volume = 100
                     mgr.AddChild(tank)
                     patch.AddChild(mgr)
-                add = add_values.get(part.name)
-                if add: [patch.AddValue(*v) for v in add]
+                if addons:
+                    self.add_patches(part, patch, addons)
                 patches.append(patch)
         if patches: self.print_patches(stream, patches, '%s Tanks' % res_name)
 
 
-    def patch_LFO(self, stream, parts, add_values={}, add_spec=''):
+    def patch_LFO(self, stream, parts, addons=None, add_spec=''):
         patches = []
         rate = self.volume('LiquidChemicals', 'LiquidFuel', 1) / 0.45
         for part, resources in parts:
@@ -170,30 +181,30 @@ class Patcher(object):
                 tank.Volume = 100
                 mgr.AddChild(tank)
                 patch.AddChild(mgr)
-                add = add_values.get(part.name)
-                if add: [patch.AddValue(*v) for v in add]
+                if addons:
+                    self.add_patches(part, patch, addons)
                 patches.append(patch)
         if patches: self.print_patches(stream, patches, 'Rocket Fuel Tanks')
 
-    def patch_parts(self, output, paths, add_values={}, add_spec=''):
+    def patch_parts(self, output, paths, addons=None, add_spec=''):
         for path in paths:
             parts = self.get_parts(os.path.join(self.game_data, *path))
             with open(os.path.join(self.game_data, *output), 'w') as out:
                 out.write('//Configurable Containers patch for %s\n' % os.path.join(*path))
-                self.patch_LFO(out, parts, add_values=add_values, add_spec=add_spec)
-                self.patch_1RES(out, parts, 'LiquidChemicals', 'LiquidFuel', '.*[Ww]ing.*', add_values=add_values, add_spec=add_spec)
-                self.patch_1RES(out, parts, 'LiquidChemicals', 'MonoPropellant', add_values=add_values, add_spec=add_spec)
-                self.patch_1RES(out, parts, 'Gases', 'XenonGas', 'all', add_values=add_values, add_spec=add_spec)
-                self.patch_1RES(out, parts, 'Soil', 'Ore', add_values=add_values, add_spec=add_spec)
+                self.patch_LFO(out, parts, addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts, 'LiquidChemicals', 'LiquidFuel', '.*[Ww]ing.*', addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts, 'LiquidChemicals', 'MonoPropellant', addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts, 'Gases', 'XenonGas', 'all', addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts, 'Soil', 'Ore', addons=addons, add_spec=add_spec)
                 out.write('\n//:mode=c#:\n')
             print('%s done.\n' % os.path.join(*path))
 
 
-    def patch_mod(self, mod, add_values={}, add_spec=''):
+    def patch_mod(self, mod, addons=None, add_spec=''):
         output = ('ConfigurableContainers', 'Parts', '%s_Patch.cfg' % mod)
         path = [[mod]]
         add_spec += ':NEEDS[%(mod)s]:AFTER[%(mod)s]' % {'mod': mod}
-        self.patch_parts(output, path, add_values, add_spec)
+        self.patch_parts(output, path, addons, add_spec)
 
     def patch_mods(self, *mods):
         for m in mods: self.patch_mod(m)
@@ -208,24 +219,29 @@ if __name__ == '__main__':
     patcher.part_filter.Or('PART/MODULE:.*Harvester.*/')
     patcher.part_filter.Or('PART/MODULE:.*Drill.*/')
 
-    xenon_titles = {
-        'xenonTank': [('@title', 'PB-X150 Pressurized Gass Container')],
-        'xenonTankLarge': [('@title', 'PB-X750 Pressurized Gass Container')],
-        'xenonTankRadial': [('@title', 'PB-X50R Pressurized Gass Container')],
-    }
+    xenon_titles = [
+        (SearchTerm('name:xenonTank$'), Part.PatchValue('@', 'title', 'PB-X150 Pressurized Gass Container')),
+        (SearchTerm('name:xenonTankLarge$'), Part.PatchValue('@', 'title', 'PB-X750 Pressurized Gass Container')),
+        (SearchTerm('name:xenonTankRadial$'), Part.PatchValue('@', 'title', 'PB-X50R Pressurized Gass Container')),
+    ]
 
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Squad_Patch.cfg'),
                         [('Squad', 'Parts')], xenon_titles)
+    #
+    # patcher.patch_mods('KWRocketry',
+    #                    'Mk2Expansion',
+    #                    'Mk3Expansion',
+    #                    'SpaceY-Lifters',
+    #                    'SpaceY-Expanded',
+    #                    'FuelTanksPlus',
+    #                    'ModRocketSys',
+    #                    'SPS')
 
-    patcher.patch_mods('KWRocketry',
-                       'Mk2Expansion',
-                       'Mk3Expansion',
-                       'SpaceY-Lifters',
-                       'SpaceY-Expanded',
-                       'FuelTanksPlus',
-                       'ModRocketSys',
-                       'SPS')
-
+    # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Tal-Tanks_Patch.cfg'),
+    #                     [('ModsByTal', 'Parts'),
+    #                      ],
+    #                     [(SearchTerm(''), Module.Patch('!', 'ModuleFuelTanks'))],
+    #                     add_spec=':AFTER[ModsByTal]')
 
     # USI uses FSfuelSwitch, so no patching for it
     # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'USI-MKS_Patch.cfg'),
