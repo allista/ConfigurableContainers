@@ -20,9 +20,13 @@ namespace AT_Utils
 		public virtual string Info(float volume_conversion = 1)
 		{ return string.Format("{0}\n", Utils.formatVolume(Volume*volume_conversion)); }
 
+		public virtual float AddMass(float volume_conversion = 1) { return 0f; }
+
 		public virtual float Cost(float volume_conversion = 1) { return 0f; }
 
 		public virtual float ResourceCost(bool maxAmount = true, float volume_conversion = 1) { return 0f; }
+
+		public virtual float ResourceMass(bool maxAmount = true, float volume_conversion = 1) { return 0f; }
 
 		public virtual bool ContainsType(string tank_type)
 		{ return false; }
@@ -40,10 +44,16 @@ namespace AT_Utils
 		public SwitchableTankType Type 
 		{ get { return SwitchableTankType.GetTankType(TankType); } }
 
+		public override float AddMass(float volume_conversion = 1)
+		{ 
+			var t = Type;
+			return t == null ? 0 : t.AddMass(Volume*volume_conversion);
+		}
+
 		public override float Cost(float volume_conversion = 1)
 		{ 
 			var t = Type;
-			return t == null ? 0 : Utils.CubeSurface(Volume*volume_conversion) * t.TankCostPerSurface;
+			return t == null ? 0 : t.Cost(Volume*volume_conversion);
 		}
 
 		public override float ResourceCost(bool maxAmount = true, float volume_conversion = 1) 
@@ -54,6 +64,19 @@ namespace AT_Utils
 				var res = t.Resources[CurrentResource];
 				var res_def = PartResourceLibrary.Instance.GetDefinition(res.Name);
 				var cost = res_def.unitCost * res.UnitsPerLiter * t.UsefulVolumeRatio * Volume * volume_conversion * 1000;
+				return maxAmount? cost : cost * InitialAmount;
+			}
+			catch { return 0; }
+		}
+
+		public override float ResourceMass(bool maxAmount = true, float volume_conversion = 1) 
+		{ 
+			try
+			{
+				var t = Type;
+				var res = t.Resources[CurrentResource];
+				var res_def = PartResourceLibrary.Instance.GetDefinition(res.Name);
+				var cost = res_def.density * res.UnitsPerLiter * t.UsefulVolumeRatio * Volume * volume_conversion * 1000;
 				return maxAmount? cost : cost * InitialAmount;
 			}
 			catch { return 0; }
@@ -129,6 +152,12 @@ namespace AT_Utils
 			return Volumes.Aggregate("", (s, v) => s+v.Info(volume_conversion));
 		}
 
+		public override float AddMass(float volume_conversion = 1)
+		{ 
+			volume_conversion = Volume*volume_conversion/TotalVolume;
+			return Volumes.Aggregate(0f, (s, v) => s+v.AddMass(volume_conversion));
+		}
+
 		public override float Cost(float volume_conversion = 1)
 		{ 
 			volume_conversion = Volume*volume_conversion/TotalVolume;
@@ -139,6 +168,12 @@ namespace AT_Utils
 		{ 
 			volume_conversion = Volume*volume_conversion/TotalVolume;
 			return Volumes.Aggregate(0f, (s, v) => s+v.ResourceCost(maxAmount, volume_conversion));
+		}
+
+		public override float ResourceMass(bool maxAmount = true, float volume_conversion = 1)
+		{ 
+			volume_conversion = Volume*volume_conversion/TotalVolume;
+			return Volumes.Aggregate(0f, (s, v) => s+v.ResourceMass(maxAmount, volume_conversion));
 		}
 
 		public override bool ContainsType(string tank_type)

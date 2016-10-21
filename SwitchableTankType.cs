@@ -116,9 +116,22 @@ namespace AT_Utils
 		/// </summary>
 		[Persistent] public float  UsefulVolumeRatio = 1f;
 		/// <summary>
+		/// The cost of a tank of this type per tank surface.
+		/// </summary>
+		[Persistent] public float  TankCostPerSurface = 1f;
+		/// <summary>
 		/// The cost of a tank of this type per tank volume.
 		/// </summary>
-		[Persistent] public float  TankCostPerSurface = 10f;
+		[Persistent] public float  TankCostPerVolume = 0f;
+		/// <summary>
+		/// The additional mass of a tank of this type per volume.
+		/// </summary>
+		[Persistent] public float  AddMassPerVolume = 0f;
+
+		public float Cost(float volume)
+		{ return volume*TankCostPerVolume + Utils.CubeSurface(volume)*TankCostPerSurface; }
+
+		public float AddMass(float volume) { return volume*AddMassPerVolume; }
 
 		public SortedList<string, TankResource> Resources { get; private set; }
 		public bool Valid { get { return Resources != null && Resources.Count > 0; } }

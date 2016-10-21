@@ -68,7 +68,12 @@ namespace AT_Utils
 		/// <summary>
 		/// Cost of an empty tank of current type and volume
 		/// </summary>
-		public float Cost { get { return tank_type != null? Utils.CubeSurface(Volume)*tank_type.TankCostPerSurface : 0; } }
+		public float Cost { get { return tank_type != null? tank_type.Cost(Volume) : 0; } }
+
+		/// <summary>
+		/// Additional mass of an empty tank of current type and volume
+		/// </summary>
+		public float AddMass { get { return tank_type != null? tank_type.AddMass(Volume) : 0; } }
 
 		/// <summary>
 		/// The initial partial amount of the CurrentResource.
@@ -122,6 +127,12 @@ namespace AT_Utils
 			return info;
 		}
 
+		protected override float TankMass(float defaultMass)
+		{
+			if(tank_type == null && !init_tank_type()) return 0;
+			return AddMass;
+		}
+
 		protected override float TankCost(float defaultCost)
 		{ 
 			if(tank_type == null && !init_tank_type()) return 0;
@@ -141,6 +152,21 @@ namespace AT_Utils
 				cost = MaxResourceInVolume * resource_info.Resource.unitCost;
 			}
 			return maxAmount? cost : cost * InitialAmount;
+		}
+
+		protected override float ResourcesMass(bool maxAmount = true)
+		{
+			var mass = 0f;
+			if(current_resource != null)
+				mass = (float)current_resource.maxAmount*current_resource.info.density;
+			else
+			{
+				if(tank_type == null && !init_tank_type()) return 0;
+				resource_info = tank_type[CurrentResource];
+				if(resource_info == null) return 0;
+				mass = MaxResourceInVolume * resource_info.Resource.density;
+			}
+			return maxAmount? mass : mass * InitialAmount;
 		}
 
 		void OnDestroy() { Utils.UpdateEditorGUI(); }

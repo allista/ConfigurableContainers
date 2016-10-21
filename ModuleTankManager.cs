@@ -31,11 +31,25 @@ namespace AT_Utils
 			return volumes.Cost();
 		}
 
+		protected override float TankMass(float defaultMass)
+		{
+			if(ModuleSave == null || tank_manager != null) return 0;
+			var volumes = ConfigNodeObject.FromConfig<VolumeConfiguration>(ModuleSave);
+			return volumes.AddMass();
+		}
+
 		protected override float ResourcesCost(bool maxAmount = true)
 		{
 			if(ModuleSave == null || tank_manager != null) return 0;
 			var volumes = ConfigNodeObject.FromConfig<VolumeConfiguration>(ModuleSave);
 			return volumes.ResourceCost(maxAmount);
+		}
+
+		protected override float ResourcesMass(bool maxAmount = true)
+		{
+			if(ModuleSave == null || tank_manager != null) return 0;
+			var volumes = ConfigNodeObject.FromConfig<VolumeConfiguration>(ModuleSave);
+			return volumes.ResourceMass(maxAmount);
 		}
 
 		void init_tank_manager()
