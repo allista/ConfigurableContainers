@@ -1,11 +1,6 @@
 
 import os, re
-import argparse
-from KSPUtils import ConfigNode, NamedObject, Part, Module, Resource, SearchQuery
-
-tank_types_file = 'GameData/ConfigurableContainers/TankTypes.cfg'
-game_data = '/home/storage/Games/KSP_linux/PluginsArchives/Development/AT_KSP_Plugins/KSP-test/KSP_test_1.2/GameData'
-
+from KSPUtils import ConfigNode, NamedObject, Part, Module, Resource, SearchQuery, SearchTerm
 
 class TankType(NamedObject):
     def __init__(self):
@@ -37,6 +32,7 @@ class ModuleTankManager(Module):
         self.name = 'ModuleTankManager'
 ModuleTankManager.mirror_value('Volume', float)
 ModuleTankManager.mirror_value('DoCostPatch', bool)
+ModuleTankManager.mirror_value('DoMassPatch', bool)
 
 
 class ModuleTank(Module):
@@ -49,6 +45,7 @@ ModuleTank.mirror_value('TankType')
 ModuleTank.mirror_value('CurrentResource')
 ModuleTank.mirror_value('ChooseTankType', bool)
 ModuleTank.mirror_value('DoCostPatch', bool)
+ModuleTank.mirror_value('DoMassPatch', bool)
 
 
 class Tank(NamedObject):
@@ -62,15 +59,20 @@ Tank.mirror_value('TankType')
 Tank.mirror_value('CurrentResource')
 
 
-if __name__ == '__main__':
-    tank_types = TanksLib.from_node(ConfigNode.Load(tank_types_file))
-    types = tank_types.types
+class Patcher(object):
+    def __init__(self, typelib, gamedata):
+        self.game_data = gamedata
+        self.tank_types_file = typelib
+        self.tank_types = TanksLib.from_node(ConfigNode.Load(self.tank_types_file))
+        self.types = self.tank_types.types
+        self.part_filter = None
 
-    def volume(tanktype, name, units):
-        t = types[tanktype]
+    def volume(self, tanktype, name, units):
+        t = self.types[tanktype]
         upl = t.UnitsPerLiter.get(name)
-        return units/upl/t.UsefulVolumeRatio/1e3 if upl else 0
+        return units / upl / t.UsefulVolumeRatio / 1e3 if upl else 0
 
+    @staticmethod
     def get_parts(path):
         parts = []
         for dirpath, _dirnames, filenames in os.walk(path):
@@ -83,13 +85,14 @@ if __name__ == '__main__':
                 parts.append((part, resources))
         return parts
 
-    def print_patches(patches, header):
-        print('\n//%s\n//Automatically generated using PyKSPutils library\n' % header)
-        print('\n\n'.join(str(p) for p in patches))
+    @staticmethod
+    def print_patches(stream, patches, header):
+        stream.write('\n//%s\n//Automatically generated using PyKSPutils library\n' % header)
+        stream.write('\n\n'.join(str(p) for p in patches))
 
-    def patch_1RES(parts, tank_type, res_name, monotype=None, add_values={}, add_spec=''):
+    def patch_1RES(self, stream, parts, tank_type, res_name, monotype=None, add_values={}, add_spec=''):
         patches = []
-        rate = volume(tank_type, res_name, 1)
+        rate = self.volume(tank_type, res_name, 1)
         polytype = lambda part: True
         if monotype:
             if isinstance(monotype, (list, tuple)):
@@ -101,10 +104,12 @@ if __name__ == '__main__':
                 polytype = lambda part: mono_re.match(part.name) is None
         for part, resources in parts:
             if len(resources) == 1 and res_name in resources:
+                if self.part_filter is not None and self.part_filter.match(part): continue
+                print('Patching %s' % part.name)
                 res = resources[res_name]
-                patch = Part.Patch('@', part.name, ':FOR[ConfigurableContainers]'+add_spec)
+                patch = Part.Patch('@', part.name, ':FOR[ConfigurableContainers]' + add_spec)
                 V = res.maxAmount * rate
-                ini = res.amount/res.maxAmount
+                ini = res.amount / res.maxAmount
                 comment = '%f units of %s: conversion rate is %f m3/u' % (res.maxAmount, res_name, rate)
                 patch.AddChild(Resource.Patch('!', res_name))
                 can_change_type = polytype(part)
@@ -114,6 +119,7 @@ if __name__ == '__main__':
                     tank.SetComment('Volume', comment)
                     tank.InitialAmount = ini
                     tank.DoCostPatch = True
+                    tank.DoMassPatch = True
                     tank.ChooseTankType = can_change_type
                     tank.TankType = tank_type
                     tank.CurrentResource = res_name
@@ -123,6 +129,7 @@ if __name__ == '__main__':
                     mgr.Volume = V
                     mgr.SetComment('Volume', comment)
                     mgr.DoCostPatch = True
+                    mgr.DoMassPatch = True
                     tank = Tank()
                     tank.TankType = tank_type
                     tank.CurrentResource = res_name
@@ -133,25 +140,32 @@ if __name__ == '__main__':
                 add = add_values.get(part.name)
                 if add: [patch.AddValue(*v) for v in add]
                 patches.append(patch)
-        if patches: print_patches(patches, '%s Tanks' % res_name)
+        if patches: self.print_patches(stream, patches, '%s Tanks' % res_name)
 
-    def patch_LFO(parts, add_values={}, add_spec=''):
+
+    def patch_LFO(self, stream, parts, add_values={}, add_spec=''):
         patches = []
-        rate = volume('LiquidChemicals', 'LiquidFuel', 1) / 0.45
+        rate = self.volume('LiquidChemicals', 'LiquidFuel', 1) / 0.45
         for part, resources in parts:
             if len(resources) == 2 and 'LiquidFuel' in resources and 'Oxidizer' in resources:
+                if self.part_filter is not None and self.part_filter.match(part): continue
+                print('Patching %s' % part.name)
                 lf = resources['LiquidFuel']
                 patch = Part.Patch('@', part.name,
                                    ':FOR[ConfigurableContainers]'
-                                   ':HAS[!MODULE[InterstellarFuelSwitch],'
-                                   '!MODULE[FSfuelSwitch]]'
-                                   +add_spec)
+                                   ':HAS['
+                                   '!MODULE[InterstellarFuelSwitch],'
+                                   '!MODULE[FSfuelSwitch],'
+                                   '!MODULE[ModuleB9PartSwitch]]'
+                                   ':NEEDS[!modularFuelTanks&!RealFuels]'
+                                   + add_spec)
                 patch.AddChild(Resource.Patch('!', 'LiquidFuel'))
                 patch.AddChild(Resource.Patch('!', 'Oxidizer'))
                 mgr = ModuleTankManager()
                 mgr.Volume = lf.maxAmount * rate
                 mgr.SetComment('Volume', '%f units of LF: conversion rate is %f m3/u' % (lf.maxAmount, rate))
                 mgr.DoCostPatch = True
+                mgr.DoMassPatch = True
                 tank = Tank('LFO')
                 tank.Volume = 100
                 mgr.AddChild(tank)
@@ -159,7 +173,40 @@ if __name__ == '__main__':
                 add = add_values.get(part.name)
                 if add: [patch.AddValue(*v) for v in add]
                 patches.append(patch)
-        if patches: print_patches(patches, 'Rocket Fuel Tanks')
+        if patches: self.print_patches(stream, patches, 'Rocket Fuel Tanks')
+
+    def patch_parts(self, output, paths, add_values={}, add_spec=''):
+        for path in paths:
+            parts = self.get_parts(os.path.join(self.game_data, *path))
+            with open(os.path.join(self.game_data, *output), 'w') as out:
+                out.write('//Configurable Containers patch for %s\n' % os.path.join(*path))
+                self.patch_LFO(out, parts, add_values=add_values, add_spec=add_spec)
+                self.patch_1RES(out, parts, 'LiquidChemicals', 'LiquidFuel', '.*[Ww]ing.*', add_values=add_values, add_spec=add_spec)
+                self.patch_1RES(out, parts, 'LiquidChemicals', 'MonoPropellant', add_values=add_values, add_spec=add_spec)
+                self.patch_1RES(out, parts, 'Gases', 'XenonGas', 'all', add_values=add_values, add_spec=add_spec)
+                self.patch_1RES(out, parts, 'Soil', 'Ore', add_values=add_values, add_spec=add_spec)
+                out.write('\n//:mode=c#:\n')
+            print('%s done.\n' % os.path.join(*path))
+
+
+    def patch_mod(self, mod, add_values={}, add_spec=''):
+        output = ('ConfigurableContainers', 'Parts', '%s_Patch.cfg' % mod)
+        path = [[mod]]
+        add_spec += ':NEEDS[%(mod)s]:AFTER[%(mod)s]' % {'mod': mod}
+        self.patch_parts(output, path, add_values, add_spec)
+
+    def patch_mods(self, *mods):
+        for m in mods: self.patch_mod(m)
+
+
+if __name__ == '__main__':
+    patcher = Patcher('GameData/ConfigurableContainers/TankTypes.cfg',
+                      '/home/storage/Games/KSP_linux/PluginsArchives/Development/AT_KSP_Plugins/KSP-test/KSP_test_1.2/GameData')
+
+    patcher.part_filter = SearchQuery('PART/MODULE:.*Engines.*/')
+    patcher.part_filter.Or('PART/MODULE:.*Converter.*/')
+    patcher.part_filter.Or('PART/MODULE:.*Harvester.*/')
+    patcher.part_filter.Or('PART/MODULE:.*Drill.*/')
 
     xenon_titles = {
         'xenonTank': [('@title', 'PB-X150 Pressurized Gass Container')],
@@ -167,20 +214,45 @@ if __name__ == '__main__':
         'xenonTankRadial': [('@title', 'PB-X50R Pressurized Gass Container')],
     }
 
+    patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Squad_Patch.cfg'),
+                        [('Squad', 'Parts')], xenon_titles)
 
-    def patch_parts(path, add_values={}, add_spec=''):
-        print('\n//Configurable Containers patch for %s' % os.path.join(*path))
-        parts = get_parts(os.path.join(game_data, *path))
-        patch_LFO(parts, add_values=add_values, add_spec=add_spec)
-        patch_1RES(parts, 'LiquidChemicals', 'LiquidFuel', '.*[Ww]ing.*', add_values=add_values, add_spec=add_spec)
-        patch_1RES(parts, 'LiquidChemicals', 'MonoPropellant', add_values=add_values, add_spec=add_spec)
-        patch_1RES(parts, 'Gases', 'XenonGas', 'all', add_values=add_values, add_spec=add_spec)
-        patch_1RES(parts, 'Soil', 'Ore', add_values=add_values, add_spec=add_spec)
-        print('//:mode=c#:')
+    patcher.patch_mods('KWRocketry',
+                       'Mk2Expansion',
+                       'Mk3Expansion',
+                       'SpaceY-Lifters',
+                       'SpaceY-Expanded',
+                       'FuelTanksPlus',
+                       'ModRocketSys',
+                       'SPS')
 
-    # patch_parts(('Squad', 'Parts'), xenon_titles)
-    patch_parts(('KWRocketry', 'Parts'), add_spec=':NEEDS[KWRocketry]:AFTER[KWRocketry]')
-    # patch_parts(['ProceduralParts'], add_spec=':NEEDS[ProceduralParts]:AFTER[ProceduralParts]')
+
+    # USI uses FSfuelSwitch, so no patching for it
+    # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'USI-MKS_Patch.cfg'),
+    #                     [('UmbraSpaceIndustries', 'Akita'),
+    #                      ('UmbraSpaceIndustries', 'Konstruction'),
+    #                      ('UmbraSpaceIndustries', 'Kontainers'),
+    #                      ('UmbraSpaceIndustries', 'MKS'),
+    #                      ('UmbraSpaceIndustries', 'ReactorPack'),
+    #                     ],
+    #                     add_spec=':NEEDS[MKS]:AFTER[MKS]')
+    #
+    # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'USI-LS_Patch.cfg'),
+    #                     [('UmbraSpaceIndustries', 'LifeSupport'),
+    #                      ],
+    #                     add_spec=':NEEDS[TacLifeSupport]:AFTER[TacLifeSupport]')
+    #
+    # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'USI-FTT_Patch.cfg'),
+    #                     [('UmbraSpaceIndustries', 'FTT'),
+    #                      ],
+    #                     add_spec=':NEEDS[FTT]:AFTER[FTT]')
+    #
+    # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'USI-ExpPack_Patch.cfg'),
+    #                     [('UmbraSpaceIndustries', 'ExpPack'),
+    #                      ],
+    #                     add_spec=':NEEDS[ExpPack]:AFTER[ExpPack]')
+
+    print('Done')
 
 
 
