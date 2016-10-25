@@ -189,12 +189,14 @@ class Patcher(object):
     def patch_parts(self, output, paths, addons=None, add_spec=''):
         for path in paths:
             parts = self.get_parts(os.path.join(self.game_data, *path))
+            if not parts: continue
             with open(os.path.join(self.game_data, *output), 'w') as out:
                 out.write('//Configurable Containers patch for %s\n' % os.path.join(*path))
                 self.patch_LFO(out, parts, addons=addons, add_spec=add_spec)
                 self.patch_1RES(out, parts, 'LiquidChemicals', 'LiquidFuel', '.*[Ww]ing.*', addons=addons, add_spec=add_spec)
                 self.patch_1RES(out, parts, 'LiquidChemicals', 'MonoPropellant', addons=addons, add_spec=add_spec)
                 self.patch_1RES(out, parts, 'Gases', 'XenonGas', 'all', addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts, 'Gases', 'ArgonGas', 'all', addons=addons, add_spec=add_spec)
                 self.patch_1RES(out, parts, 'Soil', 'Ore', addons=addons, add_spec=add_spec)
                 out.write('\n//:mode=c#:\n')
             print('%s done.\n' % os.path.join(*path))
@@ -236,6 +238,7 @@ if __name__ == '__main__':
                        'SpaceY-Expanded',
                        'FuelTanksPlus',
                        'ModRocketSys',
+                       'NearFuturePropulsion',
                        'SPS')
 
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Tal-Tanks_Patch.cfg'),
@@ -257,7 +260,7 @@ if __name__ == '__main__':
     # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'USI-LS_Patch.cfg'),
     #                     [('UmbraSpaceIndustries', 'LifeSupport'),
     #                      ],
-    #                     add_spec=':NEEDS[TacLifeSupport]:AFTER[TacLifeSupport]')
+    #                     add_spec=':NEEDS[USILifeSupport]:AFTER[USILifeSupport]')
     #
     # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'USI-FTT_Patch.cfg'),
     #                     [('UmbraSpaceIndustries', 'FTT'),
