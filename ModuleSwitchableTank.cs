@@ -373,9 +373,13 @@ namespace AT_Utils
 			if(part_res != null) 
 			{ 
 				current_resource = part_res;
-				current_resource.maxAmount = maxAmount;
-				if(current_resource.amount > current_resource.maxAmount)
-					current_resource.amount = current_resource.maxAmount;
+				//do not change resource amount/maxAmount in flight, unless we have none
+				if(HighLogic.LoadedSceneIsEditor || current_resource.amount.Equals(0))
+				{
+					current_resource.maxAmount = maxAmount;
+					if(current_resource.amount > current_resource.maxAmount)
+						current_resource.amount = current_resource.maxAmount;
+				}
 			}
 			else //create the new resource
 			{
