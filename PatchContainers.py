@@ -218,6 +218,7 @@ if __name__ == '__main__':
     patcher.part_filter.Or('PART/MODULE:.*Converter.*/')
     patcher.part_filter.Or('PART/MODULE:.*Harvester.*/')
     patcher.part_filter.Or('PART/MODULE:.*Drill.*/')
+    patcher.part_filter.Or('PART/MODULE:.*[Ff]uelSwitch/')
 
     xenon_titles = [
         (SearchTerm('name:xenonTank$'), Part.PatchValue('@', 'title', 'PB-X150 Pressurized Gass Container')),
@@ -228,20 +229,20 @@ if __name__ == '__main__':
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Squad_Patch.cfg'),
                         [('Squad', 'Parts')], xenon_titles)
     #
-    # patcher.patch_mods('KWRocketry',
-    #                    'Mk2Expansion',
-    #                    'Mk3Expansion',
-    #                    'SpaceY-Lifters',
-    #                    'SpaceY-Expanded',
-    #                    'FuelTanksPlus',
-    #                    'ModRocketSys',
-    #                    'SPS')
+    patcher.patch_mods('KWRocketry',
+                       'Mk2Expansion',
+                       'Mk3Expansion',
+                       'SpaceY-Lifters',
+                       'SpaceY-Expanded',
+                       'FuelTanksPlus',
+                       'ModRocketSys',
+                       'SPS')
 
-    # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Tal-Tanks_Patch.cfg'),
-    #                     [('ModsByTal', 'Parts'),
-    #                      ],
-    #                     [(SearchTerm(''), Module.Patch('!', 'ModuleFuelTanks'))],
-    #                     add_spec=':AFTER[ModsByTal]')
+    patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Tal-Tanks_Patch.cfg'),
+                        [('ModsByTal', 'Parts'),
+                         ],
+                        [(SearchTerm(''), Module.Patch('!', 'ModuleFuelTanks'))],
+                        add_spec=':AFTER[ModsByTal]')
 
     # USI uses FSfuelSwitch, so no patching for it
     # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'USI-MKS_Patch.cfg'),
