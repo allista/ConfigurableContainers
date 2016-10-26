@@ -25,14 +25,17 @@ Configurable Containers support manu part packs and mods:
 	* Fuel Tanks Plus
 	* Modular Rocket Systems
 	* Standard Propulsion Systems
+	* Near Future Propulsion
 	* Spherical and Toroidal Tank Pack
+	* ...more will come.
 * Supported resources:
     * Stock
     * TAC Life Support
     * Extrapalentary Launchapads
+    * Near Future Propulsion
     * All USI
     * *Some* of KSPIE
-    * *Some* of Near Future Propulsion
+    * ...more will come.
 
 ###Types of the Containers
 
