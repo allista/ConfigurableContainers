@@ -1,6 +1,7 @@
 {
     "spec_version" : "v1.4",
     "identifier"   : "ConfigurableContainers-Core",
+    "name"         : "Configurable Containers Core",
     "$kref"        : "#/ckan/spacedock/1002",
     "abstract"     : "This is the core configuration for the Configurable Containers.",
     "author"       : [ "allista" ],
