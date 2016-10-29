@@ -44,9 +44,9 @@ namespace AT_Utils
 				VolumeField.Value = tank.Volume;
 			}
 
-			public void SetVolume(float vol)
+			public void SetVolume(float vol, bool update_amount)
 			{
-				Tank.Volume = vol;
+				Tank.SetVolume(vol, update_amount);
 				VolumeField.Value = Tank.Volume;
 			}
 

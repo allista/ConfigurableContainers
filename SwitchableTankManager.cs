@@ -275,10 +275,11 @@ namespace AT_Utils
 		/// Amounts of resources are not rescaled.
 		/// </summary>
 		/// <param name="relative_scale">Relative scale. Should be in [0, +inf] interval.</param>
-		public void RescaleTanks(float relative_scale)
+		/// <param name = "update_amounts">If true, amount of resource in each tank will allso be updated.</param>
+		public void RescaleTanks(float relative_scale, bool update_amounts)
 		{
 			if(relative_scale <= 0) return;
-			tanks.ForEach(t =>  t.SetVolume(t.Tank.Volume*relative_scale));
+			tanks.ForEach(t =>  t.SetVolume(t.Tank.Volume*relative_scale, update_amounts));
 			total_volume = -1;
 		}
 
