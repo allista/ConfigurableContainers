@@ -348,6 +348,12 @@ namespace AT_Utils
 			part.UpdatePartMenu();
 		}
 
+		public void SetVolume(float volume, bool update_amount = false)
+		{
+			Volume = volume;
+			UpdateMaxAmount(update_amount);
+		}
+
 		bool init_resource()
 		{
 			if(current_resource != null)
@@ -410,11 +416,7 @@ namespace AT_Utils
 			if(managed) return;
 			var volName = data.Get<string>("volName");
 			var newTotalVolume = (float)data.Get<double>("newTotalVolume");
-			if(volName == "Tankage") 
-			{
-				Volume = newTotalVolume;
-				UpdateMaxAmount(HighLogic.LoadedSceneIsEditor);
-			}
+			if(volName == "Tankage") SetVolume(newTotalVolume, HighLogic.LoadedSceneIsEditor);
 		}
 
 		//interface for TweakScale
@@ -423,8 +425,7 @@ namespace AT_Utils
 		{
 			if(managed) return;
 			var scale = data.Get<float>("factorRelative");
-			Volume *= scale*scale*scale;
-			UpdateMaxAmount();
+			SetVolume(Volume*scale*scale*scale);
 		}
 
 		IEnumerator<YieldInstruction> slow_update()
@@ -452,8 +453,7 @@ namespace AT_Utils
 	{
 		protected override void on_rescale(ModulePair<ModuleSwitchableTank> mp, Scale scale)
 		{ 
-			mp.module.Volume *= scale.relative.volume;
-			mp.module.UpdateMaxAmount();
+			mp.module.SetVolume(mp.module.Volume*scale.relative.volume);
 		}
 	}
 }
