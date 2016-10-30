@@ -29,9 +29,11 @@
     [
         {
             "file": "GameData/ConfigurableContainers/TankTypes.cfg",
-            "install_to": "GameData",
-            "file": "GameData/ConfigurableContainers/TankConfigs.cfg",
-            "install_to": "GameData"
+            "install_to": "GameData/ConfigurableContainers"
+        },
+        {
+        	"file": "GameData/ConfigurableContainers/TankConfigs.cfg",
+            "install_to": "GameData/ConfigurableContainers"
         }
     ]
 }
