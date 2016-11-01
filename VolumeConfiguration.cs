@@ -143,7 +143,7 @@ namespace AT_Utils
 		public override void Save(ConfigNode node)
 		{
 			base.Save(node);
-			Volumes.ForEach(t => t.Save(node.AddNode(t.NodeName)));
+			Volumes.ForEach(t => t.SaveInto(node));
 		}
 
 		public override string Info(float volume_conversion = 1)
