@@ -245,6 +245,8 @@ namespace AT_Utils
 		public bool TryRemoveResource()
 		{
 			if(current_resource == null) return true;
+			if(HighLogic.LoadedSceneIsEditor) 
+				current_resource.amount = 0;
 		   	if(current_resource.amount > 0)
 			{ 
 				Utils.Message("Tank is in use");
@@ -318,8 +320,14 @@ namespace AT_Utils
 			   current_resource != null &&
 			   current_resource.amount > 0)
 			{ 
-				Utils.Message("Cannot change tank type while tank is in use");
-				TankType = tank_type.name;
+				if(HighLogic.LoadedSceneIsEditor) 
+					current_resource.amount = 0;
+				else
+				{
+					Utils.Message("Cannot change tank type while tank is in use");
+					TankType = tank_type.name;
+					return;
+				}
 			}
 			//setup new tank type
 			tank_type = null;
