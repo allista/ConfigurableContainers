@@ -1,6 +1,14 @@
 #Configurable Containers ChangeLog
 
-* **v2.3.0**
+* **v2.3.1**
+    * Corrected Cryogenic tank type parameters.
+    * Fixed Food tank type.
+    * In Editor automatically remove current resource when trying to switch it or the tank type.
+    * Fixed Soil TANKTYPE definition.
+    * Fixed installation directive in CC-Core.netkan
+    * Fixed ProceduralParts bug and return to VAB bug. Closed #3 and #4.
+
+* v2.3.0
 	* Added per-tank volume editing and volume definition in % along with m3.
 	* Added support for:
 		* **Tweak Scale**

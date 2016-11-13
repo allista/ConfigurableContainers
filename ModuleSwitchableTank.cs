@@ -245,6 +245,8 @@ namespace AT_Utils
 		public bool TryRemoveResource()
 		{
 			if(current_resource == null) return true;
+			if(HighLogic.LoadedSceneIsEditor) 
+				current_resource.amount = 0;
 		   	if(current_resource.amount > 0)
 			{ 
 				Utils.Message("Tank is in use");
@@ -318,8 +320,14 @@ namespace AT_Utils
 			   current_resource != null &&
 			   current_resource.amount > 0)
 			{ 
-				Utils.Message("Cannot change tank type while tank is in use");
-				TankType = tank_type.name;
+				if(HighLogic.LoadedSceneIsEditor) 
+					current_resource.amount = 0;
+				else
+				{
+					Utils.Message("Cannot change tank type while tank is in use");
+					TankType = tank_type.name;
+					return;
+				}
 			}
 			//setup new tank type
 			tank_type = null;
@@ -346,6 +354,12 @@ namespace AT_Utils
 			else if(update_amount && max_amount > 0) 
 				current_resource.amount *= current_resource.maxAmount/max_amount;
 			part.UpdatePartMenu();
+		}
+
+		public void SetVolume(float volume, bool update_amount = false)
+		{
+			Volume = volume;
+			UpdateMaxAmount(update_amount);
 		}
 
 		bool init_resource()
@@ -410,11 +424,7 @@ namespace AT_Utils
 			if(managed) return;
 			var volName = data.Get<string>("volName");
 			var newTotalVolume = (float)data.Get<double>("newTotalVolume");
-			if(volName == "Tankage") 
-			{
-				Volume = newTotalVolume;
-				UpdateMaxAmount(HighLogic.LoadedSceneIsEditor);
-			}
+			if(volName == "Tankage") SetVolume(newTotalVolume, HighLogic.LoadedSceneIsEditor);
 		}
 
 		//interface for TweakScale
@@ -423,8 +433,7 @@ namespace AT_Utils
 		{
 			if(managed) return;
 			var scale = data.Get<float>("factorRelative");
-			Volume *= scale*scale*scale;
-			UpdateMaxAmount();
+			SetVolume(Volume*scale*scale*scale);
 		}
 
 		IEnumerator<YieldInstruction> slow_update()
@@ -452,8 +461,7 @@ namespace AT_Utils
 	{
 		protected override void on_rescale(ModulePair<ModuleSwitchableTank> mp, Scale scale)
 		{ 
-			mp.module.Volume *= scale.relative.volume;
-			mp.module.UpdateMaxAmount();
+			mp.module.SetVolume(mp.module.Volume*scale.relative.volume);
 		}
 	}
 }

@@ -76,6 +76,14 @@ namespace AT_Utils
 			ModuleSave = node;
 		}
 
+		public override void OnSave(ConfigNode node)
+		{
+			base.OnSave(node);
+			if(tank_manager != null)
+				tank_manager.Save(node);
+			else ModuleSave.CopyTo(node);
+		}
+
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
@@ -85,17 +93,10 @@ namespace AT_Utils
 			if(HighLogic.LoadedSceneIsFlight) Events["EditTanks"].guiName = "Manage Tanks";
 		}
 
-		public override void OnSave(ConfigNode node)
-		{
-			base.OnSave(node);
-			if(tank_manager != null)
-				tank_manager.Save(node);
-		}
-
-		public void Rescale(float relative_scale)
+		public void Rescale(float relative_scale, bool update_amounts = false)
 		{ 
 			if(tank_manager != null) 
-				tank_manager.RescaleTanks(relative_scale);
+				tank_manager.RescaleTanks(relative_scale, update_amounts);
 			SetVolume(Volume*relative_scale);
 		}
 
@@ -117,7 +118,7 @@ namespace AT_Utils
 			var volName = data.Get<string>("volName");
 			var newTotalVolume = (float)data.Get<double>("newTotalVolume");
 			if(volName == "Tankage") 
-				Rescale(newTotalVolume/Volume);
+				Rescale(newTotalVolume/Volume, HighLogic.LoadedSceneIsEditor);
 		}
 
 		//interface for TweakScale

@@ -117,8 +117,7 @@ namespace AT_Utils
 		static bool save_user_configs()
 		{
 			var node = new ConfigNode();
-			foreach(var c in UserConfigs)
-				c.Value.Save(node.AddNode(VolumeConfiguration.NODE_NAME));
+			UserConfigs.ForEach(c => c.Value.SaveInto(node));
 			if(SaveNode(node, UserFile)) return true;
 			Utils.Message("Unable to save tank configurations.");
 			return false;

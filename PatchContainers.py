@@ -214,7 +214,8 @@ class Patcher(object):
 
 if __name__ == '__main__':
     patcher = Patcher('GameData/ConfigurableContainers/TankTypes.cfg',
-                      '/home/storage/Games/KSP_linux/PluginsArchives/Development/AT_KSP_Plugins/KSP-test/KSP_test_1.2/GameData')
+                      '/home/storage/Games/KSP_linux/PluginsArchives/Development/AT_KSP_Plugins/KSP-test/'
+                      'KSP_test_1.2.1/GameData')
 
     patcher.part_filter = SearchQuery('PART/MODULE:.*Engines.*/')
     patcher.part_filter.Or('PART/MODULE:.*Converter.*/')
