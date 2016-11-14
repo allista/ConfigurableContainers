@@ -17,13 +17,13 @@
     [
         { "name": "ModuleManager" },
         { "name": "AT-Utils" },
-        { "name": "ConfigurableContainers-Core" },
-        { "name": "CommunityResourcePack" }
+        { "name": "ConfigurableContainers-Core" }
     ],
 
     "suggests":
     [
-        { "name": "KSP-AVC" }
+        { "name": "KSP-AVC" },
+        { "name": "CommunityResourcePack" }
     ],
     
     "supports":
