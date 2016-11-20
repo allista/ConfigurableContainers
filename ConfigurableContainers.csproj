@@ -71,6 +71,7 @@
     <Compile Include="AbstractResourceTank.cs" />
     <Compile Include="VolumeConfigsLibrary.cs" />
     <Compile Include="SwitchableTankManagerGUI.cs" />
+    <Compile Include="ResourceBoiloff.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
