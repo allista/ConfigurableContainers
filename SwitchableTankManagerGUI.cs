@@ -18,7 +18,6 @@ namespace AT_Utils
 		const string eLock      = "SwitchableTankManager.EditingTanks";
 		Vector2 tanks_scroll    = Vector2.zero;
 		Rect eWindowPos = new Rect(Screen.width/2-scroll_width/2, scroll_height, scroll_width, scroll_height);
-		DropDownList tank_types_list = new DropDownList();
 		AddTankDelegate add_tank;
 		Action<ModuleSwitchableTank> remove_tank;
 		string volume_field = "0.0";
@@ -54,11 +53,8 @@ namespace AT_Utils
 			{
 				if(manager.TypeChangeEnabled && manager.SupportedTypes.Count > 1) 
 				{
-					var choice = Utils.LeftRightChooser(tank.TankType, 160);
-					string new_type = null;
-					if(choice < 0) new_type = tank.SupportedTypes.Prev(tank.TankType);
-					else if(choice > 0) new_type = tank.SupportedTypes.Next(tank.TankType);
-					if(!string.IsNullOrEmpty(new_type))
+					var new_type = Utils.LeftRightChooser<string>(tank.TankType, tank.SupportedTypes, 160);
+					if(new_type != tank.TankType)
 					{
 						tank.TankType = new_type;
 						manager.update_symmetry_tanks(tank, t => t.TankType = tank.TankType);
@@ -71,13 +67,10 @@ namespace AT_Utils
 			{
 				if(tank.Type.Resources.Count > 1)
 				{
-					var choice = Utils.LeftRightChooser(tank.CurrentResource, 160);
-					TankResource new_res = null;
-					if(choice < 0) new_res = tank.Type.Resources.Prev(tank.CurrentResource);
-					else if(choice > 0) new_res = tank.Type.Resources.Next(tank.CurrentResource);
-					if(new_res != null) 
+					var new_res = Utils.LeftRightChooser<string>(tank.CurrentResource, tank.Type.Resources.Keys, 160);
+					if(new_res != tank.CurrentResource) 
 					{
-						tank.CurrentResource = new_res.Name;
+						tank.CurrentResource = new_res;
 						manager.update_symmetry_tanks(tank, t => t.CurrentResource = tank.CurrentResource);
 					}
 				}
@@ -159,24 +152,15 @@ namespace AT_Utils
 			if(Closed) Utils.LockIfMouseOver(eLock, eWindowPos, false);
 		}
 
-		void add_tank_gui_start(Rect windowPos)
-		{
-			if(!AddRemoveEnabled) return;
-			tank_types_list.styleListBox  = Styles.list_box;
-			tank_types_list.styleListItem = Styles.list_item;
-			tank_types_list.windowRect    = windowPos;
-			tank_types_list.DrawBlockingSelector();
-		}
-
+		string selected_tank_type = "";
 		void add_tank_gui()
 		{
 			if(!AddRemoveEnabled) return;
 			GUILayout.BeginVertical();
 			//tank properties
 			GUILayout.BeginHorizontal();
-			GUILayout.Label("Tank Type:", GUILayout.Width(70));
-			tank_types_list.DrawButton();
-			var tank_type = tank_types_list.SelectedValue;
+			GUILayout.Label("Type:", GUILayout.ExpandWidth(false));
+			selected_tank_type = Utils.LeftRightChooser<string>(selected_tank_type, SupportedTypes, 160);
 			GUILayout.Label("Volume:", GUILayout.Width(50));
 			volume_field = GUILayout.TextField(volume_field, GUILayout.ExpandWidth(true), GUILayout.MinWidth(50));
 			if(GUILayout.Button(new GUIContent(percent? "%" : "m3", "Change between Volume (m3) and Percentage (%)"), 
@@ -186,7 +170,7 @@ namespace AT_Utils
 			var volume_valid = float.TryParse(volume_field, out volume);
 			if(volume_valid)
 			{
-				var vol = add_tank(tank_type, volume, percent);
+				var vol = add_tank(selected_tank_type, volume, percent);
 				if(!vol.Equals(volume))
 				{
 					volume = vol;
@@ -199,13 +183,6 @@ namespace AT_Utils
 			if(!volume_valid) GUILayout.Label("Volume should be a number.", Styles.red);
 			GUILayout.EndHorizontal();
 			GUILayout.EndVertical();
-		}
-
-		void add_tank_gui_end()
-		{
-			if(!AddRemoveEnabled) return;
-			tank_types_list.DrawDropDown();
-			tank_types_list.CloseOnOutsideClick();
 		}
 
 		void volume_configs_gui()
@@ -250,7 +227,6 @@ namespace AT_Utils
 
 		public void TanksManagerGUI(int windowId)
 		{
-			add_tank_gui_start(eWindowPos);
 			GUILayout.BeginVertical();
 			add_tank_gui();
 			tanks_scroll = GUILayout.BeginScrollView(tanks_scroll, 
@@ -263,7 +239,6 @@ namespace AT_Utils
 			volume_configs_gui();
 			close_button();
 			GUILayout.EndVertical();
-			add_tank_gui_end();
 			GUIWindowBase.TooltipsAndDragWindow(eWindowPos);
 		}
 

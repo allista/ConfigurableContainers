@@ -102,7 +102,6 @@ namespace AT_Utils
 		{ 
 			part = host.part;
 			this.host = host;
-			tank_types_list.Items = SwitchableTankType.TankTypeNames();
 		}
 
 		void init_supported_types()
@@ -111,7 +110,7 @@ namespace AT_Utils
 			include = Utils.ParseLine(IncludeTankTypes, Utils.Comma);
 			SupportedTypes = SwitchableTankType.TankTypeNames(include, exclude);
 			SupportedTypes.AddRange(VolumeConfigsLibrary.AllConfigNames(include, exclude));
-			tank_types_list.Items = SupportedTypes;
+			if(SupportedTypes.Count > 0) selected_tank_type = SupportedTypes[0];
 		}
 
 		public override void Save(ConfigNode node)
