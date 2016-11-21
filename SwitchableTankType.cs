@@ -31,24 +31,30 @@ namespace AT_Utils
 				{
 					var nodes = GameDatabase.Instance.GetConfigNodes(NODE_NAME);
 					_tank_types = new SortedList<string, SwitchableTankType>();
-					foreach(ConfigNode n in nodes)
+					if(nodes != null)
 					{
-						#if DEBUG
-						Utils.Log("\n{}", n.ToString());
-						#endif
-						var tank_type = ConfigNodeObject.FromConfig<SwitchableTankType>(n);
-						if(!tank_type.Valid)
+						for(int i = 0, nodesLength = nodes.Length; i < nodesLength; i++)
 						{
-							var msg = string.Format("[ConfigurableContainers] '{0}' tank type has no resources. Skipping.", tank_type.name);
-							Utils.Message(6, msg);
-							Utils.Log(msg);
-							continue;
-						}
-						try { _tank_types.Add(tank_type.name, tank_type); }
-						catch
-						{ 
-							Utils.Log("SwitchableTankType: ignoring duplicate configuration of {} tank type. " +
-							"Use ModuleManager to change the existing one.", tank_type.name); 
+							ConfigNode n = nodes[i];
+							#if DEBUG
+							Utils.Log("\n{}", n.ToString());
+							#endif
+							var tank_type = ConfigNodeObject.FromConfig<SwitchableTankType>(n);
+							if(!tank_type.Valid)
+							{
+								var msg = string.Format("[ConfigurableContainers] '{0}' tank type has no resources. Skipping.", tank_type.name);
+								Utils.Message(6, msg);
+								Utils.Log(msg);
+								continue;
+							}
+							try
+							{
+								_tank_types.Add(tank_type.name, tank_type);
+							}
+							catch
+							{
+								Utils.Log("SwitchableTankType: ignoring duplicate configuration of {} tank type. " + "Use ModuleManager to change the existing one.", tank_type.name);
+							}
 						}
 					}
 				}
@@ -127,6 +133,14 @@ namespace AT_Utils
 		/// The additional mass of a tank of this type per volume.
 		/// </summary>
 		[Persistent] public float  AddMassPerVolume = 0f;
+		/// <summary>
+		/// If the resources in this tank should boiloff with time.
+		/// </summary>
+		[Persistent] public bool   Boiloff;
+		/// <summary>
+		/// If the resources in this tank should be actively cooled untill below the boiloff temperature.
+		/// </summary>
+		[Persistent] public bool   Cooling;
 
 		public float Cost(float volume)
 		{ return volume*TankCostPerVolume + Utils.CubeSurface(volume)*TankCostPerSurface; }
@@ -163,6 +177,7 @@ namespace AT_Utils
 				foreach(var r in ResourceNames)
 					info += string.Format("- {0}: {1}/L\n", 
 						Resources[r].Name, Utils.formatUnits(Resources[r].UnitsPerLiter));
+				if(Boiloff) info += "Resources are boil off.\n";
 				return info;
 			} 
 		}

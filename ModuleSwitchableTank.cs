@@ -91,6 +91,21 @@ namespace AT_Utils
 		PartResource current_resource;
 		string previous_resource = string.Empty;
 
+		#if DEBUG
+		[KSPField(isPersistant = true, guiActive = true, guiActiveEditor = false, guiName = "Part", guiUnits = "°C")]
+		public string PartTemperatureDisplay = "0";
+		[KSPField(isPersistant = true, guiActive = true, guiActiveEditor = false, guiName = "Skin", guiUnits = "°C")]
+		public string SkinTemperatureDisplay = "0";
+		#endif
+
+		[KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "T(Res)", guiUnits = "°C")]
+		public string TemperatureDisplay = "0";
+		ResourceBoiloff boiloff;
+
+		[KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling", guiFormat = "P1")]
+		public double CoolingDisplay = 0;
+		ActiveCooling cooler;
+
 		public float Usage { get { return current_resource != null? (float)(current_resource.amount/current_resource.maxAmount) : 0; } }
 		public string ResourceInUse { get { return current_resource != null? current_resource.resourceName : string.Empty; } }
 		public PartResource Resource { get { return current_resource; } }
@@ -205,7 +220,10 @@ namespace AT_Utils
 			//if the node is not from a TankManager, but we have a saved config, reload it
 			else if(ModuleSave != null && 
 			        ModuleSave.HasValue(SwitchableTankManager.MANAGED))	
-			{ Load(ModuleSave); return; }
+				Load(ModuleSave);
+			//if we still don't have a saved module config, save it
+			else if(ModuleSave == null)
+				ModuleSave = node;
 		}
 
 		public override void OnSave(ConfigNode node)
@@ -213,6 +231,8 @@ namespace AT_Utils
 			if(current_resource != null)
 				InitialAmount = (float)(current_resource.amount/current_resource.maxAmount);
 			base.OnSave(node);
+			if(boiloff != null) 
+				boiloff.SaveInto(node);
 		}
 
 		//workaround for ConfigNode non-serialization
@@ -267,6 +287,40 @@ namespace AT_Utils
 			Utils.EnableField(Fields["TankType"]);
 		}
 
+		void update_cooler_control()
+		{
+			if(cooler == null) return;
+			Events["ToggleCooler"].guiName = cooler.Enabled? "Disable Cooling" : "Enable Cooling";
+		}
+
+		void update_boiloff_control()
+		{
+			if(boiloff != null && boiloff.Valid) 
+			{
+				var res_name = Utils.ParseCamelCase(current_resource.resourceName);
+				Fields["TemperatureDisplay"].guiActive = true;
+				Fields["TemperatureDisplay"].guiName = res_name;
+				if(cooler != null)
+				{
+					Fields["CoolingDisplay"].guiActive = true;
+					Fields["CoolingDisplay"].guiName = res_name+" Cooling";
+					Events["ToggleCooler"].active = true;
+					update_cooler_control();
+				}
+				else 
+				{
+					Fields["CoolingDisplay"].guiActive = false;
+					Events["ToggleCooler"].active = false;
+				}
+			}
+			else
+			{
+				Fields["TemperatureDisplay"].guiActive = false;
+				Fields["CoolingDisplay"].guiActive = false;
+				Events["ToggleCooler"].active = false;
+			}
+		}
+
 		void init_res_control()
 		{
 			if(tank_type == null || !enable_part_controls || tank_type.Resources.Count <= 1) 
@@ -278,12 +332,14 @@ namespace AT_Utils
 				Utils.SetupChooser(res_names, res_values, Fields["CurrentResource"]);
 				Utils.EnableField(Fields["CurrentResource"]);
 			}
+			update_boiloff_control();
 			part.UpdatePartMenu();
 		}
 
 		void update_res_control()
 		{
 			Fields["CurrentResource"].guiName = current_resource == null ? RES_UNMANAGED : RES_MANAGED;
+			update_boiloff_control();
 			part.UpdatePartMenu();
 		}
 
@@ -297,6 +353,7 @@ namespace AT_Utils
 		{
 			if(Volume < 0) Volume = Metric.Volume(part);
 			if(tank_type != null) return true;
+			boiloff = null;
 			//if tank type is not provided, use the first one from the library
 			if(string.IsNullOrEmpty(TankType))
 			{ TankType = SwitchableTankType.TankTypeNames(include, exclude)[0]; }
@@ -310,6 +367,13 @@ namespace AT_Utils
 			if(CurrentResource == string.Empty || 
 			   !tank_type.Resources.ContainsKey(CurrentResource)) 
 				CurrentResource = tank_type.DefaultResource.Name;
+			//initialize boiloff/cooling
+			if(tank_type.Boiloff || tank_type.Cooling)
+			{
+				boiloff = tank_type.Boiloff? new ResourceBoiloff() : new ActiveCooling();
+				if(ModuleSave != null) boiloff.LoadFrom(ModuleSave);
+				cooler = boiloff as ActiveCooling;
+			}
 			return true;
 		}
 
@@ -403,6 +467,7 @@ namespace AT_Utils
 				node.AddValue("maxAmount", maxAmount);
 				current_resource = part.Resources.Add(node);
 			}
+			if(boiloff != null) boiloff.SetResource(current_resource);
 			if(part.Events != null) part.SendEvent("resource_changed");
 			return true;
 		}
@@ -436,6 +501,14 @@ namespace AT_Utils
 			SetVolume(Volume*scale*scale*scale);
 		}
 
+		[KSPEvent(guiActive=true, guiName = "Disable Cooling", active = false)]
+		void ToggleCooler()
+		{
+			if(cooler == null) return;
+			cooler.Enabled = !cooler.Enabled;
+			update_cooler_control();
+		}
+
 		IEnumerator<YieldInstruction> slow_update()
 		{
 			while(true)
@@ -452,8 +525,30 @@ namespace AT_Utils
 				}
 				if(CurrentResource != previous_resource)
 				{ switch_resource(); update_res_control(); }
+
+				if(HighLogic.LoadedSceneIsFlight)
+				{
+					//temprerature display
+					if(boiloff != null)
+						TemperatureDisplay = (boiloff.CoreTemperature-273.15).ToString("F1");
+					if(cooler != null)
+					{
+						CoolingDisplay = cooler.IsCooling? cooler.CoolingEfficiency : 0;
+						update_cooler_control();
+					}
+					#if DEBUG
+					PartTemperatureDisplay = (part.temperature-273.15).ToString("F1");
+					SkinTemperatureDisplay = (part.skinTemperature-273.15).ToString("F1");
+					#endif
+				}
 				yield return new WaitForSeconds(0.1f);
 			}
+		}
+
+		void FixedUpdate()
+		{
+			if(boiloff != null) 
+				boiloff.FixedUpdate();
 		}
 	}
 
