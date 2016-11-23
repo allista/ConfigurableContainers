@@ -104,6 +104,8 @@ namespace AT_Utils
 
 		[KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling", guiFormat = "P1")]
 		public double CoolingDisplay = 0;
+		[KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling Cost", guiFormat = "~0.0 Ec/s")]
+		public double EcDisplay = 0;
 		ActiveCooling cooler;
 
 		public float Usage { get { return current_resource != null? (float)(current_resource.amount/current_resource.maxAmount) : 0; } }
@@ -304,6 +306,8 @@ namespace AT_Utils
 				{
 					Fields["CoolingDisplay"].guiActive = true;
 					Fields["CoolingDisplay"].guiName = res_name+" Cooling";
+					Fields["EcDisplay"].guiActiveEditor = true;
+					Fields["EcDisplay"].guiName = res_name + " Cooling Cost";
 					Events["ToggleCooler"].active = true;
 					update_cooler_control();
 				}
@@ -317,6 +321,7 @@ namespace AT_Utils
 			{
 				Fields["TemperatureDisplay"].guiActive = false;
 				Fields["CoolingDisplay"].guiActive = false;
+				Fields["EcDisplay"].guiActiveEditor = false;
 				Events["ToggleCooler"].active = false;
 			}
 		}
@@ -517,6 +522,8 @@ namespace AT_Utils
 				{
 					if(tank_type == null || tank_type.name != TankType) 
 						change_tank_type();
+					if(cooler != null)
+						EcDisplay = cooler.PowerConsumptionAt300K;
 				}
 				else if(tank_type != null && tank_type.name != TankType)
 				{
