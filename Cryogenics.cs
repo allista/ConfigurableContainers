@@ -32,12 +32,15 @@ namespace AT_Utils
 		}
 		public Dictionary<string,Resource> Resources = new Dictionary<string, Resource>();
 
+		public const double AbsZero = -273.15;
+
 		[Persistent] public float SpecificHeat2VaporisationHeat = 1000;
 		[Persistent] public float InsulationFactor = 1e-3f;
 
 		[Persistent] public float ElectricCharge2kJ = 10;
-		[Persistent] public float MaxAbsoluteCoolerPower = 10;
-		[Persistent] public float MaxSpecificCoolerPower = 10;
+		[Persistent] public float MaxAbsoluteCoolerPower = 500;
+		[Persistent] public float MaxSpecificCoolerPower = 1;
+		[Persistent] public float ShutdownThreshold = 0.99f;
 
 		const string config_path = "ConfigurableContainers/Cryogenics/";
 		static CryogenicsParams instance;
@@ -114,11 +117,12 @@ namespace AT_Utils
 			var resThermalMass = resource.amount*specificHeatCapacity;
 			var partThermalMass = Math.Max(part.thermalMass-resThermalMass, 1e-3);
 			var equilibriumT = (part.temperature*partThermalMass+CoreTemperature*resThermalMass)/part.thermalMass;
-			var CoreDeltaT = (equilibriumT-CoreTemperature)*(1-Math.Exp(-deltaTime*CryogenicsParams.Instance.InsulationFactor));
-			var PartDeltaT = (equilibriumT-part.temperature)*(1-Math.Exp(-deltaTime*CryogenicsParams.Instance.InsulationFactor));
+			var temperature_transfer = 1-Math.Exp(-deltaTime*CryogenicsParams.Instance.InsulationFactor);
+			var CoreDeltaT = (equilibriumT-CoreTemperature)*temperature_transfer;
+			var PartDeltaT = (equilibriumT-partThermalMass)*temperature_transfer;
 			part.AddThermalFlux(PartDeltaT*part.thermalMass/TimeWarp.fixedDeltaTime);
-			Utils.Log("P.T {}, C.T {}, PdT {}, CdT {}", 
-			          part.temperature, CoreTemperature, PartDeltaT, CoreDeltaT);//debug
+			Utils.Log("P.T {} > Eq.T {} < C.T {}, P.dT {}, C.dT {}", 
+			          part.temperature, equilibriumT, CoreTemperature, PartDeltaT, CoreDeltaT);//debug
 			CoreTemperature += CoreDeltaT;
 		}
 
@@ -130,11 +134,10 @@ namespace AT_Utils
 			if(LastUpdateTime < 0)
 				CoreTemperature = resource.amount > 0? Math.Max(boiloffTemperature-10, PhysicsGlobals.SpaceTemperature) : part.temperature;
 			var deltaTime = GetDeltaTime();
-			Utils.Log("deltaTime: {}", deltaTime);//debug
+			Utils.Log("deltaTime: {}, fixedDeltaTime {}", deltaTime, TimeWarp.fixedDeltaTime);//debug
 			if(deltaTime < 0) return;
 			UpdateCoreTemperature(deltaTime);
 			var dTemp = CoreTemperature-boiloffTemperature;
-//			Utils.Log("dTemp: {}", dTemp);//debug
 			if(dTemp > 0)
 			{
 				var boiled_off = resource.amount*(1-Math.Exp(-dTemp*specificHeatCapacity/vaporizationHeat));
@@ -172,11 +175,31 @@ namespace AT_Utils
 		[Persistent] public double Power = -1;
 		[Persistent] public double CoolingEfficiency = 0;
 
-		[Persistent] public double LastPartTemp = -1;
-		[Persistent] public double PartTempRate = -1;
+		[Persistent] public double LastSkinTemp = -1;
+		[Persistent] public double SkinTempRate = -1;
+		[Persistent] public double LastEc = -1;
+		[Persistent] public double EcRate = double.NaN;
 
 		[Persistent] public bool   Enabled = true;
 		[Persistent] public bool   IsCooling;
+
+		public double PowerConsumptionAt300K 
+		{ 
+			get 
+			{ 
+				var resThermalMass = resource.amount*specificHeatCapacity;
+				var partThermalMass = part.mass * PhysicsGlobals.StandardSpecificHeatCapacity * part.thermalMassModifier;
+				var equilibriumT = (300*partThermalMass+boiloffTemperature*resThermalMass)/(partThermalMass+resThermalMass);
+				Utils.Log("res.tM {}, part.tM {}, eq.T {}", resThermalMass, partThermalMass, equilibriumT);//debug
+				var temperature_transfer = 1-Math.Exp(-TimeWarp.fixedDeltaTime*CryogenicsParams.Instance.InsulationFactor);
+				var CoreDeltaT = (equilibriumT-boiloffTemperature)*temperature_transfer;
+				return Math.Min(CoreDeltaT*resThermalMass *
+				                (300-boiloffTemperature)/boiloffTemperature/Efficiency /
+				                CryogenicsParams.Instance.ElectricCharge2kJ / 
+				                TimeWarp.fixedDeltaTime, 
+				                MaxPower);
+			} 
+		}
 
 		double Q2W { get { return (part.skinTemperature-CoreTemperature)/CoreTemperature/Efficiency; } }
 
@@ -189,71 +212,95 @@ namespace AT_Utils
 			Efficiency = cryo_info.CoolingEfficiency;
 		}
 
+		void update_rates(double deltaTime)
+		{
+			if(LastSkinTemp >= 0) SkinTempRate = (part.skinTemperature-LastSkinTemp)/deltaTime;
+			LastSkinTemp = part.skinTemperature;
+			double ec_amount, ec_max;
+			part.GetConnectedResourceTotals(Utils.ElectricChargeID, out ec_amount, out ec_max);
+			if(LastEc >= 0) EcRate = (LastEc-ec_amount)/deltaTime;
+			LastEc = ec_amount;
+			Utils.Log("SkinTempRate {}, EcRate {}", SkinTempRate, EcRate);//debug
+		}
+
 		protected override void UpdateCoreTemperature(double deltaTime)
 		{
 			var last_core_temp = CoreTemperature;
 			base.UpdateCoreTemperature(deltaTime);
-			if(!Enabled) return;
 			IsCooling = false;
+			if(!Enabled) return;
 			if(part.skinTemperature/part.skinMaxTemp > PhysicsGlobals.TemperatureGaugeThreshold)
 				goto disable;
-			var temp_excess = CoreTemperature-boiloffTemperature;
-			Utils.Log("Skin.T {}, dTemp {}", part.skinTemperature, temp_excess);//debug
-			if(temp_excess < 0)
+			var temperature_excess = CoreTemperature-boiloffTemperature;
+			Utils.Log("Skin.T {}, dTemp {}", part.skinTemperature, temperature_excess);//debug
+			if(temperature_excess < 0)
 			{
-				var work_needed = Math.Abs(CoreTemperature-last_core_temp) *
+				var electric_charge_needed = Math.Abs(CoreTemperature-last_core_temp) *
 					resource.amount*specificHeatCapacity *
 					Q2W/CryogenicsParams.Instance.ElectricCharge2kJ;
-				var work = work_needed/deltaTime > MaxPower? MaxPower*deltaTime : work_needed;
-				Power = work/deltaTime;
-				CoolingEfficiency = work/work_needed;
-				Utils.Log("Power {}/{}, Efficiency {}", Power, MaxPower, CoolingEfficiency);//debug
+				var electric_charge = electric_charge_needed/deltaTime > MaxPower? MaxPower*deltaTime : electric_charge_needed;
+				Power = electric_charge/deltaTime;
+				CoolingEfficiency = electric_charge/electric_charge_needed;
+				update_rates(deltaTime);
+				Utils.Log("Would Consume {}/{}, Power {}/{}, Efficiency {}", 
+				          electric_charge, electric_charge_needed, Power, MaxPower, CoolingEfficiency);//debug
 				return;
 			}
-			if(deltaTime < 1)
+			if(Math.Abs(deltaTime-TimeWarp.fixedDeltaTime) < 1e-5)
 			{
 				var q2w = Q2W;
 				var resThermalMass = resource.amount*specificHeatCapacity;
-				var work = temp_excess*resThermalMass*q2w/CryogenicsParams.Instance.ElectricCharge2kJ;
-				if(work/deltaTime > MaxPower) work = MaxPower*deltaTime;
-				work = part.vessel.RequestResource(part, Utils.ElectricChargeID, work, false);
-				if(work <= 0) goto disable;
+				var electric_charge_needed = temperature_excess*resThermalMass*q2w/CryogenicsParams.Instance.ElectricCharge2kJ;
+				if(electric_charge_needed/deltaTime > MaxPower) electric_charge_needed = MaxPower*deltaTime;
+				var electric_charge = part.vessel.RequestResource(part, Utils.ElectricChargeID, electric_charge_needed, false);
+				if(electric_charge/electric_charge_needed < CryogenicsParams.Instance.ShutdownThreshold)
+				{
+					Utils.Message("Not enough energy, CryoCooler is disabled.");
+					goto disable;
+				}
 				IsCooling = true;
-				Power = work/deltaTime;
-				var energy_extracted = work/q2w*CryogenicsParams.Instance.ElectricCharge2kJ;
+				Power = electric_charge/deltaTime;
+				var energy_extracted = electric_charge/q2w*CryogenicsParams.Instance.ElectricCharge2kJ;
 				var cooled = energy_extracted/resThermalMass;
-				CoolingEfficiency = cooled/temp_excess;
+				CoolingEfficiency = cooled/temperature_excess;
 				CoreTemperature -= cooled;
 				part.AddSkinThermalFlux(energy_extracted/TimeWarp.fixedDeltaTime);
-				if(LastPartTemp >= 0) PartTempRate = (part.skinTemperature-LastPartTemp)/deltaTime;
-				LastPartTemp = part.skinTemperature;
-				Utils.Log("Power {}/{}, Cooled {}/{}", Power, MaxPower, cooled, temp_excess);//debug
+				update_rates(deltaTime);
+				Utils.Log("Consumed {}, Power {}/{}, Cooled {}/{}, SkinTempRate {}", 
+				          electric_charge, Power, MaxPower, cooled, temperature_excess, SkinTempRate);//debug
 				return;
 			}
-			else if(Power > 0)
+			else if(Power > 0) //catch up after bein unloaded
 			{
 				var coolingTime = deltaTime;
-				var part_temp_delta = 0.0;
-				if(PartTempRate > 0)
+				var skin_temp_delta = 0.0;
+				if(SkinTempRate > 0)
 				{
-					part_temp_delta = PartTempRate*deltaTime;
-					if(part_temp_delta+LastPartTemp > part.skinMaxTemp*PhysicsGlobals.TemperatureGaugeThreshold)
-						part_temp_delta = Math.Max(part.skinMaxTemp*PhysicsGlobals.TemperatureGaugeThreshold-LastPartTemp, 0);
-					if(part_temp_delta <= 0) goto disable;
-					coolingTime = part_temp_delta/PartTempRate;
+					skin_temp_delta = SkinTempRate*deltaTime;
+					if(skin_temp_delta+LastSkinTemp > part.skinMaxTemp*PhysicsGlobals.TemperatureGaugeThreshold)
+						skin_temp_delta = Math.Max(part.skinMaxTemp*PhysicsGlobals.TemperatureGaugeThreshold-LastSkinTemp, 0);
+					if(skin_temp_delta <= 0) goto disable;
+					coolingTime = skin_temp_delta/SkinTempRate;
 				}
-				var needed_work = Power*coolingTime;
-				var energy_spent = part.vessel.RequestResource(part, Utils.ElectricChargeID, needed_work, false);
-				if(energy_spent <= 0) goto disable;
+				var electric_charge_needed = double.IsNaN(EcRate)? Power*coolingTime : EcRate*coolingTime;
+				var electric_charge = part.vessel.RequestResource(part, Utils.ElectricChargeID, electric_charge_needed, false);
+				if(electric_charge_needed > 0 &&
+				   electric_charge/electric_charge_needed < CryogenicsParams.Instance.ShutdownThreshold)
+				{
+					Utils.Message("Not enough energy, CryoCooler is disabled.");
+					goto disable;
+				}
 				IsCooling = true;
-				CoreTemperature -= temp_excess*CoolingEfficiency*energy_spent/needed_work*coolingTime/deltaTime;
-				if(part_temp_delta > 0)
-					part.AddSkinThermalFlux(part_temp_delta*part.skinThermalMass/TimeWarp.fixedDeltaTime);
-				Utils.Log("Efficiency {}, cooling time {}/{}, energy spent {}/{}, Cooled {}/{}", 
+				var ec_efficiency = electric_charge_needed > 0? electric_charge/electric_charge_needed : 1;
+				CoreTemperature -= temperature_excess*CoolingEfficiency*ec_efficiency*coolingTime/deltaTime;
+				if(skin_temp_delta > 0)
+					part.AddSkinThermalFlux(skin_temp_delta*part.skinThermalMass/TimeWarp.fixedDeltaTime);
+				Utils.Log("Efficiency {}, cooling time {}/{}, Consumed {}/{}, Cooled {}/{}, Skin.dT {}/{}", 
 				          CoolingEfficiency, 
 				          coolingTime, deltaTime, 
-				          energy_spent, needed_work, 
-				          temp_excess*CoolingEfficiency*energy_spent/needed_work*coolingTime/deltaTime, temp_excess);//debug
+				          electric_charge, electric_charge_needed, 
+				          temperature_excess*CoolingEfficiency*electric_charge/electric_charge_needed*coolingTime/deltaTime, temperature_excess,
+				          skin_temp_delta, SkinTempRate*deltaTime);//debug
 				return;
 			}
 			disable:
