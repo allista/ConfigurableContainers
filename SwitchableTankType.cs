@@ -95,6 +95,16 @@ namespace AT_Utils
 		}
 
 		/// <summary>
+		/// Returns TankType.Info for a type, if it exists; string.Empty otherwise.
+		/// </summary>
+		/// <param name="tank_type">Tank type name.</param>
+		public static string GetTankTypeInfo(string tank_type)
+		{
+			SwitchableTankType t;
+			return TankTypes.TryGetValue(tank_type, out t) ? t.Info : string.Empty;
+		}
+
+		/// <summary>
 		/// Returns info string describing available tank types
 		/// </summary>
 		public static string TypesInfo(string[] include = null, string[] exclude = null)
@@ -139,13 +149,21 @@ namespace AT_Utils
 		[Persistent] public bool   Boiloff;
 		/// <summary>
 		/// If the resources in this tank should be actively cooled untill below the boiloff temperature.
-		/// </summary>
+		/// </summary>	
 		[Persistent] public bool   Cooling;
 
 		public float Cost(float volume)
 		{ return volume*TankCostPerVolume + Utils.CubeSurface(volume)*TankCostPerSurface; }
 
 		public float AddMass(float volume) { return volume*AddMassPerVolume; }
+
+		public float UsefulVolume(float volume)
+		{
+			var useful_volume = UsefulVolumeRatio;
+			if(Boiloff || Cooling) useful_volume -= CryogenicsParams.Instance.InsulationVolumeFraction;
+			if(useful_volume < 0) return 0;
+			return volume * useful_volume;
+		}
 
 		public SortedList<string, TankResource> Resources { get; private set; }
 		public bool Valid { get { return Resources != null && Resources.Count > 0; } }
@@ -167,17 +185,25 @@ namespace AT_Utils
 			Resources = TankResource.ParseResourcesToSortedList(PossibleResources);
 		}
 
+		string info = null;
 		public string Info
 		{ 
 			get 
 			{ 
-				var info = "";
-				if(!Valid) return info;
-				info += "Tank can hold:\n";
-				foreach(var r in ResourceNames)
-					info += string.Format("- {0}: {1}/L\n", 
-						Resources[r].Name, Utils.formatUnits(Resources[r].UnitsPerLiter));
-				if(Boiloff) info += "Resources are boil off.\n";
+				if(!Valid) return "";
+				if(info == null)
+				{
+					info = "";
+					info += "Tank can hold:\n";
+					foreach(var r in ResourceNames)
+						info += string.Format("- {0}: {1}/L\n", 
+							Resources[r].Name, Utils.formatUnits(Resources[r].UnitsPerLiter));
+					var usefull_volume = UsefulVolume(100);
+					if(usefull_volume < 100)
+						info += string.Format("Only {0:F0}% of the volume is used for resources.\n", usefull_volume);
+					if(Boiloff||Cooling) info += "Tank is thermally insulated.\nEquipped with boil-off valve.\n";
+					if(Cooling) info += "Equipped with Active Cooling System.\n";
+				}
 				return info;
 			} 
 		}
