@@ -53,7 +53,7 @@ namespace AT_Utils
 			{
 				if(manager.TypeChangeEnabled && manager.SupportedTypes.Count > 1) 
 				{
-					var new_type = Utils.LeftRightChooser<string>(tank.TankType, tank.SupportedTypes, 160);
+					var new_type = Utils.LeftRightChooser<string>(tank.TankType, tank.SupportedTypes, tank.Type.Info, 160);
 					if(new_type != tank.TankType)
 					{
 						tank.TankType = new_type;
@@ -67,7 +67,7 @@ namespace AT_Utils
 			{
 				if(tank.Type.Resources.Count > 1)
 				{
-					var new_res = Utils.LeftRightChooser<string>(tank.CurrentResource, tank.Type.Resources.Keys, 160);
+					var new_res = Utils.LeftRightChooser<string>(tank.CurrentResource, tank.Type.Resources.Keys, width: 160);
 					if(new_res != tank.CurrentResource) 
 					{
 						tank.CurrentResource = new_res;
@@ -160,7 +160,8 @@ namespace AT_Utils
 			//tank properties
 			GUILayout.BeginHorizontal();
 			GUILayout.Label("Type:", GUILayout.ExpandWidth(false));
-			selected_tank_type = Utils.LeftRightChooser<string>(selected_tank_type, SupportedTypes, 160);
+			selected_tank_type = Utils.LeftRightChooser<string>(selected_tank_type, SupportedTypes, 
+			                                                    SwitchableTankType.GetTankTypeInfo(selected_tank_type), 160);
 			GUILayout.Label("Volume:", GUILayout.Width(50));
 			volume_field = GUILayout.TextField(volume_field, GUILayout.ExpandWidth(true), GUILayout.MinWidth(50));
 			if(GUILayout.Button(new GUIContent(percent? "%" : "m3", "Change between Volume (m3) and Percentage (%)"), 
@@ -210,7 +211,7 @@ namespace AT_Utils
 				else Utils.Log("Configuration is invalid:\n{}\nThis should never happen!", node);
 			}
 			cfg = null;
-			var choice = Utils.LeftRightChooser(config_name, 200);
+			var choice = Utils.LeftRightChooser(config_name, width: 200);
 			if(choice < 0) cfg = VolumeConfigsLibrary.UserConfigs.Prev(config_name);
 			else if(choice > 0) cfg = VolumeConfigsLibrary.UserConfigs.Next(config_name);
 			if(cfg != null) config_name = cfg.name;
