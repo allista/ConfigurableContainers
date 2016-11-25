@@ -89,6 +89,7 @@ namespace AT_Utils
 		public string CurrentResource = string.Empty;
 		TankResource resource_info;
 		PartResource current_resource;
+		string current_resource_name = string.Empty;
 		string previous_resource = string.Empty;
 
 		#if DEBUG
@@ -98,14 +99,16 @@ namespace AT_Utils
 		public string SkinTemperatureDisplay = "0";
 		#endif
 
-		[KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "T(Res)", guiUnits = "°C")]
-		public string TemperatureDisplay = "0";
+		[KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "T(Res)", guiFormat = "0.0°C")]
+		public double CoreTemperatureDisplay = 0;
+		[KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Boiloff")]
+		public string BoiloffDisplay = "0";
 		ResourceBoiloff boiloff;
 
 		[KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling", guiFormat = "P1")]
 		public double CoolingDisplay = 0;
-		[KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling Cost", guiFormat = "~0.0 Ec/s")]
-		public double EcDisplay = 0;
+		[KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling Cost")]
+		public string EcDisplay = "0";
 		ActiveCooling cooler;
 
 		public float Usage { get { return current_resource != null? (float)(current_resource.amount/current_resource.maxAmount) : 0; } }
@@ -125,8 +128,8 @@ namespace AT_Utils
 		{ 
 			get 
 			{ 
-				return tank_type == null || resource_info == null? 
-					0 : Volume * tank_type.UsefulVolumeRatio * resource_info.UnitsPerLiter*1000f; 
+				return tank_type == null || resource_info == null ? 0 : 
+					tank_type.UsefulVolume(Volume) * resource_info.UnitsPerLiter * 1000f;
 			} 
 		}
 
@@ -277,6 +280,7 @@ namespace AT_Utils
 				return false;
 			}
 			part.Resources.Remove(current_resource.resourceName);
+			current_resource_name = string.Empty;
 			current_resource = null;
 			return true;
 		}
@@ -292,22 +296,25 @@ namespace AT_Utils
 		void update_cooler_control()
 		{
 			if(cooler == null) return;
-			Events["ToggleCooler"].guiName = cooler.Enabled? "Disable Cooling" : "Enable Cooling";
+			Events["ToggleCooler"].guiName = cooler.Enabled? 
+				string.Format("Disable {0} Cooling", current_resource_name) : 
+				string.Format("Enable {0} Cooling", current_resource_name);
 		}
 
 		void update_boiloff_control()
 		{
 			if(boiloff != null && boiloff.Valid) 
 			{
-				var res_name = Utils.ParseCamelCase(current_resource.resourceName);
-				Fields["TemperatureDisplay"].guiActive = true;
-				Fields["TemperatureDisplay"].guiName = res_name;
+				Fields["CoreTemperatureDisplay"].guiActive = true;
+				Fields["CoreTemperatureDisplay"].guiName = current_resource_name;
+				Fields["BoiloffDisplay"].guiActiveEditor = true;
+				Fields["BoiloffDisplay"].guiName = current_resource_name+" Boiloff";
 				if(cooler != null)
 				{
 					Fields["CoolingDisplay"].guiActive = true;
-					Fields["CoolingDisplay"].guiName = res_name+" Cooling";
+					Fields["CoolingDisplay"].guiName = current_resource_name+" Cooling";
 					Fields["EcDisplay"].guiActiveEditor = true;
-					Fields["EcDisplay"].guiName = res_name + " Cooling Cost";
+					Fields["EcDisplay"].guiName = current_resource_name + " Cooling Cost";
 					Events["ToggleCooler"].active = true;
 					update_cooler_control();
 				}
@@ -319,7 +326,7 @@ namespace AT_Utils
 			}
 			else
 			{
-				Fields["TemperatureDisplay"].guiActive = false;
+				Fields["CoreTemperatureDisplay"].guiActive = false;
 				Fields["CoolingDisplay"].guiActive = false;
 				Fields["EcDisplay"].guiActiveEditor = false;
 				Events["ToggleCooler"].active = false;
@@ -375,7 +382,7 @@ namespace AT_Utils
 			//initialize boiloff/cooling
 			if(tank_type.Boiloff || tank_type.Cooling)
 			{
-				boiloff = tank_type.Boiloff? new ResourceBoiloff() : new ActiveCooling();
+				boiloff = tank_type.Boiloff? new ResourceBoiloff(this) : new ActiveCooling(this);
 				if(ModuleSave != null) boiloff.LoadFrom(ModuleSave);
 				cooler = boiloff as ActiveCooling;
 			}
@@ -429,6 +436,7 @@ namespace AT_Utils
 		{
 			Volume = volume;
 			UpdateMaxAmount(update_amount);
+			if(boiloff != null) boiloff.UpdateInsulation();
 		}
 
 		bool init_resource()
@@ -472,6 +480,7 @@ namespace AT_Utils
 				node.AddValue("maxAmount", maxAmount);
 				current_resource = part.Resources.Add(node);
 			}
+			current_resource_name = Utils.ParseCamelCase(CurrentResource);
 			if(boiloff != null) boiloff.SetResource(current_resource);
 			if(part.Events != null) part.SendEvent("resource_changed");
 			return true;
@@ -514,6 +523,16 @@ namespace AT_Utils
 			update_cooler_control();
 		}
 
+		#if DEBUG
+		[KSPEvent(guiActive=true, guiActiveEditor = true, guiName = "Reload Cryogenics", active = true)]
+		void ReloadCryogenics() 
+		{ 
+			CryogenicsParams.Reload();
+			if(boiloff != null && current_resource != null)
+				boiloff.SetResource(current_resource);
+		}
+		#endif
+
 		IEnumerator<YieldInstruction> slow_update()
 		{
 			while(true)
@@ -522,8 +541,10 @@ namespace AT_Utils
 				{
 					if(tank_type == null || tank_type.name != TankType) 
 						change_tank_type();
-					if(cooler != null)
-						EcDisplay = cooler.PowerConsumptionAt300K;
+					if(boiloff != null && boiloff.Valid)
+						BoiloffDisplay = "~"+Utils.formatSmallValue((float)boiloff.BoiloffAt300K*3600, "u/h");
+					if(cooler != null && boiloff.Valid)
+						EcDisplay = "~"+Utils.formatSmallValue((float)cooler.PowerConsumptionAt300K, "Ec/s");
 				}
 				else if(tank_type != null && tank_type.name != TankType)
 				{
@@ -537,7 +558,7 @@ namespace AT_Utils
 				{
 					//temprerature display
 					if(boiloff != null)
-						TemperatureDisplay = (boiloff.CoreTemperature-273.15).ToString("F1");
+						CoreTemperatureDisplay = boiloff.CoreTemperature-273.15;
 					if(cooler != null)
 					{
 						CoolingDisplay = cooler.IsCooling? cooler.CoolingEfficiency : 0;

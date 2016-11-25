@@ -63,7 +63,7 @@ namespace AT_Utils
 				var t = Type;
 				var res = t.Resources[CurrentResource];
 				var res_def = PartResourceLibrary.Instance.GetDefinition(res.Name);
-				var cost = res_def.unitCost * res.UnitsPerLiter * t.UsefulVolumeRatio * Volume * volume_conversion * 1000;
+				var cost = res_def.unitCost * res.UnitsPerLiter * t.UsefulVolume(Volume) * volume_conversion * 1000;
 				return maxAmount? cost : cost * InitialAmount;
 			}
 			catch { return 0; }
@@ -76,7 +76,7 @@ namespace AT_Utils
 				var t = Type;
 				var res = t.Resources[CurrentResource];
 				var res_def = PartResourceLibrary.Instance.GetDefinition(res.Name);
-				var cost = res_def.density * res.UnitsPerLiter * t.UsefulVolumeRatio * Volume * volume_conversion * 1000;
+				var cost = res_def.density * res.UnitsPerLiter * t.UsefulVolume(Volume) * volume_conversion * 1000;
 				return maxAmount? cost : cost * InitialAmount;
 			}
 			catch { return 0; }
