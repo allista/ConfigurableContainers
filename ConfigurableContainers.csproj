@@ -71,7 +71,9 @@
     <Compile Include="AbstractResourceTank.cs" />
     <Compile Include="VolumeConfigsLibrary.cs" />
     <Compile Include="SwitchableTankManagerGUI.cs" />
-    <Compile Include="Cryogenics.cs" />
+    <Compile Include="Cryogenics\CryogenicsParams.cs" />
+    <Compile Include="Cryogenics\ResourceBoiloff.cs" />
+    <Compile Include="Cryogenics\ActiveCooling.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -88,5 +90,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Cryogenics\" />
   </ItemGroup>
 </Project>
