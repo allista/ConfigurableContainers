@@ -63,11 +63,11 @@ namespace AT_Utils
 			partThermalMass = part.mass * PhysicsGlobals.StandardSpecificHeatCapacity * part.thermalMassModifier;
 			double equilibriumT;
 			var transfer = temperatureTransfer(1, partThermalMass, resThermalMass, 300, boiloffTemperature, out equilibriumT);
-			Utils.Log("Eq.T {}, C.dT {}, conductivity {}, (P.tM {} + C.tM {})/(P.tM*C.tM) = {}, transfer {}", 
-			          equilibriumT, (equilibriumT-boiloffTemperature)*transfer, 
-			          insulatorConductivity,
-			          partThermalMass, resThermalMass, (partThermalMass+resThermalMass)/(resThermalMass*partThermalMass),
-			          transfer);//debug
+//			Utils.Log("Eq.T {}, C.dT {}, conductivity {}, (P.tM {} + C.tM {})/(P.tM*C.tM) = {}, transfer {}", 
+//			          equilibriumT, (equilibriumT-boiloffTemperature)*transfer, 
+//			          insulatorConductivity,
+//			          partThermalMass, resThermalMass, (partThermalMass+resThermalMass)/(resThermalMass*partThermalMass),
+//			          transfer);//debug
 			return (equilibriumT-boiloffTemperature)*transfer;
 		}
 
@@ -116,11 +116,11 @@ namespace AT_Utils
 			var CoreDeltaT = (equilibriumT-CoreTemperature)*transfer;
 			var PartDeltaT = (equilibriumT-part.temperature)*transfer;
 			part.AddThermalFlux(PartDeltaT*part.thermalMass/TimeWarp.fixedDeltaTime);
-			Utils.Log("P.T {} > Eq.T {} < C.T {}, P.dT {}, C.dT {}, conductivity {}, (P.tM {} + C.tM {})/(P.tM*C.tM) = {}, transfer {}", 
-			          part.temperature, equilibriumT, CoreTemperature, PartDeltaT, CoreDeltaT, 
-			          insulatorConductivity,
-			          partThermalMass, resThermalMass, (partThermalMass+resThermalMass)/(resThermalMass*partThermalMass),
-			          transfer);//debug
+//			Utils.Log("P.T {} > Eq.T {} < C.T {}, P.dT {}, C.dT {}, conductivity {}, (P.tM {} + C.tM {})/(P.tM*C.tM) = {}, transfer {}", 
+//			          part.temperature, equilibriumT, CoreTemperature, PartDeltaT, CoreDeltaT, 
+//			          insulatorConductivity,
+//			          partThermalMass, resThermalMass, (partThermalMass+resThermalMass)/(resThermalMass*partThermalMass),
+//			          transfer);//debug
 			CoreTemperature += CoreDeltaT;
 		}
 
@@ -132,7 +132,7 @@ namespace AT_Utils
 			if(LastUpdateTime < 0)
 				CoreTemperature = resource.amount > 0? Math.Max(boiloffTemperature-10, PhysicsGlobals.SpaceTemperature) : part.temperature;
 			var deltaTime = GetDeltaTime();
-			Utils.Log("deltaTime: {}, fixedDeltaTime {}", deltaTime, TimeWarp.fixedDeltaTime);//debug
+//			Utils.Log("deltaTime: {}, fixedDeltaTime {}", deltaTime, TimeWarp.fixedDeltaTime);//debug
 			if(deltaTime < 0) return;
 			UpdateCoreTemperature(deltaTime);
 			var dTemp = CoreTemperature-boiloffTemperature;
@@ -140,8 +140,8 @@ namespace AT_Utils
 			{
 				var boiled_off = resource.amount*(1-Math.Exp(-dTemp*specificHeatCapacity/vaporizationHeat));
 				if(boiled_off > resource.amount) boiled_off = resource.amount;
-				Utils.Log("last amount {}, amount {}, boiled off {}",
-				          resource.amount, resource.amount-boiled_off, boiled_off);//debug
+//				Utils.Log("last amount {}, amount {}, boiled off {}",
+//				          resource.amount, resource.amount-boiled_off, boiled_off);//debug
 				resource.amount -= boiled_off;
 				if(resource.amount < 1e-9) resource.amount = 0;
 				CoreTemperature = boiloffTemperature;

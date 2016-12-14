@@ -60,7 +60,7 @@ namespace AT_Utils
 			if(part.skinTemperature/part.skinMaxTemp > PhysicsGlobals.TemperatureGaugeThreshold)
 				goto disable;
 			var temperature_excess = CoreTemperature-boiloffTemperature;
-			Utils.Log("Skin.T {}, dTemp {}", part.skinTemperature, temperature_excess);//debug
+//			Utils.Log("Skin.T {}, dTemp {}", part.skinTemperature, temperature_excess);//debug
 			if(temperature_excess < 0)
 			{
 				var electric_charge_needed = Math.Abs(CoreTemperature-last_core_temp) *
@@ -68,8 +68,8 @@ namespace AT_Utils
 					Q2W/CryogenicsParams.Instance.ElectricCharge2kJ;
 				var electric_charge = electric_charge_needed/deltaTime > MaxPower? MaxPower*deltaTime : electric_charge_needed;
 				CoolingEfficiency = electric_charge/electric_charge_needed;
-				Utils.Log("Would Consume {}/{}, Power {}/{}, Efficiency {}", 
-				          electric_charge, electric_charge_needed, electric_charge/deltaTime, MaxPower, CoolingEfficiency);//debug
+//				Utils.Log("Would Consume {}/{}, Power {}/{}, Efficiency {}", 
+//				          electric_charge, electric_charge_needed, electric_charge/deltaTime, MaxPower, CoolingEfficiency);//debug
 				return;
 			}
 			if(Math.Abs(deltaTime-TimeWarp.fixedDeltaTime) < 1e-5)
@@ -90,16 +90,16 @@ namespace AT_Utils
 				CoolingEfficiency = cooled/temperature_excess;
 				CoreTemperature -= cooled;
 				part.AddSkinThermalFlux(energy_extracted/TimeWarp.fixedDeltaTime);
-				Utils.Log("Consumed {}, Power {}/{}, Cooled {}/{}, SkinTempRate {}", 
-				          electric_charge, electric_charge/deltaTime, MaxPower, cooled, temperature_excess);//debug
+//				Utils.Log("Consumed {}, Power {}/{}, Cooled {}/{}, SkinTempRate {}", 
+//				          electric_charge, electric_charge/deltaTime, MaxPower, cooled, temperature_excess);//debug
 				return;
 			}
 			else if(CoolingEfficiency > 0) //catch up after bein unloaded
 			{
 				IsCooling = true;
 				CoreTemperature -= temperature_excess*CoolingEfficiency;
-				Utils.Log("Efficiency {}, Cooled {}/{}", 
-				          CoolingEfficiency, temperature_excess*CoolingEfficiency, temperature_excess);//debug
+//				Utils.Log("Efficiency {}, Cooled {}/{}", 
+//				          CoolingEfficiency, temperature_excess*CoolingEfficiency, temperature_excess);//debug
 				return;
 			}
 			disable:
