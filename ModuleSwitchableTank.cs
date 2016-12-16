@@ -363,7 +363,7 @@ namespace AT_Utils
 
 		bool init_tank_type()
 		{
-			if(Volume < 0) Volume = Metric.HullVolume(part);
+			if(Volume < 0) Volume = Metric.Volume(part);
 			if(tank_type != null) return true;
 			boiloff = null;
 			//if tank type is not provided, use the first one from the library
