@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace AT_Utils
 {
-	public class ModuleTankManager : AbstractResourceTank, ITankManager, ISerializationCallbackReceiver
+	public class ModuleTankManager : AbstractResourceTank, ITankManager
 	{
 		#region Tanks
 		SwitchableTankManager tank_manager;
@@ -130,18 +130,15 @@ namespace AT_Utils
 		}
 
 		//workaround for ConfigNode non-serialization
-		public byte[] _module_save;
-		public void OnBeforeSerialize()
+		public override void OnBeforeSerialize()
 		{
 			if(tank_manager != null)
 			{
 				ModuleSave = new ConfigNode();
 				Save(ModuleSave);
 			}
-			_module_save = ConfigNodeWrapper.SaveConfigNode(ModuleSave);
+			base.OnBeforeSerialize();
 		}
-		public void OnAfterDeserialize() 
-		{ ModuleSave = ConfigNodeWrapper.RestoreConfigNode(_module_save); }
 		#endregion
 
 		#region GUI

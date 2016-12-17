@@ -10,12 +10,12 @@ using UnityEngine;
 
 namespace AT_Utils
 {
-	public abstract class AbstractResourceTank : PartModule, IPartCostModifier, IPartMassModifier, IModuleInfo
+	public abstract class AbstractResourceTank : SerializableFiledsPartModule, IPartCostModifier, IPartMassModifier, IModuleInfo
 	{
 		/// <summary>
 		/// The config node provided to OnLoad.
 		/// </summary>
-		public ConfigNode ModuleSave;
+		[SerializeField] public ConfigNode ModuleSave;
 
 		/// <summary>
 		/// The volume of a tank in m^3. It is defined in a config or calculated from the part volume in editor.

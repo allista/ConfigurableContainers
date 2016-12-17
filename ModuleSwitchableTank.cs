@@ -240,13 +240,6 @@ namespace AT_Utils
 				boiloff.SaveInto(node);
 		}
 
-		//workaround for ConfigNode non-serialization
-		public byte[] _module_save;
-		public void OnBeforeSerialize()
-		{ _module_save = ConfigNodeWrapper.SaveConfigNode(ModuleSave); }
-		public void OnAfterDeserialize() 
-		{ ModuleSave = ConfigNodeWrapper.RestoreConfigNode(_module_save); }
-
 		/// <summary>
 		/// Adds the given SwitchableTank to the list of all tanks 
 		/// whose CurrentResource is checked upon resource switching.
