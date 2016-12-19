@@ -1,6 +1,14 @@
 #Configurable Containers ChangeLog
 
-* **v2.3.1**
+* **v2.4.0**
+    * Compiled against KSP-1.2.2.
+    * Added boiloff and active cooling for cryogenic resources based on simple thermodynamics.
+    * Added CryoCooling tank type.
+    * Added KSPIE resources to TankTypes.cfg.
+    * Added tooltips with Info to TankType choosers.
+    * Replaced Tank Type dropdown list with the LeftRightChooser.
+
+* v2.3.1
     * Corrected Cryogenic tank type parameters.
     * Fixed Food tank type.
     * In Editor automatically remove current resource when trying to switch it or the tank type.
