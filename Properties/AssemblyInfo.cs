@@ -24,7 +24,7 @@ using System.Reflection;
 // The form "{Major}.{Minor}.*" will automatically update the build and revision,
 // and "{Major}.{Minor}.{Build}.*" will update just the revision.
 
-[assembly: AssemblyVersion("2.3.1")]
+[assembly: AssemblyVersion("2.4.0")]
 [assembly: KSPAssembly("ConfigurableContainers", 2, 3)]
 
 // The following attributes are used to specify the signing key for the assembly,
@@ -39,8 +39,8 @@ namespace AT_Utils
 	{
 		public CCModInfo()
 		{
-			MinKSPVersion = new Version(1,2,1);
-			MaxKSPVersion = new Version(1,2,1);
+			MinKSPVersion = new Version(1,2,2);
+			MaxKSPVersion = new Version(1,2,2);
 
 			VersionURL   = "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
 			UpgradeURL   = "https://github.com/allista/ConfigurableContainers/releases";
