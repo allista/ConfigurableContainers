@@ -215,7 +215,7 @@ class Patcher(object):
 if __name__ == '__main__':
     patcher = Patcher('GameData/ConfigurableContainers/TankTypes.cfg',
                       '/home/storage/Games/KSP_linux/PluginsArchives/Development/AT_KSP_Plugins/KSP-test/'
-                      'KSP_test_1.2.1/GameData')
+                      'KSP_test_1.2.2/GameData')
 
     patcher.part_filter = SearchQuery('PART/MODULE:.*Engines.*/')
     patcher.part_filter.Or('PART/MODULE:.*Converter.*/')
@@ -231,7 +231,7 @@ if __name__ == '__main__':
 
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Squad_Patch.cfg'),
                         [('Squad', 'Parts')], xenon_titles)
-    #
+   
     patcher.patch_mods('KWRocketry',
                        'Mk2Expansion',
                        'Mk3Expansion',
@@ -241,10 +241,10 @@ if __name__ == '__main__':
                        'ModRocketSys',
                        'NearFuturePropulsion',
                        'SPS')
-
+    
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Tal-Tanks_Patch.cfg'),
                         [('ModsByTal', 'Parts'),
-                         ],
+                        ],
                         [(SearchTerm(''), Module.Patch('!', 'ModuleFuelTanks'))],
                         add_spec=':AFTER[ModsByTal]')
 
