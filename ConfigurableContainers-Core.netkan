@@ -34,6 +34,10 @@
         {
         	"file": "GameData/ConfigurableContainers/TankConfigs.cfg",
             "install_to": "GameData/ConfigurableContainers"
+        },
+        {
+            "file": "GameData/ConfigurableContainers/Cryogenics.cfg",
+            "install_to": "GameData/ConfigurableContainers"
         }
     ]
 }
