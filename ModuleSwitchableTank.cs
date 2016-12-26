@@ -447,6 +447,10 @@ namespace AT_Utils
 			if(resource_in_use(CurrentResource)) 
 			{
 				Utils.Message(6, "A part cannot have more than one resource of any type");
+				#if DEBUG
+				this.Log("this tank: {}\nothers: {}", CurrentResource, 
+				         other_tanks.Select(t => t.GetInstanceID()+ ": "+t.CurrentResource));
+				#endif
 				return false;
 			}
 			//get definition of the next not-managed resource
