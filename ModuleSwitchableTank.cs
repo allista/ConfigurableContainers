@@ -216,7 +216,7 @@ namespace AT_Utils
 
 		public override void OnLoad(ConfigNode node)
 		{
-			//if the tank is managed, save its config
+			//if the config comes from TankManager, save its config
 			if(node.HasValue(SwitchableTankManager.MANAGED)) 
 			{
 				ModuleSave = node;
@@ -226,7 +226,10 @@ namespace AT_Utils
 			else if(ModuleSave != null && 
 			        ModuleSave.HasValue(SwitchableTankManager.MANAGED))	
 				Load(ModuleSave);
-			//if we still don't have a saved module config, save it
+			//if it is a managed tank, but config does not come from TankManager
+			else if(managed)
+				part.Modules.Remove(this);
+			//this is a stand-alone tank; save initial MODULE configuration
 			else if(ModuleSave == null)
 				ModuleSave = node;
 		}
