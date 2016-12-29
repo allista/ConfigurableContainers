@@ -1,6 +1,10 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.0**
+* **v2.4.0.1**
+    * Added patch for **OPT Spaceplane Parts** made by **octarine-noise**
+    * Small bugfixes.
+
+* v2.4.0
     * Compiled against KSP-1.2.2.
     * Added boiloff and active cooling for cryogenic resources based on simple thermodynamics.
     * Added CryoCooling tank type.
