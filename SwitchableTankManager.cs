@@ -157,7 +157,10 @@ namespace AT_Utils
 			else 
 			{
 				var cfg = ConfigNodeObject.FromConfig<VolumeConfiguration>(node);
+				var add_remove = AddRemoveEnabled;
+				AddRemoveEnabled = true;
 				AddConfiguration(cfg, cfg.Volume, false);
+				AddRemoveEnabled = add_remove;
 			}
 		}
 
