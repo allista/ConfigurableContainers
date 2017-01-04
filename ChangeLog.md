@@ -1,6 +1,11 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.0.1**
+* **v2.4.0.2**
+	* Fixed TankManager initialization with disabled AddRemove capability.
+	* Fixed TankManager initialization using empty config.
+	* Fixed in-flight tank creation.
+
+* v2.4.0.1
     * Added patch for **OPT Spaceplane Parts** made by **octarine-noise**
     * Small bugfixes.
 
