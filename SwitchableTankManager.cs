@@ -154,7 +154,7 @@ namespace AT_Utils
 				}
 				tanks.ForEach(t => t.Tank.OnStart(part.StartState()));
 			}
-			else 
+			else if(node.HasValue("Volume"))
 			{
 				var cfg = ConfigNodeObject.FromConfig<VolumeConfiguration>(node);
 				var add_remove = AddRemoveEnabled;
@@ -190,7 +190,7 @@ namespace AT_Utils
 			tank.EnablePartControls = EnablePartControls;
 			tank.IncludeTankTypes = IncludeTankTypes;
 			tank.ExcludeTankTypes = ExcludeTankTypes;
-			tank.InitialAmount = Mathf.Clamp01(amount);
+			tank.InitialAmount = HighLogic.LoadedSceneIsEditor? Mathf.Clamp01(amount) : 0;
 			if(!string.IsNullOrEmpty(resource)) tank.CurrentResource = resource;
 			tank.OnStart(part.StartState());
 			tanks.ForEach(t => t.Tank.RegisterOtherTank(tank));
