@@ -11,7 +11,7 @@ This mod converts fuel tanks and resource containers so that you can change the 
 
 ##Supported Mods
 
-Configurable Containers support manu part packs and mods:
+Configurable Containers support many part packs and mods:
 
 * **TweakScale**
 * **ProceduralParts**
@@ -27,6 +27,7 @@ Configurable Containers support manu part packs and mods:
 	* Standard Propulsion Systems
 	* Near Future Propulsion
 	* Spherical and Toroidal Tank Pack
+	* OPT Spaceplane Parts (made by octarine-noise)
 	* ...more will come.
 * Supported resources:
     * Stock
@@ -34,7 +35,7 @@ Configurable Containers support manu part packs and mods:
     * Extrapalentary Launchapads
     * Near Future Propulsion
     * All USI
-    * *Some* of KSPIE
+    * All KSPIE
     * ...more will come.
 
 ###Types of the Containers
@@ -56,4 +57,4 @@ It provides the **SwitchableTank** module that allows for creation of container 
 
 Another module Configurable Containers provide is the **TankManager** which enables _in-editor_ partitioning of a container, effectively converting it into a set of independent SwitchableTanks.
 
-The third, utility module named **SimpleTextureSwitcher** allows you to cycle through a predefined set of textures for the model or a part of the model, so a container may be easily identified.
+The third, utility module named **SimpleTextureSwitcher** allows you to cycle through a predefined set of textures for the model or a part of the model, so a container may be easily identified. *It is now part of the main AT_Utils.dll, not the CC itself.*
