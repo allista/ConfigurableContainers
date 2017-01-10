@@ -95,6 +95,21 @@ namespace AT_Utils
 		}
 
 		/// <summary>
+		/// Finds the first tank type containing the specified resource.
+		/// </summary>
+		/// <returns>The tank type.</returns>
+		/// <param name="resource_name">Resource name.</param>
+		public static SwitchableTankType FindTankType(string resource_name)
+		{
+			foreach(var t in TankTypes)
+			{
+				if(t.Value.Resources.ContainsKey(resource_name))
+					return t.Value;
+			}
+			return null;
+		}
+
+		/// <summary>
 		/// Returns TankType.Info for a type, if it exists; string.Empty otherwise.
 		/// </summary>
 		/// <param name="tank_type">Tank type name.</param>
