@@ -385,7 +385,7 @@ namespace AT_Utils
 			return true;
 		}
 
-		void change_tank_type()
+		bool change_tank_type()
 		{
 			//check if the tank is in use
 			if(tank_type != null && 
@@ -398,14 +398,14 @@ namespace AT_Utils
 				{
 					Utils.Message("Cannot change tank type while tank is in use");
 					TankType = tank_type.name;
-					return;
+					return false;
 				}
 			}
 			//setup new tank type
 			tank_type = null;
-			init_tank_type();
-			switch_resource();
-			init_res_control();
+			if(init_tank_type() && switch_resource())
+			{ init_res_control(); return true; }
+			return false;
 		}
 
 		/// <summary>
@@ -416,6 +416,11 @@ namespace AT_Utils
 		bool resource_in_use(string res)
 		{ return other_tanks.Any(t => t.ResourceInUse == res); }
 
+		/// <summary>
+		/// Sets the maxAmount of the current resource to MaxResourceInVolume.
+		/// Optionally updates the amount of current resource.
+		/// </summary>
+		/// <param name="update_amount">If set to <c>true</c> also updates amount.</param>
 		public void UpdateMaxAmount(bool update_amount = false)
 		{
 			if(current_resource == null) return;
@@ -428,11 +433,51 @@ namespace AT_Utils
 			part.UpdatePartMenu();
 		}
 
+		/// <summary>
+		/// Sets the volume of the tank and updates maxAmount of the current resource.
+		/// Optionally updates the amount of current resource.
+		/// </summary>
+		/// <param name="volume">New tank volume.</param>
+		/// <param name="update_amount">If set to <c>true</c> also updates amount.</param>
 		public void SetVolume(float volume, bool update_amount = false)
 		{
 			Volume = volume;
 			UpdateMaxAmount(update_amount);
 			if(boiloff != null) boiloff.UpdateInsulation();
+		}
+
+		/// <summary>
+		/// Forces the switch of the current resource, even if the new resource belongs to another
+		/// tank type, in which case the type is also switched. If the amount of current resource 
+		/// is not zero, it is discarded. After the switch the tank remains empty.
+		/// </summary>
+		/// <returns><c>true</c>, if resource was successfully switched, <c>false</c> otherwise.</returns>
+		/// <param name="new_resource">New resource name.</param>
+		public bool ForceSwitchResource(string new_resource)
+		{
+			//if nothing to do, return true
+			if(current_resource != null && 
+			   current_resource.resourceName == new_resource)
+				return true;
+			//if the new resource is in the current tank type
+			if(tank_type != null && tank_type.Resources.ContainsKey(new_resource))
+			{
+				if(current_resource != null) 
+					current_resource.amount = 0;
+				CurrentResource = new_resource;
+				if(switch_resource())
+				{ update_res_control(); return true; }
+				return false;
+			}
+			else //try to find the tank type for the new resource
+			{
+				var new_type = SwitchableTankType.FindTankType(new_resource);
+				if(new_type == null) return false;
+				if(current_resource != null) current_resource.amount = 0;
+				TankType = new_type.name;
+				CurrentResource = new_resource;
+				return change_tank_type();
+			}
 		}
 
 		bool init_resource()
