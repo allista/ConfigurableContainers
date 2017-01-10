@@ -240,7 +240,7 @@ namespace AT_Utils
 			volume_configs_gui();
 			close_button();
 			GUILayout.EndVertical();
-			GUIWindowBase.TooltipsAndDragWindow(eWindowPos);
+			GUIWindowBase.TooltipsAndDragWindow();
 		}
 
 		public void TanksControlGUI(int windowId)
@@ -255,7 +255,7 @@ namespace AT_Utils
 			GUILayout.EndScrollView();
 			close_button();
 			GUILayout.EndVertical();
-			GUIWindowBase.TooltipsAndDragWindow(eWindowPos);
+			GUIWindowBase.TooltipsAndDragWindow();
 		}
 
 		/// <summary>
