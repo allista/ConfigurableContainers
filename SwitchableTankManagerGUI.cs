@@ -175,7 +175,7 @@ namespace AT_Utils
 				if(!vol.Equals(volume))
 				{
 					volume = vol;
-					volume_field = volume.ToString();
+					volume_field = volume.ToString("R");
 				}
 			}
 			GUILayout.EndHorizontal();
