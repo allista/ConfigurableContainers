@@ -1,6 +1,12 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.0.2**
+* **v2.4.0.3**
+    * Added FindTankType by resource_name method to TankType library.
+    * Added ForceSwitchResource method to SwitchableTank.
+    * GroundConstruction will be using MaterialKits, so added it to Components TankType users.
+    * Use round-trip format for the volume field.
+
+* v2.4.0.2
 	* Fixed TankManager initialization with disabled AddRemove capability.
 	* Fixed TankManager initialization using empty config.
 	* Fixed in-flight tank creation.
