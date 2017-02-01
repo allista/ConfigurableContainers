@@ -24,7 +24,11 @@ using System.Reflection;
 // The form "{Major}.{Minor}.*" will automatically update the build and revision,
 // and "{Major}.{Minor}.{Build}.*" will update just the revision.
 
+#if NIGHTBUILD
+[assembly: AssemblyVersion("2.4.*")]
+#else
 [assembly: AssemblyVersion("2.4.0.3")]
+#endif
 [assembly: KSPAssembly("ConfigurableContainers", 2, 3)]
 
 // The following attributes are used to specify the signing key for the assembly,
