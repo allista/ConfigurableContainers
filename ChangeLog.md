@@ -1,5 +1,8 @@
 #Configurable Containers ChangeLog
 
+* **v2.4.0.4**
+	* Added patch for GPOSpeedFuelPump for time being.
+
 * **v2.4.0.3**
     * Added FindTankType by resource_name method to TankType library.
     * Added ForceSwitchResource method to SwitchableTank.
