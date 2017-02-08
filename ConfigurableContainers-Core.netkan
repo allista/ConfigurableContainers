@@ -19,12 +19,6 @@
         { "name": "ModuleManager" }
     ],
 
-    "suggests":
-    [
-        { "name": "KSP-AVC" },
-        { "name": "CommunityResourcePack" }
-    ],
-
     "install":
     [
         {
