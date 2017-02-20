@@ -210,11 +210,8 @@ namespace AT_Utils
 				}
 				else Utils.Log("Configuration is invalid:\n{}\nThis should never happen!", node);
 			}
-			cfg = null;
-			var choice = Utils.LeftRightChooser(config_name, width: 200);
-			if(choice < 0) cfg = VolumeConfigsLibrary.UserConfigs.Prev(config_name);
-			else if(choice > 0) cfg = VolumeConfigsLibrary.UserConfigs.Next(config_name);
-			if(cfg != null) config_name = cfg.name;
+            config_name = Utils.LeftRightChooser(config_name, VolumeConfigsLibrary.UserConfigs, 
+                                                 "Select tank configuration to edit", 200);
 			if(GUILayout.Button("Delete", Styles.danger_button, GUILayout.ExpandWidth(false)) && 
 			   !string.IsNullOrEmpty(config_name))
 			{
