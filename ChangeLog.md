@@ -1,9 +1,13 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.0.4**
+* **v2.4.0.5**
+	* Corrected CKAN metadata.
+	* Small bugfixes.
+
+* v2.4.0.4
 	* Added patch for GPOSpeedFuelPump for time being.
 
-* **v2.4.0.3**
+* v2.4.0.3
     * Added FindTankType by resource_name method to TankType library.
     * Added ForceSwitchResource method to SwitchableTank.
     * GroundConstruction will be using MaterialKits, so added it to Components TankType users.
