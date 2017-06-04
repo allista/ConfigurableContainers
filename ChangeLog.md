@@ -1,6 +1,11 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.0.5**
+* **v2.4.0.6**
+    * Compatible with KSP-1.3
+    * Fixed Metal tank type as pointed out by TheKurgan.
+    * Removed Plutonium-238 as it is internal resource for USI
+
+* v2.4.0.5
 	* Corrected CKAN metadata.
 	* Small bugfixes.
 
