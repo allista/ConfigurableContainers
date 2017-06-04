@@ -543,7 +543,7 @@ namespace AT_Utils
 
 		//interface for ProceduralParts
 		[KSPEvent(guiActive=false, active = true)]
-		void OnPartVolumeChanged(BaseEventData data)
+        void OnPartVolumeChanged(BaseEventDetails data)
 		{
 			if(managed) return;
 			var volName = data.Get<string>("volName");
@@ -553,7 +553,7 @@ namespace AT_Utils
 
 		//interface for TweakScale
 		[KSPEvent(guiActive=false, active = true)]
-		void OnPartScaleChanged(BaseEventData data)
+        void OnPartScaleChanged(BaseEventDetails data)
 		{
 			if(managed) return;
 			var scale = data.Get<float>("factorRelative");
