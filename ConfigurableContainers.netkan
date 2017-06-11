@@ -39,7 +39,9 @@
         { "name": "ModRocketSys" },
         { "name": "StandardPropulsionSystems" },
         { "name": "NearFuturePropulsion" },
-        { "name": "TALSphericalToroidalPack" }
+        { "name": "TALSphericalToroidalPack" },
+        { "name": "MunarIndustriesFTX" },
+        { "name": "RaginCaucasian" }
     ],
     
     "conflicts":

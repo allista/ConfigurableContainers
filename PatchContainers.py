@@ -35,6 +35,8 @@ class ModuleTankManager(Module):
 ModuleTankManager.mirror_value('Volume', float)
 ModuleTankManager.mirror_value('DoCostPatch', bool)
 ModuleTankManager.mirror_value('DoMassPatch', bool)
+ModuleTankManager.mirror_value('IncludeTankTypes')
+ModuleTankManager.mirror_value('ExcludeTankTypes')
 
 
 class ModuleTank(Module):
@@ -48,6 +50,8 @@ ModuleTank.mirror_value('CurrentResource')
 ModuleTank.mirror_value('ChooseTankType', bool)
 ModuleTank.mirror_value('DoCostPatch', bool)
 ModuleTank.mirror_value('DoMassPatch', bool)
+ModuleTank.mirror_value('IncludeTankTypes')
+ModuleTank.mirror_value('ExcludeTankTypes')
 
 
 class Tank(NamedObject):
@@ -108,7 +112,7 @@ class Patcher(object):
         if monotype:
             if isinstance(monotype, (list, tuple)):
                 polytype = lambda part: part.name not in monotype
-            elif monotype == 'all':
+            elif monotype in ('all', 'strict'):
                 polytype = lambda part: False
             elif isinstance(monotype, str):
                 mono_re = re.compile(monotype)
@@ -118,29 +122,27 @@ class Patcher(object):
                 if self.part_filter is not None and self.part_filter.match(part): continue
                 print('Patching %s' % part.name)
                 res = resources[res_name]
-                patch = Part.Patch('@', part.name, ':FOR[ConfigurableContainers]' + add_spec)
+                patch = Part.Patch('@', part.name,
+                                   ':FOR[ConfigurableContainers]'
+                                   ':HAS['
+                                   '!MODULE[InterstellarFuelSwitch],'
+                                   '!MODULE[FSfuelSwitch],'
+                                   '!MODULE[ModuleB9PartSwitch]]'
+                                   ':NEEDS[!modularFuelTanks&!RealFuels]'
+                                   + add_spec)
                 V = res.maxAmount * rate
                 ini = res.amount / res.maxAmount
                 comment = '%f units of %s: conversion rate is %f m3/u' % (res.maxAmount, res_name, rate)
                 patch.AddChild(Resource.Patch('!', res_name))
                 can_change_type = polytype(part)
-                if V < 8 or not can_change_type:
-                    tank = ModuleTank()
-                    tank.Volume = V
-                    tank.SetComment('Volume', comment)
-                    tank.InitialAmount = ini
-                    tank.DoCostPatch = True
-                    tank.DoMassPatch = True
-                    tank.ChooseTankType = can_change_type
-                    tank.TankType = tank_type
-                    tank.CurrentResource = res_name
-                    patch.AddChild(tank)
-                else:
+                if can_change_type or monotype != 'strict':
                     mgr = ModuleTankManager()
                     mgr.Volume = V
                     mgr.SetComment('Volume', comment)
                     mgr.DoCostPatch = True
                     mgr.DoMassPatch = True
+                    if not can_change_type:
+                        mgr.IncludeTankTypes = tank_type
                     tank = Tank()
                     tank.TankType = tank_type
                     tank.CurrentResource = res_name
@@ -148,6 +150,17 @@ class Patcher(object):
                     tank.Volume = 100
                     mgr.AddChild(tank)
                     patch.AddChild(mgr)
+                else:
+                    tank = ModuleTank()
+                    tank.Volume = V
+                    tank.SetComment('Volume', comment)
+                    tank.InitialAmount = ini
+                    tank.DoCostPatch = True
+                    tank.DoMassPatch = True
+                    tank.ChooseTankType = False
+                    tank.TankType = tank_type
+                    tank.CurrentResource = res_name
+                    patch.AddChild(tank)
                 if addons:
                     self.add_patches(part, patch, addons)
                 patches.append(patch)
@@ -195,8 +208,8 @@ class Patcher(object):
                 self.patch_LFO(out, parts, addons=addons, add_spec=add_spec)
                 self.patch_1RES(out, parts, 'LiquidChemicals', 'LiquidFuel', '.*[Ww]ing.*', addons=addons, add_spec=add_spec)
                 self.patch_1RES(out, parts, 'LiquidChemicals', 'MonoPropellant', addons=addons, add_spec=add_spec)
-                self.patch_1RES(out, parts, 'Gases', 'XenonGas', 'all', addons=addons, add_spec=add_spec)
-                self.patch_1RES(out, parts, 'Gases', 'ArgonGas', 'all', addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts, 'Gases', 'XenonGas', 'strict', addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts, 'Gases', 'ArgonGas', 'strict', addons=addons, add_spec=add_spec)
                 self.patch_1RES(out, parts, 'Soil', 'Ore', addons=addons, add_spec=add_spec)
                 out.write('\n//:mode=c#:\n')
             print('%s done.\n' % os.path.join(*path))
@@ -215,7 +228,7 @@ class Patcher(object):
 if __name__ == '__main__':
     patcher = Patcher('GameData/ConfigurableContainers/TankTypes.cfg',
                       '/home/storage/Games/KSP_linux/PluginsArchives/Development/AT_KSP_Plugins/KSP-test/'
-                      'KSP_test_1.2.2/GameData')
+                      'KSP_test_1.3/GameData')
 
     patcher.part_filter = SearchQuery('PART/MODULE:.*Engines.*/')
     patcher.part_filter.Or('PART/MODULE:.*Converter.*/')
@@ -240,8 +253,11 @@ if __name__ == '__main__':
                        'FuelTanksPlus',
                        'ModRocketSys',
                        'NearFuturePropulsion',
-                       'SPS')
-    
+                       'SPS', # Standard Propulsion Systems
+                       'RaginCaucasian', # Mk2.5 spaceplane parts
+                       'MunarIndustries', # Fuel Tank Expansion
+                       )
+
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Tal-Tanks_Patch.cfg'),
                         [('ModsByTal', 'Parts'),
                         ],
