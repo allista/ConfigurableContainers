@@ -231,7 +231,39 @@ namespace AT_Utils
 				part.Modules.Remove(this);
 			//this is a stand-alone tank; save initial MODULE configuration
 			else if(ModuleSave == null)
+            {
 				ModuleSave = node;
+                //if its an existing part and CC was just added by MM patch
+                if(node.GetValue("MM_REINITIALIZE") != null)
+                {
+                    this.Log("MM_REINITIALIZE node: {}", node);//debug
+                    //if part has multiple resources, we're in trouble
+                    if(part.Resources.Count > 1)
+                    {
+                        Utils.Message("SwitchableTank module is added to a part with multiple resources!\n" +
+                                      "This is an error in MM patch.\n" +
+                                      "SwitchableTank module is disabled.");
+                        this.EnableModule(false);
+                        part.Modules.Remove(this);
+                    }
+                    var res = part.Resources[0];
+                    var tank = TankVolume.FromResource(res);
+                    if(tank == null)
+                    {
+                        Utils.Message("SwitchableTank module is added to a part with unknown resource!\n" +
+                                      "This is an error in MM patch.\n" +
+                                      "SwitchableTank module is disabled.");
+                        this.EnableModule(false);
+                        part.Modules.Remove(this);
+                    }
+                    TankType = tank.TankType;
+                    CurrentResource = tank.CurrentResource;
+                    Volume = tank.Volume;
+                    InitialAmount = tank.InitialAmount;
+                    this.Log("TankType {}, CurrentResource {}, Volume {}, InitialAmount {}", 
+                             TankType, CurrentResource, Volume, InitialAmount);//debug
+                }
+            }
 		}
 
 		public override void OnSave(ConfigNode node)

@@ -74,6 +74,25 @@ namespace AT_Utils
 		public override void OnLoad(ConfigNode node)
 		{
 			ModuleSave = node;
+            //if its an existing part and CC was just added by MM patch
+            if(node.GetValue("MM_REINITIALIZE") != null)
+            {
+                this.Log("MM_REINITIALIZE ModuleSave: {}", ModuleSave);//debug
+                var volume = VolumeConfiguration.FromResources(part.Resources);
+                if(volume == null)
+                {
+                    Utils.Message("TankManager module is added to a part with unknown resource!\n" +
+                                  "This is an error in MM patch.\n" +
+                                  "TankManager module is disabled.");
+                    this.EnableModule(false);
+                    part.Modules.Remove(this);
+                }
+                volume.name = ModuleSave.GetValue("name");
+                ModuleSave.RemoveValue("Volume");
+                ModuleSave.RemoveNodes(TankVolume.NODE_NAME);
+                volume.Save(ModuleSave);
+                this.Log("new ModuleSave: {}", ModuleSave);//debug
+            }
 		}
 
 		public override void OnSave(ConfigNode node)
