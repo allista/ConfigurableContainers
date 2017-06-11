@@ -98,6 +98,18 @@ namespace AT_Utils
 
 		public override bool ContainsType(string tank_type)
 		{ return TankType == tank_type; }
+
+        public static TankVolume FromResource(PartResource res)
+        {
+            var tank = new TankVolume();
+            var tank_type = SwitchableTankType.FindTankType(res.resourceName);
+            if(tank_type == null) return null;
+            tank.TankType = tank_type.name;
+            tank.CurrentResource = res.resourceName;
+            tank.Volume = (float)(res.maxAmount/tank_type.Resources[res.resourceName].UnitsPerLiter/1000/tank_type.UsefulVolumeRatio);
+            tank.InitialAmount = (float)(res.amount/res.maxAmount);
+            return tank;
+        }
 	}
 
 
@@ -181,6 +193,19 @@ namespace AT_Utils
 
 		public bool ContainsTypes(string[] tank_types)
 		{ return tank_types.Any(ContainsType); }
+
+        public static VolumeConfiguration FromResources(IEnumerable<PartResource> resources)
+        {
+            var volume = new VolumeConfiguration();
+            foreach(var res in resources)
+            {
+                var tank = TankVolume.FromResource(res);
+                if(tank == null) return null;
+                volume.Volumes.Add(tank);
+            }
+            volume.Volume = volume.TotalVolume;
+            return volume;
+        }
 	}
 }
 
