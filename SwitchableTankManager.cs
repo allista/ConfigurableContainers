@@ -89,6 +89,7 @@ namespace AT_Utils
 		public string GetInfo(ConfigNode node)
 		{
 			base.Load(node);
+            init_supported_types();
 			var info = "";
 			if(TypeChangeEnabled) 
 				info += SwitchableTankType.TypesInfo(include, exclude);
