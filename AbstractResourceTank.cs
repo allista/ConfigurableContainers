@@ -17,6 +17,11 @@ namespace AT_Utils
 		/// </summary>
 		[SerializeField] public ConfigNode ModuleSave;
 
+        /// <summary>
+        /// If true, the module save was received not in the flight scene.
+        /// </summary>
+        [KSPField(isPersistant = true)] public bool ModuleSaveFromPrefab;
+
 		/// <summary>
 		/// The volume of a tank in m^3. It is defined in a config or calculated from the part volume in editor.
 		/// Cannot be changed in flight.
@@ -114,6 +119,33 @@ namespace AT_Utils
 
 		public Callback<Rect> GetDrawModulePanelCallback() { return null; }
 		#endregion
+
+        #if DEBUG
+        [KSPField(isPersistant = true, guiActive = true, guiActiveEditor = true, guiName = "Module")]
+        public string ThisModule = "";
+
+        public override void OnAwake()
+        {
+            base.OnAwake();
+            { ThisModule = GetType().Name; }
+        }
+        #endif
+
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+            ModuleSaveFromPrefab = !HighLogic.LoadedSceneIsFlight;
+        }
+
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+            //this means the module was added by MM patch to an existing part
+            if(HighLogic.LoadedSceneIsFlight && ModuleSaveFromPrefab)
+                init_from_part();
+        }
+
+        protected abstract void init_from_part();
 	}
 }
 

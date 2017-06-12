@@ -57,7 +57,10 @@ namespace AT_Utils
 			if(tank_manager != null) return;
 			tank_manager = new SwitchableTankManager(this);
 			if(ModuleSave == null) 
-			{ this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); return; }
+			{ 
+                this.Log("ModuleSave is null. THIS SHOULD NEVER HAPPEN!"); 
+                return; 
+            }
 			ModuleSave.SetValue("Volume", Volume);
 			tank_manager.Load(ModuleSave);
 			var used_volume = tank_manager.TotalVolume;
@@ -71,28 +74,40 @@ namespace AT_Utils
 			tank_manager.Volume = Volume;
 		}
 
+        protected override void init_from_part()
+        {
+            if(ModuleSave == null) ModuleSave = new ConfigNode("MODULE");
+            var volume = VolumeConfiguration.FromResources(part.Resources);
+            if(volume == null)
+            {
+                Utils.Message("TankManager module is added to a part with unknown resource!\n" +
+                              "This is an error in MM patch.\n" +
+                              "TankManager module is disabled.");
+                this.EnableModule(false);
+                part.Modules.Remove(this);
+            }
+            volume.name = ModuleSave.GetValue("name");
+            ModuleSave.RemoveValue("Volume");
+            ModuleSave.RemoveNodes(TankVolume.NODE_NAME);
+            volume.Save(ModuleSave);
+            Volume = volume.Volume;
+            DoCostPatch = false;
+            DoMassPatch = true;
+//            this.Log("ModuleSave was initialized from part in flight: {}", ModuleSave);//debug
+        }
+
 		public override void OnLoad(ConfigNode node)
 		{
+            base.OnLoad(node);
 			ModuleSave = node;
+            //FIXME: does not work
             //if its an existing part and CC was just added by MM patch
-            if(node.GetValue("MM_REINITIALIZE") != null)
-            {
-                this.Log("MM_REINITIALIZE ModuleSave: {}", ModuleSave);//debug
-                var volume = VolumeConfiguration.FromResources(part.Resources);
-                if(volume == null)
-                {
-                    Utils.Message("TankManager module is added to a part with unknown resource!\n" +
-                                  "This is an error in MM patch.\n" +
-                                  "TankManager module is disabled.");
-                    this.EnableModule(false);
-                    part.Modules.Remove(this);
-                }
-                volume.name = ModuleSave.GetValue("name");
-                ModuleSave.RemoveValue("Volume");
-                ModuleSave.RemoveNodes(TankVolume.NODE_NAME);
-                volume.Save(ModuleSave);
-                this.Log("new ModuleSave: {}", ModuleSave);//debug
-            }
+//            this.Log("OnLoad: ModuleSave: {}", ModuleSave);//debug
+//            if(node.GetValue("MM_REINITIALIZE") != null)
+//            {
+//                this.Log("MM_REINITIALIZE");//debug
+//                init_from_part();
+//            }
 		}
 
 		public override void OnSave(ConfigNode node)
@@ -105,7 +120,7 @@ namespace AT_Utils
 
 		public override void OnStart(StartState state)
 		{
-			base.OnStart(state);
+            base.OnStart(state);
 			init_tank_manager();
 			tank_manager.EnablePartControls = !HighLogic.LoadedSceneIsEditor && tank_manager.TanksCount < 2;
 			Utils.EnableEvent(Events["EditTanks"], !tank_manager.EnablePartControls);

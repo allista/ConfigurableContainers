@@ -200,6 +200,7 @@ namespace AT_Utils
 
 		public override void OnStart(StartState state)
 		{
+            base.OnStart(state);
 			init_supported_types();
 			//get other tanks in this part
 			other_tanks.AddRange(from t in part.Modules.GetModules<ModuleSwitchableTank>()
@@ -214,8 +215,41 @@ namespace AT_Utils
 			StartCoroutine(slow_update());
 		}
 
+        protected override void init_from_part()
+        {
+            //if part has multiple resources, we're in trouble
+            if(part.Resources.Count > 1)
+            {
+                Utils.Message("SwitchableTank module is added to a part with multiple resources!\n" +
+                              "This is an error in MM patch.\n" +
+                              "SwitchableTank module is disabled.");
+                this.EnableModule(false);
+                part.Modules.Remove(this);
+            }
+            var res = part.Resources[0];
+            var tank = TankVolume.FromResource(res);
+            if(tank == null)
+            {
+                Utils.Message("SwitchableTank module is added to a part with unknown resource!\n" +
+                              "This is an error in MM patch.\n" +
+                              "SwitchableTank module is disabled.");
+                this.EnableModule(false);
+                part.Modules.Remove(this);
+            }
+            DoCostPatch = false;
+            DoMassPatch = true;
+            TankType = tank.TankType;
+            CurrentResource = tank.CurrentResource;
+            Volume = tank.Volume;
+            InitialAmount = tank.InitialAmount;
+//            this.Log("Initialized from part in flight: TankType {}, CurrentResource {}, Volume {}, InitialAmount {}", 
+//                     TankType, CurrentResource, Volume, InitialAmount);//debug
+        }
+
 		public override void OnLoad(ConfigNode node)
 		{
+            base.OnLoad(node);
+//            this.Log("OnLoad: ModuleSave: {}", node);//debug
 			//if the config comes from TankManager, save its config
 			if(node.HasValue(SwitchableTankManager.MANAGED)) 
 			{
@@ -233,36 +267,13 @@ namespace AT_Utils
 			else if(ModuleSave == null)
             {
 				ModuleSave = node;
+                //FIXME: does not work
                 //if its an existing part and CC was just added by MM patch
-                if(node.GetValue("MM_REINITIALIZE") != null)
-                {
-                    this.Log("MM_REINITIALIZE node: {}", node);//debug
-                    //if part has multiple resources, we're in trouble
-                    if(part.Resources.Count > 1)
-                    {
-                        Utils.Message("SwitchableTank module is added to a part with multiple resources!\n" +
-                                      "This is an error in MM patch.\n" +
-                                      "SwitchableTank module is disabled.");
-                        this.EnableModule(false);
-                        part.Modules.Remove(this);
-                    }
-                    var res = part.Resources[0];
-                    var tank = TankVolume.FromResource(res);
-                    if(tank == null)
-                    {
-                        Utils.Message("SwitchableTank module is added to a part with unknown resource!\n" +
-                                      "This is an error in MM patch.\n" +
-                                      "SwitchableTank module is disabled.");
-                        this.EnableModule(false);
-                        part.Modules.Remove(this);
-                    }
-                    TankType = tank.TankType;
-                    CurrentResource = tank.CurrentResource;
-                    Volume = tank.Volume;
-                    InitialAmount = tank.InitialAmount;
-                    this.Log("TankType {}, CurrentResource {}, Volume {}, InitialAmount {}", 
-                             TankType, CurrentResource, Volume, InitialAmount);//debug
-                }
+//                if(node.GetValue("MM_REINITIALIZE") != null)
+//                {
+//                    this.Log("MM_REINITIALIZE");//debug
+//                    init_from_part();
+//                }
             }
 		}
 
