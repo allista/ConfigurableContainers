@@ -76,6 +76,8 @@ class Patcher(object):
     def volume(self, tanktype, name, units):
         t = self.types[tanktype]
         upl = t.UnitsPerLiter.get(name)
+        if not upl:
+            print('WARNING: no UnitsPerLiter value for %s in %s:\n%s' % (name, tanktype, str(t)))
         return units / upl / t.UsefulVolumeRatio / 1e3 if upl else 0
 
     @staticmethod
