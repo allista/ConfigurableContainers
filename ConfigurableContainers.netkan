@@ -41,7 +41,10 @@
         { "name": "NearFuturePropulsion" },
         { "name": "TALSphericalToroidalPack" },
         { "name": "MunarIndustriesFTX" },
-        { "name": "RaginCaucasian" }
+        { "name": "RaginCaucasian" },
+        { "name": "B9-PWings-Fork" },
+        { "name": "B9" },
+        { "name": "B9AerospaceHX" }
     ],
     
     "conflicts":
