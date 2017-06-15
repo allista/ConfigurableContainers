@@ -267,13 +267,9 @@ namespace AT_Utils
 			else if(ModuleSave == null)
             {
 				ModuleSave = node;
-                //FIXME: does not work
+                //FIXME: does not work, because MM does not add this value
                 //if its an existing part and CC was just added by MM patch
-//                if(node.GetValue("MM_REINITIALIZE") != null)
-//                {
-//                    this.Log("MM_REINITIALIZE");//debug
-//                    init_from_part();
-//                }
+                ModuleSaveFromPrefab |= node.GetValue("MM_REINITIALIZE") != null;
             }
 		}
 

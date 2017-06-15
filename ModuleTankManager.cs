@@ -100,14 +100,9 @@ namespace AT_Utils
 		{
             base.OnLoad(node);
 			ModuleSave = node;
-            //FIXME: does not work
+            //FIXME: does not work, because MM does not add this value
             //if its an existing part and CC was just added by MM patch
-//            this.Log("OnLoad: ModuleSave: {}", ModuleSave);//debug
-//            if(node.GetValue("MM_REINITIALIZE") != null)
-//            {
-//                this.Log("MM_REINITIALIZE");//debug
-//                init_from_part();
-//            }
+            ModuleSaveFromPrefab |= node.GetValue("MM_REINITIALIZE") != null;
 		}
 
 		public override void OnSave(ConfigNode node)
