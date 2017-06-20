@@ -1,6 +1,23 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.0.6**
+* **v2.4.1**
+    * All tanks except high-pressure now use TankManager. Wings use IncludeTankType to restrict contents to liquid chemicals.
+    * Updated patches:
+    	* Stock
+    	* FuleTanks+
+    	* ModularRockeSystems
+        * NearFuture
+        * KWRocketry
+        * Mk3 Expansion
+    * Added patches:
+        * Mk2.5 spaceplane parts
+        * Fuel Tank Expansion
+        * B9 Procedural Wings
+    * Added patch for B9 mods **made by ShadyAct** to *IntrusivePatches* optional folder. See the archive structure and the included readme file for details.
+    * Part info now respects Include/ExcludeTankTypes options.
+    * CC modules are now properly initialized when they're added to existing parts (in flight) by MM. **This should fix most of incompatibility with other fuel switches.**
+
+* v2.4.0.6
     * Compatible with KSP-1.3
     * Fixed Metal tank type as pointed out by TheKurgan.
     * Removed Plutonium-238 as it is internal resource for USI
