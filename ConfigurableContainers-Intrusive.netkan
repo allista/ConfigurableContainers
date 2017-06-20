@@ -1,0 +1,37 @@
+{
+    "spec_version" : "v1.4",
+    "identifier"   : "ConfigurableContainers-Intrusive",
+    "name"         : "Configurable Containers Intrusive Patches",
+    "$kref"        : "#/ckan/spacedock/1002",
+    "abstract"     : "This set of patches converts parts that use other fuel switchers to Configurable Containers framework.",
+    "author"       : [ "allista" ],
+    "license"      : "MIT",
+
+    "resources":
+    {
+    	"homepage"     : "http://forum.kerbalspaceprogram.com/index.php?/topic/150104-12-configurable-containers",
+        "bugtracker"   : "https://github.com/allista/ConfigurableContainers/issues",
+        "repository"   : "https://github.com/allista/ConfigurableContainers"
+    },
+
+    "depends":
+    [
+        { "name": "ModuleManager" },
+        { "name": "AT-Utils" },
+        { "name": "ConfigurableContainers-Core" }
+    ],
+    
+    "supports":
+    [
+        { "name": "B9" },
+        { "name": "B9AerospaceHX" }
+    ],
+
+    "install":
+    [
+        {
+            "file": "IntrusivePatches/GameData/ConfigurableContainers",
+            "install_to": "GameData"
+        }
+    ]
+}
