@@ -29,6 +29,7 @@
     "supports":
     [
         { "name": "TweakScale" },
+        { "name": "Goodspeed" },
         { "name": "ProceduralParts" },
         { "name": "KWRocketry" },
         { "name": "Mk2Expansion" },
