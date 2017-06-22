@@ -8,7 +8,6 @@ cd $(dirname "$0")
 'GameData/000_AT_Utils/Plugins/002_MultiAnimators.dll' \
 'GameData/000_AT_Utils/Plugins/SubmodelResizer.dll' \
 'GameData/000_AT_Utils/ResourceHack.cfg' \
--i '../GameData' \
--i 'IntrusivePatches' \
+-i '../GameData' 'IntrusivePatches' \
 --dll ../GameData/000_AT_Utils/Plugins/ConfigurableContainers.dll
 
