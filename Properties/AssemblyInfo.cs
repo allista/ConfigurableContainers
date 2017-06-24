@@ -47,7 +47,7 @@ namespace AT_Utils
 			MaxKSPVersion = new Version(1,3,0);
 
 			VersionURL   = "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
-			UpgradeURL   = "https://github.com/allista/ConfigurableContainers/releases";
+            UpgradeURL   = "https://spacedock.info/mod/1002/Configurable%20Containers";
 		}
 	}
 }
