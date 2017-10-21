@@ -596,6 +596,9 @@ namespace AT_Utils
 		{
 			if(managed) return;
 			var scale = data.Get<float>("factorRelative");
+            var abs_scale = data.Get<float>("factorAbsolute");
+            if(scale.Equals(1) && !abs_scale.Equals(1))
+                scale = abs_scale;
 			SetVolume(Volume*scale*scale*scale);
 		}
 
