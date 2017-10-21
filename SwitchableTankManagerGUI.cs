@@ -87,7 +87,7 @@ namespace AT_Utils
 				{
 					if(edit)
 					{
-						if(VolumeField.Draw("m3", true, manager.Volume/20, "F2"))
+						if(VolumeField.Draw("m3", manager.Volume/20, "F2"))
 						{
 							var max_volume = tank.Volume+manager.Volume-manager.TotalVolume;
 							if(VolumeField.Value > max_volume) 
@@ -212,7 +212,9 @@ namespace AT_Utils
 			}
             config_name = Utils.LeftRightChooser(config_name, VolumeConfigsLibrary.UserConfigs, 
                                                  "Select tank configuration to edit", 200);
-			if(GUILayout.Button("Delete", Styles.danger_button, GUILayout.ExpandWidth(false)) && 
+            if(config_name == null) 
+                config_name = "";
+            if(GUILayout.Button("Delete", Styles.danger_button, GUILayout.ExpandWidth(false)) && 
 			   !string.IsNullOrEmpty(config_name))
 			{
 				//remove config
