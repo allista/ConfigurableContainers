@@ -27,7 +27,7 @@ using System.Reflection;
 #if NIGHTBUILD
 [assembly: AssemblyVersion("2.4.*")]
 #else
-[assembly: AssemblyVersion("2.4.1.0")]
+[assembly: AssemblyVersion("2.4.1.1")]
 #endif
 [assembly: KSPAssembly("ConfigurableContainers", 2, 3)]
 
@@ -43,8 +43,8 @@ namespace AT_Utils
 	{
 		public CCModInfo()
 		{
-			MinKSPVersion = new Version(1,3,0);
-			MaxKSPVersion = new Version(1,3,0);
+			MinKSPVersion = new Version(1,3,1);
+			MaxKSPVersion = new Version(1,3,1);
 
 			VersionURL   = "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
             UpgradeURL   = "https://spacedock.info/mod/1002/Configurable%20Containers";
