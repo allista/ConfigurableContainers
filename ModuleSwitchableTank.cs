@@ -28,10 +28,13 @@ namespace AT_Utils
 			get { return enable_part_controls; } 
 			set 
 			{ 
-				enable_part_controls = value;
-				disable_part_controls();
-				init_type_control(); 
-				init_res_control();
+                if(enable_part_controls != value)
+                {
+    				enable_part_controls = value;
+    				disable_part_controls();
+    				init_type_control(); 
+    				init_res_control();
+                }
 			}
 		}
 
@@ -380,7 +383,8 @@ namespace AT_Utils
 				Utils.EnableField(Fields["CurrentResource"]);
 			}
 			update_boiloff_control();
-			part.UpdatePartMenu();
+            if(part.started)
+                part.UpdatePartMenu();
 		}
 
 		void update_res_control()
@@ -662,7 +666,7 @@ namespace AT_Utils
 
 		void FixedUpdate()
 		{
-			if(boiloff != null) 
+            if(HighLogic.LoadedSceneIsFlight && boiloff != null) 
 				boiloff.FixedUpdate();
 		}
 	}

@@ -59,8 +59,11 @@ namespace AT_Utils
 			get { return enable_part_controls; }
 			set 
 			{ 
-				enable_part_controls = value;
-				tanks.ForEach(t => t.Tank.EnablePartControls = enable_part_controls);
+                if(value != enable_part_controls)
+                {
+                    enable_part_controls = value;
+                    tanks.ForEach(t => t.Tank.EnablePartControls = enable_part_controls);
+                }
 			}
 		}
 
