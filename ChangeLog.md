@@ -1,5 +1,17 @@
 #Configurable Containers ChangeLog
 
+* **v2.4.1.1**
+    * Fixed Cryogenic/CryoCooling NEEDS, fixed KarbonitePlus requirement for Metal.
+    * Update TankTypes.cfg
+        * added Snacks support (Snacks --> Food, Soil --> Soil)
+        * modified KolonyTools support --> ColonySupplies are visible/usable/transferable even if USI-LS is not installed
+    * Added Chemicals to LiquidChemicals for KolonyTools.
+    * Attempt to fix #10 using the patch suggested by @Starwaster.
+    * Fixed issues:
+        * 16 - Attempting to change configuration when none exists results in NullReferenceException
+        * 18 - Tweakscaled tank saved prior to installation of CC gets capacity reset to un-scaled value
+        * 20 - Lag/freeze when placing tanks in VAB
+
 * **v2.4.1**
     * All tanks except high-pressure now use TankManager. Wings use IncludeTankType to restrict contents to liquid chemicals.
     * Updated patches:
