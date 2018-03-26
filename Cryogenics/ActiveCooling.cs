@@ -78,7 +78,7 @@ namespace AT_Utils
 				var resThermalMass = resource.amount*specificHeatCapacity;
 				var electric_charge_needed = temperature_excess*resThermalMass*q2w/CryogenicsParams.Instance.ElectricCharge2kJ;
 				if(electric_charge_needed/deltaTime > MaxPower) electric_charge_needed = MaxPower*deltaTime;
-				var electric_charge = part.vessel.RequestResource(part, Utils.ElectricChargeID, electric_charge_needed, false);
+				var electric_charge = part.vessel.RequestResource(part, Utils.ElectricCharge.id, electric_charge_needed, false);
 				if(electric_charge/electric_charge_needed < CryogenicsParams.Instance.ShutdownThreshold)
 				{
 					Utils.Message("Not enough energy, CryoCooler is disabled.");
