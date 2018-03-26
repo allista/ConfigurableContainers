@@ -16,7 +16,7 @@ namespace AT_Utils
 
 		protected Part part;
 		protected PartResource resource;
-		protected CryogenicsParams.Resource cryo_info;
+		protected CryogenicsParams.CryoResource cryo_info;
 		protected ModuleSwitchableTank tank;
 
 		/// <summary>

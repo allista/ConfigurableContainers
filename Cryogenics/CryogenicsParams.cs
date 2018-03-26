@@ -14,7 +14,7 @@ namespace AT_Utils
 	{
 		public new const string NODE_NAME = "CRYOGENICS";
 
-		public class Resource : ConfigNodeObject
+		public class CryoResource : ConfigNodeObject
 		{
 			public new const string NODE_NAME = "RESOURCE";
 
@@ -29,7 +29,7 @@ namespace AT_Utils
 					r.info.specificHeatCapacity * Instance.SpecificHeat2VaporizationHeat;
 			}
 		}
-		readonly Dictionary<string,Resource> Resources = new Dictionary<string, Resource>();
+		readonly Dictionary<string,CryoResource> Resources = new Dictionary<string, CryoResource>();
 
 		const string config_path = "ConfigurableContainers/Cryogenics/";
 		static CryogenicsParams instance;
@@ -90,9 +90,9 @@ namespace AT_Utils
 		/// </summary>
 		/// <returns>The cryogenic resource info.</returns>
 		/// <param name="r">The part resource.</param>
-		public Resource GetResource(PartResource r)
+		public CryoResource GetResource(PartResource r)
 		{
-			Resource res;
+			CryoResource res;
 			return Resources.TryGetValue(r.resourceName, out res)? res : null;
 		}
 
@@ -126,9 +126,9 @@ namespace AT_Utils
 		{
 			base.Load(node);
 			Resources.Clear();
-			foreach(var n in node.GetNodes(Resource.NODE_NAME))
+			foreach(var n in node.GetNodes(CryoResource.NODE_NAME))
 			{
-				var res = ConfigNodeObject.FromConfig<Resource>(n);
+				var res = ConfigNodeObject.FromConfig<CryoResource>(n);
 				Resources.Add(res.name, res);
 			}
 		}
