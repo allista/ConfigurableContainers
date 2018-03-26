@@ -5,7 +5,6 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
-using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -591,7 +590,8 @@ namespace AT_Utils
 			if(managed) return;
 			var volName = data.Get<string>("volName");
 			var newTotalVolume = (float)data.Get<double>("newTotalVolume");
-			if(volName == "Tankage") SetVolume(newTotalVolume, HighLogic.LoadedSceneIsEditor);
+			if(volName == "Tankage") 
+                SetVolume(newTotalVolume, HighLogic.LoadedSceneIsEditor);
 		}
 
 		//interface for TweakScale
@@ -601,9 +601,10 @@ namespace AT_Utils
 			if(managed) return;
 			var scale = data.Get<float>("factorRelative");
             var abs_scale = data.Get<float>("factorAbsolute");
-            if(scale.Equals(1) && !abs_scale.Equals(1))
+            if(ModuleSaveFromPrefab && scale.Equals(1) && !abs_scale.Equals(1))
                 scale = abs_scale;
-			SetVolume(Volume*scale*scale*scale);
+            if(!scale.Equals(1))
+                SetVolume(Volume*scale*scale*scale);
 		}
 
 		[KSPEvent(guiActive=true, guiName = "Disable Cooling", active = false)]

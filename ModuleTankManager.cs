@@ -5,7 +5,6 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
-using System;
 using UnityEngine;
 
 namespace AT_Utils
@@ -156,9 +155,10 @@ namespace AT_Utils
 		{
             var scale = data.Get<float>("factorRelative");
             var abs_scale = data.Get<float>("factorAbsolute");
-            if(scale.Equals(1) && !abs_scale.Equals(1))
+            if(ModuleSaveFromPrefab && scale.Equals(1) && !abs_scale.Equals(1))
                 scale = abs_scale;
-			Rescale(scale*scale*scale);
+            if(!scale.Equals(1))
+                Rescale(scale*scale*scale);
 		}
 
 		//workaround for ConfigNode non-serialization

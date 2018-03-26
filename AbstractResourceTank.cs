@@ -5,7 +5,6 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
-using System;
 using UnityEngine;
 
 namespace AT_Utils
@@ -134,7 +133,7 @@ namespace AT_Utils
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
-            ModuleSaveFromPrefab = !HighLogic.LoadedSceneIsFlight;
+            ModuleSaveFromPrefab = HighLogic.LoadedScene == GameScenes.LOADING;
         }
 
         public override void OnStart(StartState state)
