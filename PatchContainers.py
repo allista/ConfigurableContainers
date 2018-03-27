@@ -13,12 +13,14 @@ class TankType(NamedObject):
         NamedObject.load(self, node)
         val = self.values.get('PossibleResources')
         if val:
-            self.UnitsPerLiter = dict((r[0], float(r[1])) for r in
-                                      (res.strip().split() for res in val.value.split(';'))
-                                      if len(r) > 1)
+            self.UnitsPerLiter = {r[0]: float(r[1]) for r in
+                                  (res.strip().split() for res in val.value.split(';'))
+                                  if len(r) > 1}
 
     @property
-    def PossibleResources(self): return self.UnitsPerLiter.keys()
+    def PossibleResources(self):
+        return list(self.UnitsPerLiter.keys())
+
 TankType.register('TANKTYPE')
 TankType.mirror_value('UsefulVolumeRatio', float)
 TankType.mirror_value('TankCostPerSurface', float)
@@ -32,6 +34,7 @@ class ModuleTankManager(Module):
     def __init__(self):
         NamedObject.__init__(self)
         self.name = 'ModuleTankManager'
+
 ModuleTankManager.mirror_value('Volume', float)
 ModuleTankManager.mirror_value('DoCostPatch', bool)
 ModuleTankManager.mirror_value('DoMassPatch', bool)
@@ -43,6 +46,7 @@ class ModuleTank(Module):
     def __init__(self):
         NamedObject.__init__(self)
         self.name = 'ModuleSwitchableTank'
+
 ModuleTank.mirror_value('Volume', float)
 ModuleTank.mirror_value('InitialAmount', float)
 ModuleTank.mirror_value('TankType')
@@ -56,9 +60,11 @@ ModuleTank.mirror_value('ExcludeTankTypes')
 
 class Tank(NamedObject):
     type = 'TANK'
+
     def __init__(self, name=None):
         NamedObject.__init__(self)
         if name: self.name = name
+
 Tank.mirror_value('Volume', float)
 Tank.mirror_value('InitialAmount', float)
 Tank.mirror_value('TankType')
@@ -125,7 +131,6 @@ class Patcher(object):
                 print('Patching %s' % part.name)
                 res = resources[res_name]
                 patch = Part.Patch('@', part.name,
-                                   ':FOR[ConfigurableContainers]'
                                    ':HAS['
                                    '!MODULE[InterstellarFuelSwitch],'
                                    '!MODULE[FSfuelSwitch],'
@@ -178,7 +183,6 @@ class Patcher(object):
                 print('Patching %s' % part.name)
                 lf = resources['LiquidFuel']
                 patch = Part.Patch('@', part.name,
-                                   ':FOR[ConfigurableContainers]'
                                    ':HAS['
                                    '!MODULE[InterstellarFuelSwitch],'
                                    '!MODULE[FSfuelSwitch],'
@@ -230,7 +234,7 @@ class Patcher(object):
 if __name__ == '__main__':
     patcher = Patcher('GameData/ConfigurableContainers/TankTypes.cfg',
                       '/home/storage/Games/KSP_linux/PluginsArchives/Development/AT_KSP_Plugins/KSP-test/'
-                      'KSP_test_1.3/GameData')
+                      'KSP_test_1.4.1/GameData')
 
     patcher.part_filter = SearchQuery('PART/MODULE:.*Engines.*/')
     patcher.part_filter.Or('PART/MODULE:.*Converter.*/')
