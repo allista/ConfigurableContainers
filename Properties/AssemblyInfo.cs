@@ -39,15 +39,15 @@ using System.Reflection;
 
 namespace AT_Utils
 {
-	public class CCModInfo : KSP_AVC_Info
-	{
-		public CCModInfo()
-		{
-			MinKSPVersion = new Version(1,4,1);
-			MaxKSPVersion = new Version(1,4,1);
+    public class CCModInfo : KSP_AVC_Info
+    {
+        public CCModInfo()
+        {
+            MinKSPVersion = new Version(1,4,1);
+            MaxKSPVersion = new Version(1,4,1);
 
-			VersionURL   = "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
+            VersionURL   = "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
             UpgradeURL   = "https://spacedock.info/mod/1002/Configurable%20Containers";
-		}
-	}
+        }
+    }
 }
