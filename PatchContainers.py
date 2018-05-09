@@ -208,7 +208,9 @@ class Patcher(object):
     def patch_parts(self, output, paths, addons=None, add_spec=''):
         for path in paths:
             parts = self.get_parts(os.path.join(self.game_data, *path))
-            if not parts: continue
+            if not parts:
+                print('No parts in: {}'.format('/'.join(path)))
+                continue
             with open(os.path.join(self.game_data, *output), 'w') as out:
                 out.write('//Configurable Containers patch for %s\n' % os.path.join(*path))
                 self.patch_LFO(out, parts, addons=addons, add_spec=add_spec)
@@ -234,7 +236,7 @@ class Patcher(object):
 if __name__ == '__main__':
     patcher = Patcher('GameData/ConfigurableContainers/TankTypes.cfg',
                       '/home/storage/Games/KSP_linux/PluginsArchives/Development/AT_KSP_Plugins/KSP-test/'
-                      'KSP_test_1.4.1/GameData')
+                      'KSP_test_1.4.3/GameData')
 
     patcher.part_filter = SearchQuery('PART/MODULE:.*Engines.*/')
     patcher.part_filter.Or('PART/MODULE:.*Converter.*/')
@@ -262,6 +264,7 @@ if __name__ == '__main__':
                        'SPS', # Standard Propulsion Systems
                        'RaginCaucasian', # Mk2.5 spaceplane parts
                        'MunarIndustries', # Fuel Tank Expansion
+                       'Bluedog_DB' # Bluedog Design Bureau
                        )
 
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Tal-Tanks_Patch.cfg'),
@@ -269,6 +272,9 @@ if __name__ == '__main__':
                         ],
                         [(SearchTerm(''), Module.Patch('!', 'ModuleFuelTanks'))],
                         add_spec=':AFTER[ModsByTal]')
+
+    patcher.patch_parts(('ConfigurableContainers', 'Parts', 'MakingHistory_Patch.cfg'),
+                        [['ExpansionFuelTanks']])
 
     # USI uses FSfuelSwitch, so no patching for it
     # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'USI-MKS_Patch.cfg'),

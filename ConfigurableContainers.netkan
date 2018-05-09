@@ -42,7 +42,8 @@
         { "name": "TALSphericalToroidalPack" },
         { "name": "MunarIndustriesFTX" },
         { "name": "RaginCaucasian" },
-        { "name": "B9-PWings-Fork" }
+        { "name": "B9-PWings-Fork" },
+        { "name": "BluedogDB" }
     ],
     
     "conflicts":
