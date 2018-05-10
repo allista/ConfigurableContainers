@@ -1,6 +1,21 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.1.1**
+* **v2.4.3**
+    * Added patches for Bluedog Design Bureau and Making History Expansion.
+
+* v2.4.2
+    * Renamed Resource to CryoResource for clarity and to prevent name clashes.
+    * Twealscaled tanks retain volume on load. Fixed #22.
+        * Corrected calculation of ModuleSaveFromPrefab flag.
+    * Removed support for ProceduralParts =(
+    * Added SpareParts to Components TankType for DangIt.
+    * Removed FOR[ConfigurableContainers] stanza, changed ref to KSP 1.4.1
+    * Updater Squad patch
+    * Supporting KWRocketryRebalanced. Can't support multiple KWR flavors.
+        * Well, it's possible with multiple .ckans, but I don't have the time =\
+    * Updated patches for Mk2/Mk3Exp, FTPlus, Mk2Plane
+
+* v2.4.1.1
     * Fixed Cryogenic/CryoCooling NEEDS, fixed KarbonitePlus requirement for Metal.
     * Update TankTypes.cfg
         * added Snacks support (Snacks --> Food, Soil --> Soil)
@@ -12,7 +27,7 @@
         * 18 - Tweakscaled tank saved prior to installation of CC gets capacity reset to un-scaled value
         * 20 - Lag/freeze when placing tanks in VAB
 
-* **v2.4.1**
+* v2.4.1
     * All tanks except high-pressure now use TankManager. Wings use IncludeTankType to restrict contents to liquid chemicals.
     * Updated patches:
     	* Stock
