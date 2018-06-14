@@ -1,6 +1,9 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.3**
+* **v2.4.3.1**
+    * SpecializedParts are also used by GC now
+
+* v2.4.3
     * Added patches for Bluedog Design Bureau and Making History Expansion.
 
 * v2.4.2
@@ -30,9 +33,9 @@
 * v2.4.1
     * All tanks except high-pressure now use TankManager. Wings use IncludeTankType to restrict contents to liquid chemicals.
     * Updated patches:
-    	* Stock
-    	* FuleTanks+
-    	* ModularRockeSystems
+        * Stock
+        * FuleTanks+
+        * ModularRockeSystems
         * NearFuture
         * KWRocketry
         * Mk3 Expansion
@@ -50,11 +53,11 @@
     * Removed Plutonium-238 as it is internal resource for USI
 
 * v2.4.0.5
-	* Corrected CKAN metadata.
-	* Small bugfixes.
+    * Corrected CKAN metadata.
+    * Small bugfixes.
 
 * v2.4.0.4
-	* Added patch for GPOSpeedFuelPump for time being.
+    * Added patch for GPOSpeedFuelPump for time being.
 
 * v2.4.0.3
     * Added FindTankType by resource_name method to TankType library.
@@ -63,9 +66,9 @@
     * Use round-trip format for the volume field.
 
 * v2.4.0.2
-	* Fixed TankManager initialization with disabled AddRemove capability.
-	* Fixed TankManager initialization using empty config.
-	* Fixed in-flight tank creation.
+    * Fixed TankManager initialization with disabled AddRemove capability.
+    * Fixed TankManager initialization using empty config.
+    * Fixed in-flight tank creation.
 
 * v2.4.0.1
     * Added patch for **OPT Spaceplane Parts** made by **octarine-noise**
@@ -88,11 +91,11 @@
     * Fixed ProceduralParts bug and return to VAB bug. Closed #3 and #4.
 
 * v2.3.0
-	* Added per-tank volume editing and volume definition in % along with m3.
-	* Added support for:
-		* **Tweak Scale**
-		* **Procedural Parts**
-		* Parts ++with stock resources++ converted:
+    * Added per-tank volume editing and volume definition in % along with m3.
+    * Added support for:
+        * **Tweak Scale**
+        * **Procedural Parts**
+        * Parts ++with stock resources++ converted:
             * Stock
             * KW Rocketry
             * Mk2 Expansion
@@ -113,14 +116,14 @@
             * *Some* of KSPIE
     * Different TankTypes can now have different additional mass
     * Added Tank Types:
-    	* Battery
-    	* Cryogenic
+        * Battery
+        * Cryogenic
     * Added Tank Setups:
-    	* TAC Life Support -- with food, water and oxigen. Made by **Bit Fiddler**.
-    	* LH2O -- with Liquid Hydrogen and Oxidizer for CryoEngines.
+        * TAC Life Support -- with food, water and oxigen. Made by **Bit Fiddler**.
+        * LH2O -- with Liquid Hydrogen and Oxidizer for CryoEngines.
     * Corrected unit/volume ratios for:
-		* Monopropellant
-		* Argon Gas
-		* Liquid Hydrogen
-		* Liquid Methane (which mod uses it?)
-		* Karbonite
+        * Monopropellant
+        * Argon Gas
+        * Liquid Hydrogen
+        * Liquid Methane (which mod uses it?)
+        * Karbonite
