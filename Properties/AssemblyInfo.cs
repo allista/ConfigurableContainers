@@ -1,4 +1,4 @@
-﻿//   AssemblyInfo.cs
+//   AssemblyInfo.cs
 //
 //  Author:
 //       Allis Tauri <allista@gmail.com>
@@ -27,7 +27,7 @@ using System.Reflection;
 #if NIGHTBUILD
 [assembly: AssemblyVersion("2.4.*")]
 #else
-[assembly: AssemblyVersion("2.4.3.1")]
+[assembly: AssemblyVersion("2.4.3.2")]
 #endif
 [assembly: KSPAssembly("ConfigurableContainers", 2, 4)]
 
@@ -43,8 +43,8 @@ namespace AT_Utils
     {
         public CCModInfo()
         {
-            MinKSPVersion = new Version(1,4,3);
-            MaxKSPVersion = new Version(1,4,3);
+            MinKSPVersion = new Version(1,4,5);
+            MaxKSPVersion = new Version(1,4,5);
 
             VersionURL   = "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
             UpgradeURL   = "https://spacedock.info/mod/1002/Configurable%20Containers";
