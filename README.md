@@ -1,15 +1,15 @@
 # Configurable Containers
 
-##Requirements
+## Requirements
 
 * [ModuleManager](http://forum.kerbalspaceprogram.com/index.php?/topic/50533-12)
 * [AT_Utils](https://github.com/allista/AT_Utils) (already includeds)
 
-##For Players
+## For Players
 
 This mod converts fuel tanks and resource containers so that you can change the resource(s) they hold in Editor and in Flight.
 
-##Supported Mods
+## Supported Mods
 
 Configurable Containers support many part packs and mods:
 
@@ -38,7 +38,7 @@ Configurable Containers support many part packs and mods:
     * All KSPIE
     * ...more will come.
 
-###Types of the Containers
+### Types of the Containers
 
 _Tank Type_ is a set of resources that, gamewise, have something in common. For example gases, or liquid chemicals, or metals. There are also two kinds of configurable containers.
 
@@ -49,7 +49,7 @@ Compound containers have a dedicated user interface so as not to clutter part me
 
 ![TankManager GUI](http://i.imgur.com/6Tbr5JG.gif)
 
-##For Modders
+## For Modders
 
 ### CC is a part of the [AT_Utils](https://github.com/allista/AT_Utils) framework.
 

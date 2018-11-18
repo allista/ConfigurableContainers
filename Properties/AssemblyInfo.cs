@@ -1,4 +1,4 @@
-﻿//   AssemblyInfo.cs
+//   AssemblyInfo.cs
 //
 //  Author:
 //       Allis Tauri <allista@gmail.com>
@@ -27,9 +27,9 @@ using System.Reflection;
 #if NIGHTBUILD
 [assembly: AssemblyVersion("2.4.*")]
 #else
-[assembly: AssemblyVersion("2.4.1.0")]
+[assembly: AssemblyVersion("2.4.3.4")]
 #endif
-[assembly: KSPAssembly("ConfigurableContainers", 2, 3)]
+[assembly: KSPAssembly("ConfigurableContainers", 2, 4)]
 
 // The following attributes are used to specify the signing key for the assembly,
 // if desired. See the Mono documentation for more information about signing.
@@ -39,15 +39,15 @@ using System.Reflection;
 
 namespace AT_Utils
 {
-	public class CCModInfo : KSP_AVC_Info
-	{
-		public CCModInfo()
-		{
-			MinKSPVersion = new Version(1,3,0);
-			MaxKSPVersion = new Version(1,3,0);
+    public class CCModInfo : KSP_AVC_Info
+    {
+        public CCModInfo()
+        {
+            MinKSPVersion = new Version(1,4,5);
+            MaxKSPVersion = new Version(1,4,5);
 
-			VersionURL   = "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
-			UpgradeURL   = "https://github.com/allista/ConfigurableContainers/releases";
-		}
-	}
+            VersionURL   = "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
+            UpgradeURL   = "https://spacedock.info/mod/1002/Configurable%20Containers";
+        }
+    }
 }

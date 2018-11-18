@@ -30,8 +30,7 @@
     [
         { "name": "TweakScale" },
         { "name": "Goodspeed" },
-        { "name": "ProceduralParts" },
-        { "name": "KWRocketry" },
+        { "name": "KWRocketryRebalanced" },
         { "name": "Mk2Expansion" },
         { "name": "Mk3Expansion" },
         { "name": "SpaceY-Lifters" },
@@ -43,7 +42,8 @@
         { "name": "TALSphericalToroidalPack" },
         { "name": "MunarIndustriesFTX" },
         { "name": "RaginCaucasian" },
-        { "name": "B9-PWings-Fork" }
+        { "name": "B9-PWings-Fork" },
+        { "name": "BluedogDB" }
     ],
     
     "conflicts":

@@ -1,25 +1,25 @@
 { 
     "NAME":"ConfigurableContainers",
     "URL":"https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version",
-    "DOWNLOAD":"https://github.com/allista/ConfigurableContainers/releases",
+    "DOWNLOAD":"https://spacedock.info/mod/1002/Configurable%20Containers",
     "CHANGE_LOG_URL":"",
     "VERSION":
      {
          "MAJOR":2,
          "MINOR":4,
-         "PATCH":1,
-         "BUILD":0
+         "PATCH":3,
+         "BUILD":4
      },
     "KSP_VERSION_MIN":
      {
          "MAJOR":1,
-         "MINOR":3,
-         "PATCH":0
+         "MINOR":4,
+         "PATCH":5
      },
     "KSP_VERSION_MAX":
      {
          "MAJOR":1,
-         "MINOR":3,
-         "PATCH":0
+         "MINOR":4,
+         "PATCH":5
      }
 }

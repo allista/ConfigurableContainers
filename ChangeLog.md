@@ -1,11 +1,44 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.1**
+* **v2.4.3.2-4**
+	* Version bumps due to updates of AT_Utils.
+
+* v2.4.3.1
+    * SpecializedParts are also used by GC now
+
+* v2.4.3
+    * Added patches for Bluedog Design Bureau and Making History Expansion.
+
+* v2.4.2
+    * Renamed Resource to CryoResource for clarity and to prevent name clashes.
+    * Twealscaled tanks retain volume on load. Fixed #22.
+        * Corrected calculation of ModuleSaveFromPrefab flag.
+    * Removed support for ProceduralParts =(
+    * Added SpareParts to Components TankType for DangIt.
+    * Removed FOR[ConfigurableContainers] stanza, changed ref to KSP 1.4.1
+    * Updater Squad patch
+    * Supporting KWRocketryRebalanced. Can't support multiple KWR flavors.
+        * Well, it's possible with multiple .ckans, but I don't have the time =\
+    * Updated patches for Mk2/Mk3Exp, FTPlus, Mk2Plane
+
+* v2.4.1.1
+    * Fixed Cryogenic/CryoCooling NEEDS, fixed KarbonitePlus requirement for Metal.
+    * Update TankTypes.cfg
+        * added Snacks support (Snacks --> Food, Soil --> Soil)
+        * modified KolonyTools support --> ColonySupplies are visible/usable/transferable even if USI-LS is not installed
+    * Added Chemicals to LiquidChemicals for KolonyTools.
+    * Attempt to fix #10 using the patch suggested by @Starwaster.
+    * Fixed issues:
+        * 16 - Attempting to change configuration when none exists results in NullReferenceException
+        * 18 - Tweakscaled tank saved prior to installation of CC gets capacity reset to un-scaled value
+        * 20 - Lag/freeze when placing tanks in VAB
+
+* v2.4.1
     * All tanks except high-pressure now use TankManager. Wings use IncludeTankType to restrict contents to liquid chemicals.
     * Updated patches:
-    	* Stock
-    	* FuleTanks+
-    	* ModularRockeSystems
+        * Stock
+        * FuleTanks+
+        * ModularRockeSystems
         * NearFuture
         * KWRocketry
         * Mk3 Expansion
@@ -23,11 +56,11 @@
     * Removed Plutonium-238 as it is internal resource for USI
 
 * v2.4.0.5
-	* Corrected CKAN metadata.
-	* Small bugfixes.
+    * Corrected CKAN metadata.
+    * Small bugfixes.
 
 * v2.4.0.4
-	* Added patch for GPOSpeedFuelPump for time being.
+    * Added patch for GPOSpeedFuelPump for time being.
 
 * v2.4.0.3
     * Added FindTankType by resource_name method to TankType library.
@@ -36,9 +69,9 @@
     * Use round-trip format for the volume field.
 
 * v2.4.0.2
-	* Fixed TankManager initialization with disabled AddRemove capability.
-	* Fixed TankManager initialization using empty config.
-	* Fixed in-flight tank creation.
+    * Fixed TankManager initialization with disabled AddRemove capability.
+    * Fixed TankManager initialization using empty config.
+    * Fixed in-flight tank creation.
 
 * v2.4.0.1
     * Added patch for **OPT Spaceplane Parts** made by **octarine-noise**
@@ -61,11 +94,11 @@
     * Fixed ProceduralParts bug and return to VAB bug. Closed #3 and #4.
 
 * v2.3.0
-	* Added per-tank volume editing and volume definition in % along with m3.
-	* Added support for:
-		* **Tweak Scale**
-		* **Procedural Parts**
-		* Parts ++with stock resources++ converted:
+    * Added per-tank volume editing and volume definition in % along with m3.
+    * Added support for:
+        * **Tweak Scale**
+        * **Procedural Parts**
+        * Parts ++with stock resources++ converted:
             * Stock
             * KW Rocketry
             * Mk2 Expansion
@@ -86,14 +119,14 @@
             * *Some* of KSPIE
     * Different TankTypes can now have different additional mass
     * Added Tank Types:
-    	* Battery
-    	* Cryogenic
+        * Battery
+        * Cryogenic
     * Added Tank Setups:
-    	* TAC Life Support -- with food, water and oxigen. Made by **Bit Fiddler**.
-    	* LH2O -- with Liquid Hydrogen and Oxidizer for CryoEngines.
+        * TAC Life Support -- with food, water and oxigen. Made by **Bit Fiddler**.
+        * LH2O -- with Liquid Hydrogen and Oxidizer for CryoEngines.
     * Corrected unit/volume ratios for:
-		* Monopropellant
-		* Argon Gas
-		* Liquid Hydrogen
-		* Liquid Methane (which mod uses it?)
-		* Karbonite
+        * Monopropellant
+        * Argon Gas
+        * Liquid Hydrogen
+        * Liquid Methane (which mod uses it?)
+        * Karbonite
