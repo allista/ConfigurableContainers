@@ -307,16 +307,18 @@ namespace AT_Utils
         public bool TryRemoveResource()
         {
             if(current_resource == null) return true;
-            if(HighLogic.LoadedSceneIsEditor) 
+            if(HighLogic.LoadedSceneIsEditor)
                 current_resource.amount = 0;
-               if(current_resource.amount > 0)
-            { 
-                Utils.Message("Tank is in use");
-                CurrentResource = current_resource.resourceName;
-                if(tank_type != null) TankType = tank_type.name;
-                return false;
+            {
+                if(current_resource.amount > 0)
+                {
+                    Utils.Message("Tank is in use");
+                    CurrentResource = current_resource.resourceName;
+                    if(tank_type != null) TankType = tank_type.name;
+                    return false;
+                }
             }
-            part.Resources.Remove(current_resource.resourceName);
+            part.RemoveResource(current_resource.resourceName);
             current_resource_name = string.Empty;
             current_resource = null;
             return true;
@@ -565,7 +567,7 @@ namespace AT_Utils
                 node.AddValue("name", resource_info.Name);
                 node.AddValue("amount", initializing? maxAmount*InitialAmount : 0);
                 node.AddValue("maxAmount", maxAmount);
-                current_resource = part.Resources.Add(node);
+                current_resource = part.AddResource(node);
             }
             current_resource_name = Utils.ParseCamelCase(CurrentResource);
             if(boiloff != null) boiloff.SetResource(current_resource);
