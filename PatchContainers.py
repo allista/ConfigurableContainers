@@ -222,11 +222,10 @@ class Patcher(object):
                 out.write('\n//:mode=c#:\n')
             print('%s done.\n' % os.path.join(*path))
 
-
     def patch_mod(self, mod, addons=None, add_spec=''):
         output = ('ConfigurableContainers', 'Parts', '%s_Patch.cfg' % mod)
         path = [[mod]]
-        add_spec += ':NEEDS[%(mod)s]:AFTER[%(mod)s]' % {'mod': mod}
+        add_spec += ':AFTER[%(mod)s]' % {'mod': mod}
         self.patch_parts(output, path, addons, add_spec)
 
     def patch_mods(self, *mods):
