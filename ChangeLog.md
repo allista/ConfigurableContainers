@@ -1,6 +1,11 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.3.2-4**
+* v2.4.4
+    * Compatible with KSP-1.7
+    * Fixed MM Warnings (multiple NEEDS)
+    * Fixed in-editor part cloning/symmetry bug (issue #31)
+
+* v2.4.3.2-4
 	* Version bumps due to updates of AT_Utils.
 
 * v2.4.3.1
