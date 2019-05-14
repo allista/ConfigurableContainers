@@ -1,5 +1,9 @@
 #Configurable Containers ChangeLog
 
+* **v2.4.5**
+    * Added ability to change UI color scheme at runtime
+        * Added "C" button to the tank manager window titlebar which summons the Color Scheme dialog
+
 * v2.4.4
     * Compatible with KSP-1.7
     * Fixed MM Warnings (multiple NEEDS)
