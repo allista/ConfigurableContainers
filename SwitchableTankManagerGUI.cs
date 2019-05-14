@@ -102,7 +102,7 @@ namespace AT_Utils
                         }
                     }
                     else edit |= GUILayout.Button(new GUIContent(Utils.formatVolume(tank.Volume), "Edit tank volume"), 
-                                                  Styles.add_button, GUILayout.ExpandWidth(true));
+                                                  Styles.open_button, GUILayout.ExpandWidth(true));
                 }
                 else GUILayout.Label(Utils.formatVolume(tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
                 if(!edit)
@@ -112,7 +112,7 @@ namespace AT_Utils
                     if(HighLogic.LoadedSceneIsEditor)
                     {
                         if(GUILayout.Button(new GUIContent("F", "Fill the tank with the resource"),
-                                            Styles.add_button, GUILayout.Width(20)))
+                                            Styles.open_button, GUILayout.Width(20)))
                             tank.Amount = tank.MaxAmount;
                         if(GUILayout.Button(new GUIContent("E", "Empty the tank"), 
                                             Styles.active_button, GUILayout.Width(20)))
@@ -181,7 +181,7 @@ namespace AT_Utils
             GUILayout.EndHorizontal();
             //warning label
             GUILayout.BeginHorizontal();
-            if(!volume_valid) GUILayout.Label("Volume should be a number.", Styles.red);
+            if(!volume_valid) GUILayout.Label("Volume should be a number.", Styles.danger);
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
         }
@@ -194,7 +194,7 @@ namespace AT_Utils
             GUILayout.Label("Configuration Name:", GUILayout.ExpandWidth(false));
             config_name = GUILayout.TextField(config_name, GUILayout.ExpandWidth(true), GUILayout.MinWidth(50));
             if(GUILayout.Button(VolumeConfigsLibrary.HaveUserConfig(config_name)? "Save" : "Add", 
-                                Styles.add_button, GUILayout.ExpandWidth(false)) && 
+                                Styles.open_button, GUILayout.ExpandWidth(false)) && 
                !string.IsNullOrEmpty(config_name))
             {
                 //add new config
@@ -225,8 +225,17 @@ namespace AT_Utils
             GUILayout.EndHorizontal();
         }
 
+        static GUIContent colors_button = new GUIContent("C", "Color Scheme");
+        void draw_colors_button()
+        {
+            if(GUI.Button(new Rect(eWindowPos.width - 20f, 0f, 20f, 18f),
+                          colors_button, Styles.label))
+                host.ToggleStylesUI();
+        }
+
         public void TanksManagerGUI(int windowId)
         {
+            draw_colors_button();
             GUILayout.BeginVertical();
             add_tank_gui();
             tanks_scroll = GUILayout.BeginScrollView(tanks_scroll, 
@@ -244,6 +253,7 @@ namespace AT_Utils
 
         public void TanksControlGUI(int windowId)
         {
+            draw_colors_button();
             GUILayout.BeginVertical();
             tanks_scroll = GUILayout.BeginScrollView(tanks_scroll, 
                                                      GUILayout.Width(scroll_width), 

@@ -193,8 +193,8 @@ namespace AT_Utils
             var max_volume = (Volume - tank_manager.TotalVolume);
             if(max || volume > max_volume) volume = max_volume;
             else if(half) volume = max_volume/2;
-            if(volume <= 0) GUILayout.Label("Add", Styles.grey);
-            else if(GUILayout.Button("Add", Styles.add_button))
+            if(volume <= 0) GUILayout.Label("Add", Styles.inactive);
+            else if(GUILayout.Button("Add", Styles.open_button))
                 tank_manager.AddVolume(tank_name, volume);
             return percent? (Volume.Equals(0)? 0 : volume/Volume*100) : volume;
         }
