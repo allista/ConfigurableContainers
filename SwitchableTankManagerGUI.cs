@@ -225,8 +225,17 @@ namespace AT_Utils
             GUILayout.EndHorizontal();
         }
 
+        static GUIContent colors_button = new GUIContent("C", "Color Scheme");
+        void draw_colors_button()
+        {
+            if(GUI.Button(new Rect(eWindowPos.width - 20f, 0f, 20f, 18f),
+                          colors_button, Styles.label))
+                host.ToggleStylesUI();
+        }
+
         public void TanksManagerGUI(int windowId)
         {
+            draw_colors_button();
             GUILayout.BeginVertical();
             add_tank_gui();
             tanks_scroll = GUILayout.BeginScrollView(tanks_scroll, 
@@ -244,6 +253,7 @@ namespace AT_Utils
 
         public void TanksControlGUI(int windowId)
         {
+            draw_colors_button();
             GUILayout.BeginVertical();
             tanks_scroll = GUILayout.BeginScrollView(tanks_scroll, 
                                                      GUILayout.Width(scroll_width), 
