@@ -1,5 +1,6 @@
+import os
+import re
 
-import os, re
 from KSPUtils import ConfigNode, NamedObject, Part, Module, Resource, SearchQuery, SearchTerm
 from KSPUtils.Collections import ValueCollection
 
@@ -21,12 +22,15 @@ class TankType(NamedObject):
     def PossibleResources(self):
         return list(self.UnitsPerLiter.keys())
 
+
 TankType.register('TANKTYPE')
 TankType.mirror_value('UsefulVolumeRatio', float)
 TankType.mirror_value('TankCostPerSurface', float)
 
 
 class TanksLib(NamedObject): pass
+
+
 TanksLib.setup_children_dict('types', 'TANKTYPE')
 
 FLOAT_DECIMALS = 6
@@ -122,7 +126,8 @@ class Patcher(object):
                 elif isinstance(addon, NamedObject):
                     patch.AddChild(addon)
 
-    def patch_1RES(self, stream, parts, tank_type, res_name, monotype=None, addons=None, add_spec=''):
+    def patch_1RES(self, stream, parts, tank_type, res_name,
+                   monotype=None, addons=None, add_spec=''):
         patches = []
         rate = self.volume(tank_type, res_name, 1)
         polytype = lambda part: True
@@ -136,7 +141,8 @@ class Patcher(object):
                 polytype = lambda part: mono_re.match(part.name) is None
         for part, resources in parts:
             if len(resources) == 1 and res_name in resources:
-                if self.part_filter is not None and self.part_filter.match(part): continue
+                if self.part_filter is not None and self.part_filter.match(part):
+                    continue
                 print('Patching %s' % part.name)
                 res = resources[res_name]
                 patch = Part.Patch('@', part.name,
@@ -182,13 +188,13 @@ class Patcher(object):
                 patches.append(patch)
         if patches: self.print_patches(stream, patches, '%s Tanks' % res_name)
 
-
     def patch_LFO(self, stream, parts, addons=None, add_spec=''):
         patches = []
         rate = self.volume('LiquidChemicals', 'LiquidFuel', 1) / 0.45
         for part, resources in parts:
             if len(resources) == 2 and 'LiquidFuel' in resources and 'Oxidizer' in resources:
-                if self.part_filter is not None and self.part_filter.match(part): continue
+                if self.part_filter is not None and self.part_filter.match(part):
+                    continue
                 print('Patching %s' % part.name)
                 lf = resources['LiquidFuel']
                 patch = Part.Patch('@', part.name,
@@ -224,11 +230,21 @@ class Patcher(object):
             with open(os.path.join(self.game_data, *output), 'w') as out:
                 out.write('//Configurable Containers patch for %s\n' % os.path.join(*path))
                 self.patch_LFO(out, parts, addons=addons, add_spec=add_spec)
-                self.patch_1RES(out, parts, 'LiquidChemicals', 'LiquidFuel', '.*[Ww]ing.*', addons=addons, add_spec=add_spec)
-                self.patch_1RES(out, parts, 'LiquidChemicals', 'MonoPropellant', addons=addons, add_spec=add_spec)
-                self.patch_1RES(out, parts, 'Gases', 'XenonGas', 'strict', addons=addons, add_spec=add_spec)
-                self.patch_1RES(out, parts, 'Gases', 'ArgonGas', 'strict', addons=addons, add_spec=add_spec)
-                self.patch_1RES(out, parts, 'Soil', 'Ore', addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts,
+                                'LiquidChemicals', 'LiquidFuel', '.*[Ww]ing.*',
+                                addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts,
+                                'LiquidChemicals', 'MonoPropellant',
+                                addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts,
+                                'Gases', 'XenonGas', 'strict',
+                                addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts,
+                                'Gases', 'ArgonGas', 'strict',
+                                addons=addons, add_spec=add_spec)
+                self.patch_1RES(out, parts,
+                                'Soil', 'Ore',
+                                addons=addons, add_spec=add_spec)
                 out.write('\n//:mode=c#:\n')
             print('%s done.\n' % os.path.join(*path))
 
@@ -244,7 +260,8 @@ class Patcher(object):
 
 if __name__ == '__main__':
     patcher = Patcher('GameData/ConfigurableContainers/TankTypes.cfg',
-                      '/home/storage/Games/KSP_linux/PluginsArchives/Development/AT_KSP_Plugins/KSP-test/'
+                      '/home/storage/Games/KSP_linux/PluginsArchives/'
+                      'Development/AT_KSP_Plugins/KSP-test/'
                       'KSP_test_1.7.0/GameData')
 
     patcher.part_filter = SearchQuery('PART/MODULE:.*Engines.*/')
@@ -264,7 +281,7 @@ if __name__ == '__main__':
 
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Squad_Patch.cfg'),
                         [('Squad', 'Parts')], xenon_titles)
-   
+
     patcher.patch_mods('KWRocketry',
                        'Mk2Expansion',
                        'Mk3Expansion',
@@ -273,9 +290,9 @@ if __name__ == '__main__':
                        'FuelTanksPlus',
                        'ModRocketSys',
                        'NearFuturePropulsion',
-                       'SPS', # Standard Propulsion Systems
-                       'RaginCaucasian', # Mk2.5 spaceplane parts
-                       'MunarIndustries', # Fuel Tank Expansion
+                       'SPS',  # Standard Propulsion Systems
+                       'RaginCaucasian',  # Mk2.5 spaceplane parts
+                       'MunarIndustries',  # Fuel Tank Expansion
                        'Bluedog_DB',  # Bluedog Design Bureau
                        'StreamlineEnginesTanks',
                        # 'UniversalStorage2',  # uses USFuelSwitch
@@ -288,8 +305,7 @@ if __name__ == '__main__':
                        )
 
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Tal-Tanks_Patch.cfg'),
-                        [('ModsByTal', 'Parts'),
-                        ],
+                        [('ModsByTal', 'Parts')],
                         [(SearchTerm(''), Module.Patch('!', 'ModuleFuelTanks'))],
                         add_spec=':AFTER[ModsByTal]')
 
@@ -322,7 +338,3 @@ if __name__ == '__main__':
     #                     add_spec=':NEEDS[ExpPack]:AFTER[ExpPack]')
 
     print('Done')
-
-
-
-
