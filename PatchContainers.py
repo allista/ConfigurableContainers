@@ -275,7 +275,15 @@ if __name__ == '__main__':
                        'SPS', # Standard Propulsion Systems
                        'RaginCaucasian', # Mk2.5 spaceplane parts
                        'MunarIndustries', # Fuel Tank Expansion
-                       'Bluedog_DB' # Bluedog Design Bureau
+                       'Bluedog_DB',  # Bluedog Design Bureau
+                       'StreamlineEnginesTanks',
+                       # 'UniversalStorage2',  # uses USFuelSwitch
+                       'MiningExpansion',
+                       # 'StationPartsExpansionRedux',  # uses B9PartSwitch
+                       # 'ReStock', # no parts
+                       'ReStockPlus',
+                       'PlanetaryBaseInc',  # Kerbal Planetary Base Systems
+                       # 'FelineUtilityRover',  # uses ModuleKerbetrotterResourceSwitch
                        )
 
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Tal-Tanks_Patch.cfg'),
