@@ -43,11 +43,11 @@ namespace AT_Utils
     {
         public CCModInfo()
         {
-            MaxKSPVersion = new Version(1,7,2);
             MinKSPVersion = new Version(1, 6, 1);
+            MaxKSPVersion = new Version(1, 7, 2);
 
-            VersionURL   = "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
-            UpgradeURL   = "https://spacedock.info/mod/1002/Configurable%20Containers";
+            VersionURL = "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
+            UpgradeURL = "https://spacedock.info/mod/1002/Configurable%20Containers";
         }
     }
 }
