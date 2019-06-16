@@ -29,13 +29,20 @@ TankType.mirror_value('TankCostPerSurface', float)
 class TanksLib(NamedObject): pass
 TanksLib.setup_children_dict('types', 'TANKTYPE')
 
+FLOAT_DECIMALS = 6
+
+
+def round_float(val):
+    return round(float(val), FLOAT_DECIMALS)
+
 
 class ModuleTankManager(Module):
     def __init__(self):
         NamedObject.__init__(self)
         self.name = 'ModuleTankManager'
 
-ModuleTankManager.mirror_value('Volume', float)
+
+ModuleTankManager.mirror_value('Volume', round_float)
 ModuleTankManager.mirror_value('DoCostPatch', bool)
 ModuleTankManager.mirror_value('DoMassPatch', bool)
 ModuleTankManager.mirror_value('IncludeTankTypes')
@@ -47,8 +54,9 @@ class ModuleTank(Module):
         NamedObject.__init__(self)
         self.name = 'ModuleSwitchableTank'
 
-ModuleTank.mirror_value('Volume', float)
-ModuleTank.mirror_value('InitialAmount', float)
+
+ModuleTank.mirror_value('Volume', round_float)
+ModuleTank.mirror_value('InitialAmount', round_float)
 ModuleTank.mirror_value('TankType')
 ModuleTank.mirror_value('CurrentResource')
 ModuleTank.mirror_value('ChooseTankType', bool)
@@ -65,8 +73,9 @@ class Tank(NamedObject):
         NamedObject.__init__(self)
         if name: self.name = name
 
-Tank.mirror_value('Volume', float)
-Tank.mirror_value('InitialAmount', float)
+
+Tank.mirror_value('Volume', round_float)
+Tank.mirror_value('InitialAmount', round_float)
 Tank.mirror_value('TankType')
 Tank.mirror_value('CurrentResource')
 
