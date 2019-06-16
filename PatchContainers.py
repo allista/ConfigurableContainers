@@ -154,7 +154,7 @@ class Patcher(object):
                                    + add_spec)
                 V = res.maxAmount * rate
                 ini = res.amount / res.maxAmount
-                comment = f'{res.maxAmount} units of {res_name}: conversion rate is {rate} m3/u'
+                comment = f'{res.maxAmount} units of {res_name}: conversion rate is {rate:.6f} m3/u'
                 patch.AddChild(Resource.Patch('!', res_name))
                 can_change_type = polytype(part)
                 if can_change_type or monotype != 'strict':
@@ -209,7 +209,7 @@ class Patcher(object):
                 mgr = ModuleTankManager()
                 mgr.Volume = lf.maxAmount * rate
                 mgr.SetComment('Volume',
-                               f'{lf.maxAmount} units of LF: conversion rate is {rate} m3/u')
+                               f'{lf.maxAmount} units of LF: conversion rate is {rate:.6f} m3/u')
                 mgr.DoCostPatch = True
                 mgr.DoMassPatch = True
                 tank = Tank('LFO')
