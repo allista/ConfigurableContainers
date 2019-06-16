@@ -253,9 +253,12 @@ if __name__ == '__main__':
     patcher.part_filter.Or('PART/MODULE:.*[Ff]uelSwitch/')
 
     xenon_titles = [
-        (SearchTerm('name:xenonTank$'), Part.PatchValue('@', 'title', 'PB-X150 Pressurized Gass Container')),
-        (SearchTerm('name:xenonTankLarge$'), Part.PatchValue('@', 'title', 'PB-X750 Pressurized Gass Container')),
-        (SearchTerm('name:xenonTankRadial$'), Part.PatchValue('@', 'title', 'PB-X50R Pressurized Gass Container')),
+        (SearchTerm('name:xenonTank$'),
+         Part.PatchValue('@', 'title', 'PB-X150 Pressurized Gas Container')),
+        (SearchTerm('name:xenonTankLarge$'),
+         Part.PatchValue('@', 'title', 'PB-X750 Pressurized Gas Container')),
+        (SearchTerm('name:xenonTankRadial$'),
+         Part.PatchValue('@', 'title', 'PB-X50R Pressurized Gas Container')),
     ]
 
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Squad_Patch.cfg'),
