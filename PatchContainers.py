@@ -100,17 +100,17 @@ class Patcher(object):
         parts = []
         for dirpath, _dirnames, filenames in os.walk(path):
             for filename in filenames:
-                if not filename.endswith('.cfg'): continue
-                node = ConfigNode.Load(os.path.join(dirpath, filename))
-                if node.name != 'PART': continue
-                part = Part.from_node(node)
-                resources = part.resources
-                parts.append((part, resources))
+                if filename.endswith('.cfg'):
+                    node = ConfigNode.Load(os.path.join(dirpath, filename))
+                    if node.name == 'PART':
+                        part = Part.from_node(node)
+                        resources = part.resources
+                        parts.append((part, resources))
         return parts
 
     @staticmethod
     def print_patches(stream, patches, header):
-        stream.write('\n//%s\n//Automatically generated using PyKSPutils library\n' % header)
+        stream.write(f'\n//{header}\n//Automatically generated using PyKSPutils library\n')
         stream.write('\n\n'.join(str(p) for p in patches))
 
     @staticmethod
@@ -148,7 +148,7 @@ class Patcher(object):
                                    + add_spec)
                 V = res.maxAmount * rate
                 ini = res.amount / res.maxAmount
-                comment = '%f units of %s: conversion rate is %f m3/u' % (res.maxAmount, res_name, rate)
+                comment = f'{res.maxAmount} units of {res_name}: conversion rate is {rate} m3/u'
                 patch.AddChild(Resource.Patch('!', res_name))
                 can_change_type = polytype(part)
                 if can_change_type or monotype != 'strict':
@@ -202,7 +202,8 @@ class Patcher(object):
                 patch.AddChild(Resource.Patch('!', 'Oxidizer'))
                 mgr = ModuleTankManager()
                 mgr.Volume = lf.maxAmount * rate
-                mgr.SetComment('Volume', '%f units of LF: conversion rate is %f m3/u' % (lf.maxAmount, rate))
+                mgr.SetComment('Volume',
+                               f'{lf.maxAmount} units of LF: conversion rate is {rate} m3/u')
                 mgr.DoCostPatch = True
                 mgr.DoMassPatch = True
                 tank = Tank('LFO')
@@ -232,7 +233,7 @@ class Patcher(object):
             print('%s done.\n' % os.path.join(*path))
 
     def patch_mod(self, mod, addons=None, add_spec=''):
-        output = ('ConfigurableContainers', 'Parts', '%s_Patch.cfg' % mod)
+        output = ('ConfigurableContainers', 'Parts', f'{mod}_Patch.cfg')
         path = [[mod]]
         add_spec += ':AFTER[%(mod)s]' % {'mod': mod}
         self.patch_parts(output, path, addons, add_spec)
