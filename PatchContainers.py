@@ -269,6 +269,8 @@ if __name__ == '__main__':
     patcher.part_filter.Or('PART/MODULE:.*Harvester.*/')
     patcher.part_filter.Or('PART/MODULE:.*Drill.*/')
     patcher.part_filter.Or('PART/MODULE:.*[Ff]uelSwitch/')
+    patcher.part_filter.Or('PART/MODULE:.*[Rr]esourceSwitch/')
+    patcher.part_filter.Or('PART/MODULE:ModuleB9PartSwitch/')
 
     xenon_titles = [
         (SearchTerm('name:xenonTank$'),
