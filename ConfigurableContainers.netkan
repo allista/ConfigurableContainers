@@ -43,7 +43,11 @@
         { "name": "MunarIndustriesFTX" },
         { "name": "RaginCaucasian" },
         { "name": "B9-PWings-Fork" },
-        { "name": "BluedogDB" }
+        { "name": "BluedogDB" },
+        { "name": "StockalikeMiningExtension" },
+        { "name": "KerbalPlanetaryBaseSystems" },
+        { "name": "ReStockPlus" },
+        { "name": "StreamlineEnginesRCSsandfueltank" }
     ],
     
     "conflicts":
