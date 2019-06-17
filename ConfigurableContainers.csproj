@@ -96,6 +96,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+    <None Include="GameData\ConfigurableContainers\TankTypes.cfg" />
+    <None Include="GameData\ConfigurableContainers\TankConfigs.cfg" />
+    <None Include="GameData\ConfigurableContainers\Cryogenics.cfg" />
+    <None Include="GameData\ConfigurableContainers\GPO_Patch.cfg" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Cryogenics\" />
