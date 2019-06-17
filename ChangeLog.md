@@ -1,6 +1,21 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.5**
+* **v2.4.6**
+    * **Added patches**
+        * Mining Expansion
+        * Kerbal Planetary Base System
+        * ReStock+
+        * Streamline - Engines and Tanks
+    * **Updated patches**
+        * Bluedog Design Bureau
+        * Mk2 Expansion
+        * Mk3 Expansion
+        * Near Future Propulsion
+        * Mk2.5 Spaceplane Parts
+        * Squad
+    * Corrected a typo in squad xenon tanks' names
+
+* v2.4.5
     * Added ability to change UI color scheme at runtime
         * Added "C" button to the tank manager window titlebar which summons the Color Scheme dialog
 
