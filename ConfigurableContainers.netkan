@@ -53,8 +53,7 @@
     "conflicts":
     [
         { "name": "ModularFuelTanks" },
-        { "name": "RealFuels" },
-        { "name": "InterstellarFuelSwitch" }
+        { "name": "RealFuels" }
     ],
 
     "install":
