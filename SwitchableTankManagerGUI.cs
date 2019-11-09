@@ -35,6 +35,9 @@ namespace AT_Utils
 
             FloatField VolumeField = new FloatField(min:0);
             bool edit;
+            private static readonly GUIContent fill_tank_gui_content = new GUIContent("F", "Fill the tank with the resource");
+            private static readonly GUIContent empty_tank_gui_content = new GUIContent("E", "Empty the tank");
+            private static readonly GUIContent delete_tank_gui_content = new GUIContent("X", "Delete the tank");
 
             public TankWrapper(ModuleSwitchableTank tank, SwitchableTankManager manager) 
             { 
@@ -111,16 +114,16 @@ namespace AT_Utils
                     GUILayout.Label("Filled: "+usage.ToString("P1"), Styles.fracStyle(usage), GUILayout.Width(95));
                     if(HighLogic.LoadedSceneIsEditor)
                     {
-                        if(GUILayout.Button(new GUIContent("F", "Fill the tank with the resource"),
+                        if(GUILayout.Button(fill_tank_gui_content,
                                             Styles.open_button, GUILayout.Width(20)))
                             tank.Amount = tank.MaxAmount;
-                        if(GUILayout.Button(new GUIContent("E", "Empty the tank"), 
+                        if(GUILayout.Button(empty_tank_gui_content, 
                                             Styles.active_button, GUILayout.Width(20)))
                             tank.Amount = 0;
                     }
                     if(manager.AddRemoveEnabled)
                     {
-                        if(GUILayout.Button(new GUIContent("X", "Delete the tank"), 
+                        if(GUILayout.Button(delete_tank_gui_content, 
                                             Styles.danger_button, GUILayout.Width(20)))
                         {
                             if(HighLogic.LoadedSceneIsEditor) tank.Amount = 0;
@@ -152,6 +155,10 @@ namespace AT_Utils
             if(Closed) Utils.LockIfMouseOver(eLock, eWindowPos, false);
         }
 
+        private static readonly GUIContent percent_gui_content =
+            new GUIContent("%", "Change between Volume (m3) and Percentage (%)");
+        private static readonly GUIContent m3_gui_content =
+            new GUIContent("m3", "Change between Volume (m3) and Percentage (%)");
         string selected_tank_type = "";
         void add_tank_gui()
         {
@@ -164,7 +171,7 @@ namespace AT_Utils
                                                                 SwitchableTankType.GetTankTypeInfo(selected_tank_type), 160);
             GUILayout.Label("Volume:", GUILayout.Width(50));
             volume_field = GUILayout.TextField(volume_field, GUILayout.ExpandWidth(true), GUILayout.MinWidth(50));
-            if(GUILayout.Button(new GUIContent(percent? "%" : "m3", "Change between Volume (m3) and Percentage (%)"), 
+            if(GUILayout.Button(percent? percent_gui_content : m3_gui_content, 
                                 Styles.normal_button, GUILayout.Width(30))) 
                 percent = !percent;
             float volume = -1;
@@ -225,11 +232,11 @@ namespace AT_Utils
             GUILayout.EndHorizontal();
         }
 
-        static GUIContent colors_button = new GUIContent("C", "Color Scheme");
+        static GUIContent colors_gui_content = new GUIContent("C", "Color Scheme");
         void draw_colors_button()
         {
             if(GUI.Button(new Rect(eWindowPos.width - 20f, 0f, 20f, 18f),
-                          colors_button, Styles.label))
+                          colors_gui_content, Styles.label))
                 host.ToggleStylesUI();
         }
 
