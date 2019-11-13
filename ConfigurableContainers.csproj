@@ -1,107 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BD074812-7105-46D7-A252-53C20DAB698B}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>AT_Utils</RootNamespace>
-    <AssemblyName>ConfigurableContainers</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\GameData\000_AT_Utils\Plugins</OutputPath>
-    <DefineConstants>DEBUG;ENABLE_PROFILER;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\GameData\000_AT_Utils\Plugins</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Nightbuild|AnyCPU' ">
-    <Optimize>true</Optimize>
-    <OutputPath>..\GameData\000_AT_Utils\Plugins</OutputPath>
-    <WarningLevel>4</WarningLevel>
-    <DefineConstants>NIGHTBUILD</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System">
-      <HintPath>..\..\KSP-test\KSP_test_1.7.0\KSP_Data\Managed\System.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\KSP-test\KSP_test_1.7.0\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Core">
-      <HintPath>..\..\KSP-test\KSP_test_1.7.0\KSP_Data\Managed\System.Core.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\KSP-test\KSP_test_1.7.0\KSP_Data\Managed\UnityEngine.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="KSPAssets">
-      <HintPath>..\..\KSP-test\KSP_test_1.7.0\KSP_Data\Managed\KSPAssets.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\..\KSP-test\KSP_test_1.7.0\KSP_Data\Managed\Mono.Cecil.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Xml">
-      <HintPath>..\..\KSP-test\KSP_test_1.7.0\KSP_Data\Managed\System.Xml.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\KSP-test\KSP_test_1.7.0\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SwitchableTankManager.cs" />
-    <Compile Include="SwitchableTankType.cs" />
-    <Compile Include="ModuleTankManager.cs" />
-    <Compile Include="ModuleSwitchableTank.cs" />
-    <Compile Include="VolumeConfiguration.cs" />
-    <Compile Include="AbstractResourceTank.cs" />
-    <Compile Include="VolumeConfigsLibrary.cs" />
-    <Compile Include="SwitchableTankManagerGUI.cs" />
-    <Compile Include="Cryogenics\CryogenicsParams.cs" />
-    <Compile Include="Cryogenics\ResourceBoiloff.cs" />
-    <Compile Include="Cryogenics\ActiveCooling.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <ProjectReference Include="..\AnisotropicPartResizer\AnisotropicPartResizer.csproj">
-      <Project>{19ABDD5C-1F12-4D67-B72E-E36071ABFF2C}</Project>
-      <Name>AnisotropicPartResizer</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\AT_Utils.csproj">
-      <Project>{64CC36A2-0610-4F74-9F31-3D4E22866B7E}</Project>
-      <Name>AT_Utils</Name>
-      <Private>False</Private>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".gitignore" />
-    <None Include="GameData\ConfigurableContainers\TankTypes.cfg" />
-    <None Include="GameData\ConfigurableContainers\TankConfigs.cfg" />
-    <None Include="GameData\ConfigurableContainers\Cryogenics.cfg" />
-    <None Include="GameData\ConfigurableContainers\GPO_Patch.cfg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Cryogenics\" />
-  </ItemGroup>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{BD074812-7105-46D7-A252-53C20DAB698B}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <RootNamespace>AT_Utils</RootNamespace>
+        <AssemblyName>ConfigurableContainers</AssemblyName>
+        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>..\GameData\000_AT_Utils\Plugins</OutputPath>
+        <DefineConstants>DEBUG;ENABLE_PROFILER;</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <ConsolePause>false</ConsolePause>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <DebugType>full</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>..\GameData\000_AT_Utils\Plugins</OutputPath>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <ConsolePause>false</ConsolePause>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Nightbuild|AnyCPU' ">
+        <Optimize>true</Optimize>
+        <OutputPath>..\GameData\000_AT_Utils\Plugins</OutputPath>
+        <WarningLevel>4</WarningLevel>
+        <DefineConstants>NIGHTBUILD</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="System">
+            <HintPath>..\..\KSP-test\KSP_test_1.8.1\KSP_Data\Managed\System.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>..\..\KSP-test\KSP_test_1.8.1\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="System.Core">
+            <HintPath>..\..\KSP-test\KSP_test_1.8.1\KSP_Data\Managed\System.Core.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>..\..\KSP-test\KSP_test_1.8.1\KSP_Data\Managed\UnityEngine.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="KSPAssets">
+            <HintPath>..\..\KSP-test\KSP_test_1.8.1\KSP_Data\Managed\KSPAssets.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="Mono.Cecil">
+            <HintPath>..\..\KSP-test\KSP_test_1.8.1\KSP_Data\Managed\Mono.Cecil.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="System.Xml">
+            <HintPath>..\..\KSP-test\KSP_test_1.8.1\KSP_Data\Managed\System.Xml.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>..\..\KSP-test\KSP_test_1.8.1\KSP_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>..\..\KSP-test\KSP_test_1.8.1\KSP_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine.UI">
+            <HintPath>..\..\KSP-test\KSP_test_1.8.1\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="SwitchableTankManager.cs"/>
+        <Compile Include="SwitchableTankType.cs"/>
+        <Compile Include="ModuleTankManager.cs"/>
+        <Compile Include="ModuleSwitchableTank.cs"/>
+        <Compile Include="VolumeConfiguration.cs"/>
+        <Compile Include="AbstractResourceTank.cs"/>
+        <Compile Include="VolumeConfigsLibrary.cs"/>
+        <Compile Include="SwitchableTankManagerGUI.cs"/>
+        <Compile Include="Cryogenics\CryogenicsParams.cs"/>
+        <Compile Include="Cryogenics\ResourceBoiloff.cs"/>
+        <Compile Include="Cryogenics\ActiveCooling.cs"/>
+    </ItemGroup>
+    <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets"/>
+    <ItemGroup>
+        <ProjectReference Include="..\AnisotropicPartResizer\AnisotropicPartResizer.csproj">
+            <Project>{19ABDD5C-1F12-4D67-B72E-E36071ABFF2C}</Project>
+            <Name>AnisotropicPartResizer</Name>
+            <Private>False</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\AT_Utils.csproj">
+            <Project>{64CC36A2-0610-4F74-9F31-3D4E22866B7E}</Project>
+            <Name>AT_Utils</Name>
+            <Private>False</Private>
+        </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include=".gitignore"/>
+        <None Include="GameData\ConfigurableContainers\TankTypes.cfg"/>
+        <None Include="GameData\ConfigurableContainers\TankConfigs.cfg"/>
+        <None Include="GameData\ConfigurableContainers\Cryogenics.cfg"/>
+        <None Include="GameData\ConfigurableContainers\GPO_Patch.cfg"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Cryogenics\"/>
+    </ItemGroup>
 </Project>
