@@ -1,6 +1,13 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.6**
+* **v2.4.7**
+    * Supports KSP-1.8.1
+    * IFS is fully compatible with CC patches
+    * Rebalanced "Snacks and Soil" tank config to keep 1u food to 1u soil 
+        as suggested in #30 by @LouisCyfer
+    * Small performance improvements.
+
+* v2.4.6
     * **Added patches**
         * Mining Expansion
         * Kerbal Planetary Base System
