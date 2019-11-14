@@ -112,4 +112,13 @@
     <ItemGroup>
         <Folder Include="Cryogenics\"/>
     </ItemGroup>
+    <ItemGroup>
+      <Content Include="ChangeLog.md" />
+      <Content Include="ConfigurableContainers-Core.netkan" />
+      <Content Include="ConfigurableContainers-Intrusive.netkan" />
+      <Content Include="ConfigurableContainers.netkan" />
+      <Content Include="make-release.sh" />
+      <Content Include="PatchContainers.py" />
+      <Content Include="README.md" />
+    </ItemGroup>
 </Project>
