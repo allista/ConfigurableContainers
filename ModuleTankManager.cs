@@ -195,9 +195,14 @@ namespace AT_Utils
             else if(half) volume = max_volume/2;
             if(volume <= 0) GUILayout.Label("Add", Styles.inactive);
             else if(GUILayout.Button("Add", Styles.open_button))
-                tank_manager.AddVolume(tank_name, volume);
+                StartCoroutine(
+                    CallbackUtil.DelayedCallback(1, do_add_tank, tank_name, volume));
             return percent? (Volume.Equals(0)? 0 : volume/Volume*100) : volume;
         }
+        
+        private void do_add_tank(string tank_name, float volume) => 
+            tank_manager.AddVolume(tank_name, volume);
+
         void remove_tank(ModuleSwitchableTank tank) 
         { tank_manager.RemoveTank(tank); }
 
