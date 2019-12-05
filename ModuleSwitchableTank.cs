@@ -678,7 +678,7 @@ namespace AT_Utils
     {
         protected override void on_rescale(ModulePair<ModuleSwitchableTank> mp, Scale scale)
         { 
-            mp.module.SetVolume(mp.module.Volume*scale.relative.volume);
+            mp.module.SetVolume(mp.module.Volume*scale.relative.volume, true);
         }
     }
 }

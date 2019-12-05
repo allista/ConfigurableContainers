@@ -231,7 +231,9 @@ namespace AT_Utils
     public class TankManagerUpdater : ModuleUpdater<ModuleTankManager>
     {
         protected override void on_rescale(ModulePair<ModuleTankManager> mp, Scale scale)
-        { mp.module.Rescale(scale.relative.volume); }
+        {
+            mp.module.Rescale(scale.relative.volume, true);
+        }
     }
 }
 
