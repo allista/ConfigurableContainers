@@ -487,7 +487,7 @@ namespace AT_Utils
         {
             Volume = volume;
             UpdateMaxAmount(update_amount);
-            if(boiloff != null) boiloff.UpdateInsulation();
+            boiloff?.UpdateInsulation();
         }
 
         /// <summary>

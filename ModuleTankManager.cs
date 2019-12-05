@@ -122,9 +122,8 @@ namespace AT_Utils
         }
 
         public void Rescale(float relative_scale, bool update_amounts = false)
-        { 
-            if(tank_manager != null) 
-                tank_manager.RescaleTanks(relative_scale, update_amounts);
+        {
+            tank_manager?.RescaleTanks(relative_scale, update_amounts);
             SetVolume(Volume*relative_scale);
         }
 
