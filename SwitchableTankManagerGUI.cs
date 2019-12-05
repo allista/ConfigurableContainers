@@ -56,7 +56,7 @@ namespace AT_Utils
             {
                 if(manager.TypeChangeEnabled && manager.SupportedTypes.Count > 1) 
                 {
-                    var new_type = Utils.LeftRightChooser<string>(tank.TankType, tank.SupportedTypes, tank.Type.Info, 160);
+                    var new_type = Utils.LeftRightChooser<string>(tank.TankType, tank.SupportedTypes, tank.Type.Info, 190);
                     if(new_type != tank.TankType)
                     {
                         tank.TankType = new_type;
