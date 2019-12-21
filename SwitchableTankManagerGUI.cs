@@ -56,7 +56,7 @@ namespace AT_Utils
             {
                 if(manager.TypeChangeEnabled && manager.SupportedTypes.Count > 1) 
                 {
-                    var new_type = Utils.LeftRightChooser<string>(tank.TankType, tank.SupportedTypes, tank.Type.Info, 160);
+                    var new_type = Utils.LeftRightChooser<string>(tank.TankType, tank.SupportedTypes, tank.Type.Info, 190);
                     if(new_type != tank.TankType)
                     {
                         tank.TankType = new_type;
@@ -123,16 +123,21 @@ namespace AT_Utils
                     }
                     if(manager.AddRemoveEnabled)
                     {
-                        if(GUILayout.Button(delete_tank_gui_content, 
-                                            Styles.danger_button, GUILayout.Width(20)))
-                        {
-                            if(HighLogic.LoadedSceneIsEditor) tank.Amount = 0;
-                            manager.remove_tank(tank);
-                            manager.part.UpdatePartMenu();
-                        }
+                        if(GUILayout.Button(delete_tank_gui_content,
+                            Styles.danger_button,
+                            GUILayout.Width(20)))
+                            manager.part.StartCoroutine(
+                                CallbackUtil.DelayedCallback(1, remove_tank, tank));
                     }
                 }
                 GUILayout.EndHorizontal();
+            }
+
+            private void remove_tank(ModuleSwitchableTank tank)
+            {
+                if(HighLogic.LoadedSceneIsEditor) tank.Amount = 0;
+                manager.remove_tank(tank);
+                manager.part.UpdatePartMenu();
             }
 
             public void ControlGUI()

@@ -122,9 +122,8 @@ namespace AT_Utils
         }
 
         public void Rescale(float relative_scale, bool update_amounts = false)
-        { 
-            if(tank_manager != null) 
-                tank_manager.RescaleTanks(relative_scale, update_amounts);
+        {
+            tank_manager?.RescaleTanks(relative_scale, update_amounts);
             SetVolume(Volume*relative_scale);
         }
 
@@ -195,9 +194,14 @@ namespace AT_Utils
             else if(half) volume = max_volume/2;
             if(volume <= 0) GUILayout.Label("Add", Styles.inactive);
             else if(GUILayout.Button("Add", Styles.open_button))
-                tank_manager.AddVolume(tank_name, volume);
+                StartCoroutine(
+                    CallbackUtil.DelayedCallback(1, do_add_tank, tank_name, volume));
             return percent? (Volume.Equals(0)? 0 : volume/Volume*100) : volume;
         }
+        
+        private void do_add_tank(string tank_name, float volume) => 
+            tank_manager.AddVolume(tank_name, volume);
+
         void remove_tank(ModuleSwitchableTank tank) 
         { tank_manager.RemoveTank(tank); }
 
@@ -226,7 +230,9 @@ namespace AT_Utils
     public class TankManagerUpdater : ModuleUpdater<ModuleTankManager>
     {
         protected override void on_rescale(ModulePair<ModuleTankManager> mp, Scale scale)
-        { mp.module.Rescale(scale.relative.volume); }
+        {
+            mp.module.Rescale(scale.relative.volume, true);
+        }
     }
 }
 

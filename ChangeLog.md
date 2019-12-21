@@ -1,6 +1,14 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.7.1**
+* **v2.4.8**
+    * Hangar patch:
+        * Added a procedural fuel tank made from Procedural Adapter
+    * In APR ResourceUpdater no longer handles dynamic resources
+    * Corrected LH2O ratio in CryoEngines tank config
+    * Added CryoCooling variant of LH2O tank config
+    * Fixed InvalidOperationException on tank add/remove
+
+* v2.4.7.1
     * Updated AT_Utils
 
 * v2.4.7
