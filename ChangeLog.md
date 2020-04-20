@@ -1,6 +1,9 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.8**
+* **v2.4.8.1**
+    * Compiled against AT_Utils 1.9.1
+
+* v2.4.8
     * Hangar patch:
         * Added a procedural fuel tank made from Procedural Adapter
     * In APR ResourceUpdater no longer handles dynamic resources
