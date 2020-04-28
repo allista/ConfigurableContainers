@@ -1,6 +1,10 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.8.1**
+* **v2.4.8.2**
+    * **Compatible with KSP-1.9**
+    * Compiled against AT_Utils 1.9.2
+
+* v2.4.8.1
     * Compiled against AT_Utils 1.9.1
 
 * v2.4.8
