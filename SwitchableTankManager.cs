@@ -156,7 +156,7 @@ namespace AT_Utils
                     }
                     else Utils.Log("SwitchableTankManager: unable to load module from config:\n{}", n);
                 }
-                tanks.ForEach(t => t.Tank.OnStart(part.StartState()));
+                tanks.ForEach(t => t.Tank.OnStart(part.GetModuleStartState()));
             }
             else if(node.HasValue("Volume"))
             {
@@ -196,7 +196,7 @@ namespace AT_Utils
             tank.ExcludeTankTypes = ExcludeTankTypes;
             tank.InitialAmount = HighLogic.LoadedSceneIsEditor? Mathf.Clamp01(amount) : 0;
             if(!string.IsNullOrEmpty(resource)) tank.CurrentResource = resource;
-            tank.OnStart(part.StartState());
+            tank.OnStart(part.GetModuleStartState());
             tanks.ForEach(t => t.Tank.RegisterOtherTank(tank));
             tanks.Add(new TankWrapper(tank, this));
             total_volume = -1;
