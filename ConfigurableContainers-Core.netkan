@@ -3,7 +3,7 @@
     "identifier"   : "ConfigurableContainers-Core",
     "name"         : "Configurable Containers Core",
     "$kref"        : "#/ckan/spacedock/1002",
-    "$vref"        : "#/ckan/ksp-avc",
+    "$vref"        : "#/ckan/ksp-avc/ConfigurableContainers.version",
     "abstract"     : "This is the core configuration for the Configurable Containers.",
     "author"       : [ "allista" ],
     "license"      : "MIT",
