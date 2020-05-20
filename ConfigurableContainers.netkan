@@ -2,6 +2,7 @@
     "spec_version" : "v1.4",
     "identifier"   : "ConfigurableContainers",
     "$kref"        : "#/ckan/spacedock/1002",
+    "$vref"        : "#/ckan/ksp-avc",
     "abstract"     : "This mod converts all the stock fuel tanks and resource containers so that you can change the resource(s) they hold in Editor and in Flight.",
     "author"       : [ "allista" ],
     "license"      : "MIT",
