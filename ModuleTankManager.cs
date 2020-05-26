@@ -84,6 +84,7 @@ namespace AT_Utils
                               "TankManager module is disabled.");
                 this.EnableModule(false);
                 part.Modules.Remove(this);
+                return;
             }
             volume.name = ModuleSave.GetValue("name");
             ModuleSave.RemoveValue("Volume");
