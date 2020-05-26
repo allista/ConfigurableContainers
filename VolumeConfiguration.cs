@@ -139,8 +139,7 @@ namespace AT_Utils
                     var preset = VolumeConfigsLibrary.GetConfig(v.GetValue("name"));
                     if(preset != null) 
                     {
-                        float volume;
-                        if(!float.TryParse(v.GetValue("Volume"), out volume)) volume = 100f;
+                        if(!float.TryParse(v.GetValue("Volume"), out var volume)) volume = 100f;
                         var cfg = preset.Clone<VolumeConfiguration>();
                         cfg.Volume = volume;
                         Volumes.Add(cfg);

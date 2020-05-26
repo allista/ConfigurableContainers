@@ -61,8 +61,7 @@ namespace AT_Utils
         {
             resThermalMass = resource.amount*specificHeatCapacity;
             partThermalMass = part.mass * PhysicsGlobals.StandardSpecificHeatCapacity * part.thermalMassModifier;
-            double equilibriumT;
-            var transfer = temperatureTransfer(1, partThermalMass, resThermalMass, 300, boiloffTemperature, out equilibriumT);
+            var transfer = temperatureTransfer(1, partThermalMass, resThermalMass, 300, boiloffTemperature, out var equilibriumT);
 //            Utils.Log("Eq.T {}, C.dT {}, conductivity {}, (P.tM {} + C.tM {})/(P.tM*C.tM) = {}, transfer {}", 
 //                      equilibriumT, (equilibriumT-boiloffTemperature)*transfer, 
 //                      insulatorConductivity,
@@ -74,9 +73,8 @@ namespace AT_Utils
         public double BoiloffAt300K 
         { 
             get 
-            { 
-                double resThermalMass, partThemralMass;
-                var CoreDeltaT = CoreDeltaTAt300K(out partThemralMass, out resThermalMass);
+            {
+                var CoreDeltaT = CoreDeltaTAt300K(out var partThemralMass, out var resThermalMass);
                 return resource.amount*(1-Math.Exp(-CoreDeltaT*specificHeatCapacity/vaporizationHeat));
             } 
         }
@@ -111,8 +109,7 @@ namespace AT_Utils
         {
             var resThermalMass = resource.amount*specificHeatCapacity;
             var partThermalMass = Math.Max(part.thermalMass-resThermalMass, 1e-3);
-            double equilibriumT;
-            var transfer = temperatureTransfer(deltaTime, partThermalMass, resThermalMass, part.temperature, CoreTemperature, out equilibriumT);
+            var transfer = temperatureTransfer(deltaTime, partThermalMass, resThermalMass, part.temperature, CoreTemperature, out var equilibriumT);
             var CoreDeltaT = (equilibriumT-CoreTemperature)*transfer;
             var PartDeltaT = (equilibriumT-part.temperature)*transfer;
             part.AddThermalFlux(PartDeltaT*part.thermalMass/TimeWarp.fixedDeltaTime);

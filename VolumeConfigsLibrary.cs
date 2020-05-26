@@ -172,8 +172,7 @@ namespace AT_Utils
         public static VolumeConfiguration GetConfig(string name)
         {
             if(string.IsNullOrEmpty(name)) return null;
-            VolumeConfiguration cfg;
-            if(PresetConfigs.TryGetValue(name, out cfg)) return cfg;
+            if(PresetConfigs.TryGetValue(name, out var cfg)) return cfg;
             if(UserConfigs.TryGetValue(name, out cfg)) return cfg;
             return null;
         }

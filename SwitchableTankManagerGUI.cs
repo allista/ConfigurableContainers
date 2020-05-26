@@ -181,8 +181,7 @@ namespace AT_Utils
             if(GUILayout.Button(percent? percent_gui_content : m3_gui_content, 
                                 Styles.normal_button, GUILayout.Width(30))) 
                 percent = !percent;
-            float volume = -1;
-            var volume_valid = float.TryParse(volume_field, out volume);
+            var volume_valid = float.TryParse(volume_field, out var volume);
             if(volume_valid)
             {
                 var vol = add_tank(selected_tank_type, volume, percent);

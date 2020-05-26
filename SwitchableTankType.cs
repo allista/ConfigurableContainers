@@ -91,8 +91,7 @@ namespace AT_Utils
         /// <param name="tank_type">Tank type name.</param>
         public static SwitchableTankType GetTankType(string tank_type)
         {
-            SwitchableTankType t;
-            return TankTypes.TryGetValue(tank_type, out t) ? t : null;
+            return TankTypes.TryGetValue(tank_type, out var t) ? t : null;
         }
 
         /// <summary>
@@ -116,8 +115,7 @@ namespace AT_Utils
         /// <param name="tank_type">Tank type name.</param>
         public static string GetTankTypeInfo(string tank_type)
         {
-            SwitchableTankType t;
-            return TankTypes.TryGetValue(tank_type, out t) ? t.Info : string.Empty;
+            return TankTypes.TryGetValue(tank_type, out var t) ? t.Info : string.Empty;
         }
 
         /// <summary>

@@ -93,8 +93,7 @@ namespace AT_Utils
         /// <param name="r">The part resource.</param>
         public CryoResource GetResource(PartResource r)
         {
-            CryoResource res;
-            return Resources.TryGetValue(r.resourceName, out res)? res : null;
+            return Resources.TryGetValue(r.resourceName, out var res)? res : null;
         }
 
         /// <summary>

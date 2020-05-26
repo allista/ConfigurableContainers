@@ -24,9 +24,8 @@ namespace AT_Utils
         public double PowerConsumptionAt300K 
         { 
             get 
-            { 
-                double resThermalMass, partThemralMass;
-                var CoreDeltaT = CoreDeltaTAt300K(out partThemralMass, out resThermalMass);
+            {
+                var CoreDeltaT = CoreDeltaTAt300K(out var partThemralMass, out var resThermalMass);
                 return Math.Min(CoreDeltaT*resThermalMass *
                                 (300-boiloffTemperature)/boiloffTemperature/Efficiency /
                                 CryogenicsParams.Instance.ElectricCharge2kJ, 
