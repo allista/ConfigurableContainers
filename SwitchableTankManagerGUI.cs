@@ -56,7 +56,7 @@ namespace AT_Utils
             {
                 if(manager.TypeChangeEnabled && manager.SupportedTypes.Count > 1) 
                 {
-                    var new_type = Utils.LeftRightChooser<string>(Tank.TankType, Tank.SupportedTypes, Tank.Type.Info, 190);
+                    var new_type = Utils.LeftRightChooser(Tank.TankType, Tank.SupportedTypes, Tank.Type.Info, 190);
                     if(new_type == Tank.TankType)
                         return;
                     Tank.TankType = new_type;
@@ -69,7 +69,7 @@ namespace AT_Utils
             {
                 if(Tank.Type.Resources.Count > 1)
                 {
-                    var new_res = Utils.LeftRightChooser<string>(Tank.CurrentResource, Tank.Type.Resources.Keys, width: 160);
+                    var new_res = Utils.LeftRightChooser(Tank.CurrentResource, Tank.Type.Resources.Keys, width: 160);
                     if(new_res == Tank.CurrentResource)
                         return;
                     Tank.CurrentResource = new_res;
@@ -172,7 +172,7 @@ namespace AT_Utils
             //tank properties
             GUILayout.BeginHorizontal();
             GUILayout.Label("Type:", GUILayout.ExpandWidth(false));
-            selected_tank_type = Utils.LeftRightChooser<string>(selected_tank_type, SupportedTypes, 
+            selected_tank_type = Utils.LeftRightChooser(selected_tank_type, SupportedTypes, 
                                                                 SwitchableTankType.GetTankTypeInfo(selected_tank_type), 160);
             GUILayout.Label("Volume:", GUILayout.Width(50));
             volume_field = GUILayout.TextField(volume_field, GUILayout.ExpandWidth(true), GUILayout.MinWidth(50));
