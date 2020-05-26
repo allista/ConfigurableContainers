@@ -224,9 +224,7 @@ namespace AT_Utils
                 else Utils.Log("Configuration is invalid:\n{}\nThis should never happen!", node);
             }
             config_name = Utils.LeftRightChooser(config_name, VolumeConfigsLibrary.UserConfigs, 
-                                                 "Select tank configuration to edit", 200);
-            if(config_name == null) 
-                config_name = "";
+                "Select tank configuration to edit", 200) ?? "";
             if(GUILayout.Button("Delete", Styles.danger_button, GUILayout.ExpandWidth(false)) && 
                !string.IsNullOrEmpty(config_name))
             {
