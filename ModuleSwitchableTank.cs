@@ -282,8 +282,7 @@ namespace AT_Utils
             if(current_resource != null)
                 InitialAmount = (float)(current_resource.amount/current_resource.maxAmount);
             base.OnSave(node);
-            if(boiloff != null) 
-                boiloff.SaveInto(node);
+            boiloff?.SaveInto(node);
         }
 
         /// <summary>
@@ -572,7 +571,7 @@ namespace AT_Utils
                 current_resource = part.AddResource(node);
             }
             current_resource_name = Utils.ParseCamelCase(CurrentResource);
-            if(boiloff != null) boiloff.SetResource(current_resource);
+            boiloff?.SetResource(current_resource);
             if(part.Events != null) part.SendEvent("resource_changed");
             return true;
         }
@@ -671,8 +670,8 @@ namespace AT_Utils
 
         private void FixedUpdate()
         {
-            if(HighLogic.LoadedSceneIsFlight && boiloff != null) 
-                boiloff.FixedUpdate();
+            if(HighLogic.LoadedSceneIsFlight) 
+                boiloff?.FixedUpdate();
         }
     }
 
