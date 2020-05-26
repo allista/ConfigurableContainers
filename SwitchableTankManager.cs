@@ -139,7 +139,7 @@ namespace AT_Utils
                 foreach(var n in node.GetNodes(TankVolume.NODE_NAME))
                 {
                     n.AddValue(MANAGED, true);
-                    n.AddValue("name", typeof(ModuleSwitchableTank).Name);
+                    n.AddValue("name", nameof(ModuleSwitchableTank));
                     n.SetValue("ExcludeTankTypes", ExcludeTankTypes);
                     n.SetValue("IncludeTankTypes", IncludeTankTypes);
                     ModuleSwitchableTank tank;
@@ -187,7 +187,7 @@ namespace AT_Utils
                 Utils.Log("SwitchableTankManager: no such tank type: {}", tank_type);
                 return false;
             }
-            var tank = part.AddModule(typeof(ModuleSwitchableTank).Name) as ModuleSwitchableTank;
+            var tank = part.AddModule(nameof(ModuleSwitchableTank)) as ModuleSwitchableTank;
             if(tank == null) return false;
             tank.id = ++max_id;
             tank.managed = true;
