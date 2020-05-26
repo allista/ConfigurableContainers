@@ -203,7 +203,6 @@ namespace AT_Utils
         {
             if(!AddRemoveEnabled) return;
             GUILayout.BeginHorizontal();
-            VolumeConfiguration cfg = null;
             GUILayout.Label("Configuration Name:", GUILayout.ExpandWidth(false));
             config_name = GUILayout.TextField(config_name, GUILayout.ExpandWidth(true), GUILayout.MinWidth(50));
             if(GUILayout.Button(VolumeConfigsLibrary.HaveUserConfig(config_name)? "Save" : "Add", 
@@ -213,7 +212,7 @@ namespace AT_Utils
                 //add new config
                 var node = new ConfigNode();
                 Save(node);
-                cfg = FromConfig<VolumeConfiguration>(node);
+                var cfg = FromConfig<VolumeConfiguration>(node);
                 if(cfg.Valid) 
                 {
                     cfg.name = config_name;
