@@ -25,15 +25,14 @@ namespace AT_Utils
         public bool EnablePartControls 
         { 
             get => enable_part_controls;
-            set 
-            { 
-                if(enable_part_controls != value)
-                {
-                    enable_part_controls = value;
-                    disable_part_controls();
-                    init_type_control(); 
-                    init_res_control();
-                }
+            set
+            {
+                if(enable_part_controls == value)
+                    return;
+                enable_part_controls = value;
+                disable_part_controls();
+                init_type_control(); 
+                init_res_control();
             }
         }
 
@@ -293,7 +292,7 @@ namespace AT_Utils
         { if(!other_tanks.Contains(tank)) other_tanks.Add(tank); }
 
         /// <summary>
-        /// Remoes the given SwitchableTank from the list of all tanks 
+        /// Removes the given SwitchableTank from the list of all tanks 
         /// whose CurrentResource is checked upon resource switching.
         /// </summary>
         public bool UnregisterOtherTank(ModuleSwitchableTank tank)
@@ -651,7 +650,7 @@ namespace AT_Utils
 
                 if(HighLogic.LoadedSceneIsFlight)
                 {
-                    //temprerature display
+                    //temperature display
                     if(boiloff != null)
                         CoreTemperatureDisplay = boiloff.CoreTemperature-273.15;
                     if(cooler != null)
