@@ -70,8 +70,8 @@ namespace AT_Utils
 
         public IEnumerable<ModuleSwitchableTank> Tanks { get { return tanks.Select(t => t.Tank); } }
         public ModuleSwitchableTank GetTank(int id) { return tanks.Find(t => t.Tank.id == id); }
-        public int TanksCount { get { return tanks.Count; } }
-        public float TotalCost { get { return tanks.Aggregate(0f, (c, t) => c+t.Tank.Cost); } }
+        public int TanksCount => tanks.Count;
+        public float TotalCost => tanks.Aggregate(0f, (c, t) => c+t.Tank.Cost);
         public float TotalVolume 
         { 
             get 

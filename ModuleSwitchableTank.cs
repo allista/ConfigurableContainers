@@ -24,7 +24,7 @@ namespace AT_Utils
         private bool enable_part_controls = true;
         public bool EnablePartControls 
         { 
-            get { return enable_part_controls; } 
+            get => enable_part_controls;
             set 
             { 
                 if(enable_part_controls != value)
@@ -67,18 +67,18 @@ namespace AT_Utils
         public string TankType;
 
         private SwitchableTankType tank_type;
-        public SwitchableTankType Type { get { return tank_type; } }
+        public SwitchableTankType Type => tank_type;
         public List<string> SupportedTypes = new List<string>();
 
         /// <summary>
         /// Cost of an empty tank of current type and volume
         /// </summary>
-        public float Cost { get { return tank_type != null? tank_type.Cost(Volume) : 0; } }
+        public float Cost => tank_type != null? tank_type.Cost(Volume) : 0;
 
         /// <summary>
         /// Additional mass of an empty tank of current type and volume
         /// </summary>
-        public float AddMass { get { return tank_type != null? tank_type.AddMass(Volume) : 0; } }
+        public float AddMass => tank_type != null? tank_type.AddMass(Volume) : 0;
 
         /// <summary>
         /// The initial partial amount of the CurrentResource.
@@ -119,27 +119,23 @@ namespace AT_Utils
 
         private ActiveCooling cooler;
 
-        public float Usage { get { return current_resource != null? (float)(current_resource.amount/current_resource.maxAmount) : 0; } }
-        public string ResourceInUse { get { return current_resource != null? current_resource.resourceName : string.Empty; } }
-        public PartResource Resource { get { return current_resource; } }
+        public float Usage => current_resource != null? (float)(current_resource.amount/current_resource.maxAmount) : 0;
+        public string ResourceInUse => current_resource != null? current_resource.resourceName : string.Empty;
+        public PartResource Resource => current_resource;
+
         public double Amount 
         {
-            get { return current_resource != null? current_resource.amount : 0; }
+            get => current_resource != null? current_resource.amount : 0;
             set { if(current_resource != null) current_resource.amount = Utils.Clamp(value, 0, current_resource.maxAmount); }
         }
         public double MaxAmount 
         {
-            get { return current_resource != null? current_resource.maxAmount : 0; }
+            get => current_resource != null? current_resource.maxAmount : 0;
             set { if(current_resource != null) current_resource.maxAmount = value; }
         }
-        public float MaxResourceInVolume 
-        { 
-            get 
-            { 
-                return tank_type == null || resource_info == null ? 0 : 
-                    tank_type.UsefulVolume(Volume) * resource_info.UnitsPerLiter * 1000f;
-            } 
-        }
+        public float MaxResourceInVolume =>
+            tank_type == null || resource_info == null ? 0 : 
+                tank_type.UsefulVolume(Volume) * resource_info.UnitsPerLiter * 1000f;
 
         private readonly List<ModuleSwitchableTank> other_tanks = new List<ModuleSwitchableTank>();
 

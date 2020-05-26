@@ -41,8 +41,7 @@ namespace AT_Utils
         [Persistent] public string CurrentResource;
         [Persistent] public float  InitialAmount;
 
-        public SwitchableTankType Type 
-        { get { return SwitchableTankType.GetTankType(TankType); } }
+        public SwitchableTankType Type => SwitchableTankType.GetTankType(TankType);
 
         public override float AddMass(float volume_conversion = 1)
         { 
@@ -124,7 +123,7 @@ namespace AT_Utils
 
         public List<BaseVolume> Volumes = new List<BaseVolume>();
         public float TotalVolume { get { return Volumes.Aggregate(0f, (v, t) => v+t.Volume); } }
-        public bool Valid { get { return Volumes.Count > 0 && TotalVolume > 0; } }
+        public bool Valid => Volumes.Count > 0 && TotalVolume > 0;
 
         public override void Load(ConfigNode node)
         {

@@ -15,7 +15,7 @@ namespace AT_Utils
     public class VolumeConfigsLibrary : CustomConfig
     {
         public const string USERFILE = "VolumeConfigs.user";
-        public static string UserFile { get { return GameDataFolder("ConfigurableContainers", USERFILE); } }
+        public static string UserFile => GameDataFolder("ConfigurableContainers", USERFILE);
 
         private static VolumeConfigsLibrary instance;
 

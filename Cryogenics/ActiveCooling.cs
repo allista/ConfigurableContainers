@@ -37,7 +37,7 @@ namespace AT_Utils
         /// Converts the amount of heat that needs to be retreived from the core to the amount of work that is 
         /// required to transfer that heat to the part's skin.
         /// </summary>
-        protected double Q2W { get { return (part.skinTemperature-CoreTemperature)/CoreTemperature/Efficiency; } }
+        protected double Q2W => (part.skinTemperature-CoreTemperature)/CoreTemperature/Efficiency;
 
         public ActiveCooling(ModuleSwitchableTank tank) : base(tank) {}
 

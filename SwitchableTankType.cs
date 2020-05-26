@@ -180,9 +180,9 @@ namespace AT_Utils
         }
 
         public SortedList<string, TankResource> Resources { get; private set; }
-        public bool Valid { get { return Resources != null && Resources.Count > 0; } }
-        public IList<string> ResourceNames { get { return Resources.Keys; } }
-        public TankResource DefaultResource { get { return Resources.Values[0]; } }
+        public bool Valid => Resources != null && Resources.Count > 0;
+        public IList<string> ResourceNames => Resources.Keys;
+        public TankResource DefaultResource => Resources.Values[0];
 
         public TankResource this[string name]
         {

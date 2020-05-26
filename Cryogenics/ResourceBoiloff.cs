@@ -48,7 +48,7 @@ namespace AT_Utils
         /// <summary>
         /// This is <c>true</c> if the SetResource is successfull, <c>false</c> otherwise.
         /// </summary>
-        public bool Valid { get { return cryo_info != null; } }
+        public bool Valid => cryo_info != null;
 
         protected double temperatureTransfer(double deltaTime, double partThermalMass, double resThermalMass, double partT, double resT, out double equilibriumT)
         {
