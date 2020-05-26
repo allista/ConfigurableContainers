@@ -61,7 +61,8 @@ namespace AT_Utils
                 return _tank_types;
             }
         }
-        static SortedList<string, SwitchableTankType> _tank_types;
+
+        private static SortedList<string, SwitchableTankType> _tank_types;
 
         /// <summary>
         /// Sorted list of tank type names.
@@ -200,7 +201,7 @@ namespace AT_Utils
             Resources = TankResource.ParseResourcesToSortedList(PossibleResources);
         }
 
-        string info = null;
+        private string info = null;
         public string Info
         { 
             get 

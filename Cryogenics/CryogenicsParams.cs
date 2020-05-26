@@ -29,10 +29,11 @@ namespace AT_Utils
                     r.info.specificHeatCapacity * Instance.SpecificHeat2VaporizationHeat;
             }
         }
-        readonly Dictionary<string,CryoResource> Resources = new Dictionary<string, CryoResource>();
 
-        const string config_path = "ConfigurableContainers/Cryogenics/";
-        static CryogenicsParams instance;
+        private readonly Dictionary<string,CryoResource> Resources = new Dictionary<string, CryoResource>();
+
+        private const string config_path = "ConfigurableContainers/Cryogenics/";
+        private static CryogenicsParams instance;
         public static CryogenicsParams Instance
         {
             get

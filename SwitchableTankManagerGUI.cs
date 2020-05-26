@@ -13,28 +13,29 @@ namespace AT_Utils
     public partial class SwitchableTankManager
     {
         public delegate float AddTankDelegate(string tank_type, float volume, bool percent);
-        const int scroll_width  = 600;
-        const int scroll_height = 200;
-        const string eLock      = "SwitchableTankManager.EditingTanks";
-        Vector2 tanks_scroll    = Vector2.zero;
-        Rect eWindowPos = new Rect(Screen.width/2-scroll_width/2, scroll_height, scroll_width, scroll_height);
-        AddTankDelegate add_tank;
-        Action<ModuleSwitchableTank> remove_tank;
-        string volume_field = "0.0";
-        string config_name = "";
-        bool percent;
 
-        class TankWrapper
+        private const int scroll_width  = 600;
+        private const int scroll_height = 200;
+        private const string eLock      = "SwitchableTankManager.EditingTanks";
+        private Vector2 tanks_scroll    = Vector2.zero;
+        private Rect eWindowPos = new Rect(Screen.width/2-scroll_width/2, scroll_height, scroll_width, scroll_height);
+        private AddTankDelegate add_tank;
+        private Action<ModuleSwitchableTank> remove_tank;
+        private string volume_field = "0.0";
+        private string config_name = "";
+        private bool percent;
+
+        private class TankWrapper
         {
-            SwitchableTankManager manager;
-            ModuleSwitchableTank tank;
+            private SwitchableTankManager manager;
+            private ModuleSwitchableTank tank;
 
             public ModuleSwitchableTank Tank { get { return tank; } }
             public static implicit operator ModuleSwitchableTank(TankWrapper wrapper)
             { return wrapper.tank; }
 
-            FloatField VolumeField = new FloatField(min:0);
-            bool edit;
+            private FloatField VolumeField = new FloatField(min:0);
+            private bool edit;
             private static readonly GUIContent fill_tank_gui_content = new GUIContent("F", "Fill the tank with the resource");
             private static readonly GUIContent empty_tank_gui_content = new GUIContent("E", "Empty the tank");
             private static readonly GUIContent delete_tank_gui_content = new GUIContent("X", "Delete the tank");
@@ -52,7 +53,7 @@ namespace AT_Utils
                 VolumeField.Value = Tank.Volume;
             }
 
-            void tank_type_gui()
+            private void tank_type_gui()
             {
                 if(manager.TypeChangeEnabled && manager.SupportedTypes.Count > 1) 
                 {
@@ -66,7 +67,7 @@ namespace AT_Utils
                 else GUILayout.Label(tank.TankType, Styles.boxed_label, GUILayout.Width(170));
             }
 
-            void tank_resource_gui()
+            private void tank_resource_gui()
             {
                 if(tank.Type.Resources.Count > 1)
                 {
@@ -154,7 +155,7 @@ namespace AT_Utils
 
         public bool Closed { get; private set; }
 
-        void close_button()
+        private void close_button()
         {     
             Closed = GUILayout.Button("Close", Styles.normal_button, GUILayout.ExpandWidth(true));
             if(Closed) Utils.LockIfMouseOver(eLock, eWindowPos, false);
@@ -164,8 +165,10 @@ namespace AT_Utils
             new GUIContent("%", "Change between Volume (m3) and Percentage (%)");
         private static readonly GUIContent m3_gui_content =
             new GUIContent("m3", "Change between Volume (m3) and Percentage (%)");
-        string selected_tank_type = "";
-        void add_tank_gui()
+
+        private string selected_tank_type = "";
+
+        private void add_tank_gui()
         {
             if(!AddRemoveEnabled) return;
             GUILayout.BeginVertical();
@@ -198,7 +201,7 @@ namespace AT_Utils
             GUILayout.EndVertical();
         }
 
-        void volume_configs_gui()
+        private void volume_configs_gui()
         {
             if(!AddRemoveEnabled) return;
             GUILayout.BeginHorizontal();
@@ -237,8 +240,9 @@ namespace AT_Utils
             GUILayout.EndHorizontal();
         }
 
-        static GUIContent colors_gui_content = new GUIContent("C", "Color Scheme");
-        void draw_colors_button()
+        private static GUIContent colors_gui_content = new GUIContent("C", "Color Scheme");
+
+        private void draw_colors_button()
         {
             if(GUI.Button(new Rect(eWindowPos.width - 20f, 0f, 20f, 18f),
                           colors_gui_content, Styles.label))

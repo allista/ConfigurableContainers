@@ -19,10 +19,10 @@ namespace AT_Utils
         new public const string NODE_NAME = "TANKMANAGER";
         public const string MANAGED = "MANAGED";
 
-        readonly Part part;
-        readonly PartModule host;
-        readonly List<TankWrapper> tanks = new List<TankWrapper>();
-        int max_id = -1;
+        private readonly Part part;
+        private readonly PartModule host;
+        private readonly List<TankWrapper> tanks = new List<TankWrapper>();
+        private int max_id = -1;
 
         /// <summary>
         /// Maximum total volume of all tanks in m^3. It is used for reference and in tank controls.
@@ -43,17 +43,19 @@ namespace AT_Utils
         /// Excluded tank types. If empty, all types are supported.
         /// </summary>
         [Persistent] public string ExcludeTankTypes = string.Empty;
-        string[] exclude;
+
+        private string[] exclude;
 
         /// <summary>
         /// Supported tank types. If empty, all types are supported. Overrides ExcludedTankTypes.
         /// </summary>
         [Persistent] public string IncludeTankTypes = string.Empty;
-        string[] include;
+
+        private string[] include;
 
         public List<string> SupportedTypes = new List<string>();
 
-        bool enable_part_controls;
+        private bool enable_part_controls;
         public bool EnablePartControls
         {
             get { return enable_part_controls; }
@@ -80,7 +82,8 @@ namespace AT_Utils
                 return total_volume;
             } 
         }
-        float total_volume = -1;
+
+        private float total_volume = -1;
         public void ForceUpdateTotalVolume() { total_volume = -1; }
 
         public static string GetInfo(PartModule host, ConfigNode node)
@@ -108,7 +111,7 @@ namespace AT_Utils
             this.host = host;
         }
 
-        void init_supported_types()
+        private void init_supported_types()
         {
             exclude = Utils.ParseLine(ExcludeTankTypes, Utils.Comma);
             include = Utils.ParseLine(IncludeTankTypes, Utils.Comma);
@@ -289,7 +292,7 @@ namespace AT_Utils
             total_volume = -1;
         }
 
-        void update_symmetry_managers(Action<SwitchableTankManager> action)
+        private void update_symmetry_managers(Action<SwitchableTankManager> action)
         {
             if(part.symmetryCounterparts.Count == 0) return;
             var ind = part.Modules.IndexOf(host);
@@ -313,7 +316,7 @@ namespace AT_Utils
             }
         }
 
-        void update_symmetry_tanks(ModuleSwitchableTank tank, Action<ModuleSwitchableTank> action)
+        private void update_symmetry_tanks(ModuleSwitchableTank tank, Action<ModuleSwitchableTank> action)
         {
             update_symmetry_managers
             (m => 

@@ -17,8 +17,9 @@ namespace AT_Utils
         public const string USERFILE = "VolumeConfigs.user";
         public static string UserFile { get { return GameDataFolder("ConfigurableContainers", USERFILE); } }
 
-        static VolumeConfigsLibrary instance;
-        static VolumeConfigsLibrary Instance 
+        private static VolumeConfigsLibrary instance;
+
+        private static VolumeConfigsLibrary Instance 
         { 
             get 
             { 
@@ -62,7 +63,8 @@ namespace AT_Utils
                 return presets;
             }
         }
-        static SortedList<string, VolumeConfiguration> presets;
+
+        private static SortedList<string, VolumeConfiguration> presets;
 
         /// <summary>
         /// The library of tank configurations saved by the user.
@@ -103,9 +105,10 @@ namespace AT_Utils
                 return user_configs;
             }
         }
-        static SortedList<string, VolumeConfiguration> user_configs;
 
-        static void add_unique(VolumeConfiguration cfg, IDictionary<string, VolumeConfiguration> db)
+        private static SortedList<string, VolumeConfiguration> user_configs;
+
+        private static void add_unique(VolumeConfiguration cfg, IDictionary<string, VolumeConfiguration> db)
         {
             int index = 1;
             var basename = cfg.name;
@@ -114,7 +117,7 @@ namespace AT_Utils
             db.Add(cfg.name, cfg);
         }
 
-        static bool save_user_configs()
+        private static bool save_user_configs()
         {
             var node = new ConfigNode();
             UserConfigs.ForEach(c => c.Value.SaveInto(node));

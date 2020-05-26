@@ -148,7 +148,7 @@ namespace AT_Utils
             }
         }
 
-        double GetDeltaTime()
+        private double GetDeltaTime()
         {
             if(Time.timeSinceLevelLoad < 1 || !FlightGlobals.ready) return -1;
             if(LastUpdateTime < 0)

@@ -18,10 +18,10 @@ namespace AT_Utils
     /// </summary>
     public class ModuleSwitchableTank : AbstractResourceTank
     {
-        const string   RES_MANAGED = "Res";
-        const string RES_UNMANAGED = "N/A";
+        private const string   RES_MANAGED = "Res";
+        private const string RES_UNMANAGED = "N/A";
 
-        bool enable_part_controls = true;
+        private bool enable_part_controls = true;
         public bool EnablePartControls 
         { 
             get { return enable_part_controls; } 
@@ -49,13 +49,15 @@ namespace AT_Utils
         /// Excluded tank types. If empty, all types are supported.
         /// </summary>
         [KSPField] public string ExcludeTankTypes = string.Empty;
-        string[] exclude;
+
+        private string[] exclude;
 
         /// <summary>
         /// Supported tank types. If empty, all types are supported. Overrides ExcludedTankTypes.
         /// </summary>
         [KSPField] public string IncludeTankTypes = string.Empty;
-        string[] include;
+
+        private string[] include;
 
         /// <summary>
         /// The type of the tank. Types are defined in separate config nodes. Cannot be changed in flight.
@@ -63,7 +65,8 @@ namespace AT_Utils
         [KSPField(isPersistant = true, guiActiveEditor = true, guiName = "Type")]
         [UI_ChooseOption(scene = UI_Scene.Editor)]
         public string TankType;
-        SwitchableTankType tank_type;
+
+        private SwitchableTankType tank_type;
         public SwitchableTankType Type { get { return tank_type; } }
         public List<string> SupportedTypes = new List<string>();
 
@@ -89,10 +92,11 @@ namespace AT_Utils
         [KSPField(isPersistant = true, guiActive = true, guiActiveEditor = true, guiName = RES_MANAGED)]
         [UI_ChooseOption]
         public string CurrentResource = string.Empty;
-        TankResource resource_info;
-        PartResource current_resource;
-        string current_resource_name = string.Empty;
-        string previous_resource = string.Empty;
+
+        private TankResource resource_info;
+        private PartResource current_resource;
+        private string current_resource_name = string.Empty;
+        private string previous_resource = string.Empty;
 
         #if DEBUG
         [KSPField(isPersistant = true, guiActive = true, guiActiveEditor = false, guiName = "Part", guiUnits = "°C")]
@@ -105,13 +109,15 @@ namespace AT_Utils
         public double CoreTemperatureDisplay = 0;
         [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Boiloff")]
         public string BoiloffDisplay = "0";
-        ResourceBoiloff boiloff;
+
+        private ResourceBoiloff boiloff;
 
         [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling", guiFormat = "P1")]
         public double CoolingDisplay = 0;
         [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling Cost")]
         public string EcDisplay = "0";
-        ActiveCooling cooler;
+
+        private ActiveCooling cooler;
 
         public float Usage { get { return current_resource != null? (float)(current_resource.amount/current_resource.maxAmount) : 0; } }
         public string ResourceInUse { get { return current_resource != null? current_resource.resourceName : string.Empty; } }
@@ -135,7 +141,7 @@ namespace AT_Utils
             } 
         }
 
-        readonly List<ModuleSwitchableTank> other_tanks = new List<ModuleSwitchableTank>();
+        private readonly List<ModuleSwitchableTank> other_tanks = new List<ModuleSwitchableTank>();
 
         public override string GetInfo()
         {
@@ -191,9 +197,9 @@ namespace AT_Utils
             return maxAmount? mass : mass * InitialAmount;
         }
 
-        void OnDestroy() { Utils.UpdateEditorGUI(); }
+        private void OnDestroy() { Utils.UpdateEditorGUI(); }
 
-        void init_supported_types()
+        private void init_supported_types()
         {
             include = Utils.ParseLine(IncludeTankTypes, Utils.Comma);
             exclude = Utils.ParseLine(ExcludeTankTypes, Utils.Comma);
@@ -324,7 +330,7 @@ namespace AT_Utils
             return true;
         }
 
-        void init_type_control()
+        private void init_type_control()
         {
             if(!enable_part_controls || !ChooseTankType || SupportedTypes.Count <= 1) return;
             var tank_names = SupportedTypes.Select(Utils.ParseCamelCase).ToArray();
@@ -332,7 +338,7 @@ namespace AT_Utils
             Utils.EnableField(Fields["TankType"]);
         }
 
-        void update_cooler_control()
+        private void update_cooler_control()
         {
             if(cooler == null) return;
             Events["ToggleCooler"].guiName = cooler.Enabled? 
@@ -340,7 +346,7 @@ namespace AT_Utils
                 string.Format("Enable {0} Cooling", current_resource_name);
         }
 
-        void update_boiloff_control()
+        private void update_boiloff_control()
         {
             if(boiloff != null && boiloff.Valid) 
             {
@@ -372,7 +378,7 @@ namespace AT_Utils
             }
         }
 
-        void init_res_control()
+        private void init_res_control()
         {
             if(tank_type == null || !enable_part_controls || tank_type.Resources.Count <= 1) 
                 Utils.EnableField(Fields["CurrentResource"], false);
@@ -388,20 +394,20 @@ namespace AT_Utils
                 part.UpdatePartMenu();
         }
 
-        void update_res_control()
+        private void update_res_control()
         {
             Fields["CurrentResource"].guiName = current_resource == null ? RES_UNMANAGED : RES_MANAGED;
             update_boiloff_control();
             part.UpdatePartMenu();
         }
 
-        void disable_part_controls()
+        private void disable_part_controls()
         {
             Utils.EnableField(Fields["TankType"], false);
             Utils.EnableField(Fields["CurrentResource"], false);
         }
 
-        bool init_tank_type()
+        private bool init_tank_type()
         {
             if(Volume < 0) Volume = Metric.Volume(part);
             if(tank_type != null) return true;
@@ -429,7 +435,7 @@ namespace AT_Utils
             return true;
         }
 
-        bool change_tank_type()
+        private bool change_tank_type()
         {
             //check if the tank is in use
             if(tank_type != null && 
@@ -457,7 +463,7 @@ namespace AT_Utils
         /// </summary>
         /// <returns><c>true</c>, if resource is used, <c>false</c> otherwise.</returns>
         /// <param name="res">resource name</param>
-        bool resource_in_use(string res)
+        private bool resource_in_use(string res)
         { return other_tanks.Any(t => t.ResourceInUse == res); }
 
         /// <summary>
@@ -524,7 +530,7 @@ namespace AT_Utils
             }
         }
 
-        bool init_resource()
+        private bool init_resource()
         {
             if(current_resource != null)
             {
@@ -575,11 +581,11 @@ namespace AT_Utils
             return true;
         }
 
-        bool switch_resource()
+        private bool switch_resource()
         { return TryRemoveResource() && init_resource(); }
 
         [KSPEvent]
-        void resource_changed()
+        private void resource_changed()
         {
             if(current_resource != null) return;
             switch_resource();
@@ -587,7 +593,7 @@ namespace AT_Utils
 
         //interface for ProceduralParts
         [KSPEvent(guiActive=false, active = true)]
-        void OnPartVolumeChanged(BaseEventDetails data)
+        private void OnPartVolumeChanged(BaseEventDetails data)
         {
             if(managed) return;
             var volName = data.Get<string>("volName");
@@ -598,7 +604,7 @@ namespace AT_Utils
 
         //interface for TweakScale
         [KSPEvent(guiActive=false, active = true)]
-        void OnPartScaleChanged(BaseEventDetails data)
+        private void OnPartScaleChanged(BaseEventDetails data)
         {
             if(managed) return;
             var scale = data.Get<float>("factorRelative");
@@ -610,7 +616,7 @@ namespace AT_Utils
         }
 
         [KSPEvent(guiActive=true, guiName = "Disable Cooling", active = false)]
-        void ToggleCooler()
+        private void ToggleCooler()
         {
             if(cooler == null) return;
             cooler.Enabled = !cooler.Enabled;
@@ -619,7 +625,7 @@ namespace AT_Utils
 
         #if DEBUG
         [KSPEvent(guiActive=true, guiActiveEditor = true, guiName = "Reload Cryogenics", active = true)]
-        void ReloadCryogenics() 
+        private void ReloadCryogenics() 
         { 
             CryogenicsParams.Reload();
             if(boiloff != null && current_resource != null)
@@ -627,7 +633,7 @@ namespace AT_Utils
         }
         #endif
 
-        IEnumerator<YieldInstruction> slow_update()
+        private IEnumerator<YieldInstruction> slow_update()
         {
             while(true)
             {
@@ -667,7 +673,7 @@ namespace AT_Utils
             }
         }
 
-        void FixedUpdate()
+        private void FixedUpdate()
         {
             if(HighLogic.LoadedSceneIsFlight && boiloff != null) 
                 boiloff.FixedUpdate();

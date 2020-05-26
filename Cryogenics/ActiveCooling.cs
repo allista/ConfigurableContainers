@@ -13,8 +13,8 @@ namespace AT_Utils
     {
         public new const string NODE_NAME = "RES_COOLING";
 
-        double MaxPower = 10;
-        double Efficiency = 0.17f;
+        private double MaxPower = 10;
+        private double Efficiency = 0.17f;
 
         [Persistent] public double CoolingEfficiency = 0;
 

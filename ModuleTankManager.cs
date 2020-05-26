@@ -12,7 +12,7 @@ namespace AT_Utils
     public class ModuleTankManager : AbstractResourceTank, ITankManager
     {
         #region Tanks
-        SwitchableTankManager tank_manager;
+        private SwitchableTankManager tank_manager;
         public SwitchableTankManager GetTankManager() { return tank_manager; }
 
         public override string GetInfo()
@@ -51,7 +51,7 @@ namespace AT_Utils
             return volumes.ResourceMass(maxAmount);
         }
 
-        void init_tank_manager()
+        private void init_tank_manager()
         {
             if(tank_manager != null) return;
             tank_manager = new SwitchableTankManager(this);
@@ -140,7 +140,7 @@ namespace AT_Utils
 
         //interface for ProceduralParts
         [KSPEvent(guiActive=false, active = true)]
-        void OnPartVolumeChanged(BaseEventDetails data)
+        private void OnPartVolumeChanged(BaseEventDetails data)
         {
             var volName = data.Get<string>("volName");
             var newTotalVolume = (float)data.Get<double>("newTotalVolume");
@@ -150,7 +150,7 @@ namespace AT_Utils
 
         //interface for TweakScale
         [KSPEvent(guiActive=false, active = true)]
-        void OnPartScaleChanged(BaseEventDetails data)
+        private void OnPartScaleChanged(BaseEventDetails data)
         {
             var scale = data.Get<float>("factorRelative");
             var abs_scale = data.Get<float>("factorAbsolute");
@@ -173,8 +173,9 @@ namespace AT_Utils
         #endregion
 
         #region GUI
-        enum TankWindows { None, EditTanks } //maybe we'll need more in the future
-        readonly Multiplexer<TankWindows> selected_window = new Multiplexer<TankWindows>();
+        private enum TankWindows { None, EditTanks } //maybe we'll need more in the future
+
+        private readonly Multiplexer<TankWindows> selected_window = new Multiplexer<TankWindows>();
 
         [KSPEvent(guiActive = true, guiActiveEditor = true, guiName = "Edit Tanks", active = true)]
         public void EditTanks()
@@ -184,7 +185,7 @@ namespace AT_Utils
                 tank_manager.UnlockEditor(); 
         }
 
-        float add_tank(string tank_name, float volume, bool percent)
+        private float add_tank(string tank_name, float volume, bool percent)
         {
             if(percent) volume = Volume*volume/100;
             var max  = GUILayout.Button("Max");
@@ -202,7 +203,7 @@ namespace AT_Utils
         private void do_add_tank(string tank_name, float volume) => 
             tank_manager.AddVolume(tank_name, volume);
 
-        void remove_tank(ModuleSwitchableTank tank) 
+        private void remove_tank(ModuleSwitchableTank tank) 
         { tank_manager.RemoveTank(tank); }
 
         public void OnGUI() 
