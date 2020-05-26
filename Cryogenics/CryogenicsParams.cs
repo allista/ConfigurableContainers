@@ -103,8 +103,8 @@ namespace AT_Utils
         /// <param name="volume">Volume of a tank.</param>
         public double GetInsulatorConductivity(double volume)
         {
-            return -CryogenicsParams.Instance.InsulationConductivity * 
-                Math.Pow(48*Math.PI*Math.PI*volume/CryogenicsParams.Instance.InsulationVolumeFraction, 1/3f);
+            return -Instance.InsulationConductivity * 
+                Math.Pow(48*Math.PI*Math.PI*volume/Instance.InsulationVolumeFraction, 1/3f);
         }
 
         #if DEBUG
@@ -128,7 +128,7 @@ namespace AT_Utils
             Resources.Clear();
             foreach(var n in node.GetNodes(CryoResource.NODE_NAME))
             {
-                var res = ConfigNodeObject.FromConfig<CryoResource>(n);
+                var res = FromConfig<CryoResource>(n);
                 Resources.Add(res.name, res);
             }
         }

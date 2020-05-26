@@ -39,7 +39,7 @@ namespace AT_Utils
                             #if DEBUG
                             Utils.Log("\n{}", n.ToString());
                             #endif
-                            var tank_type = ConfigNodeObject.FromConfig<SwitchableTankType>(n);
+                            var tank_type = FromConfig<SwitchableTankType>(n);
                             if(!tank_type.Valid)
                             {
                                 var msg = string.Format("[ConfigurableContainers] '{0}' tank type has no resources. Skipping.", tank_type.name);

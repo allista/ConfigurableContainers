@@ -41,7 +41,7 @@ namespace AT_Utils
 
             public TankWrapper(ModuleSwitchableTank tank, SwitchableTankManager manager) 
             { 
-                this.Tank = tank; 
+                Tank = tank; 
                 this.manager = manager;
                 VolumeField.Value = tank.Volume;
             }
@@ -213,7 +213,7 @@ namespace AT_Utils
                 //add new config
                 var node = new ConfigNode();
                 Save(node);
-                cfg = ConfigNodeObject.FromConfig<VolumeConfiguration>(node);
+                cfg = FromConfig<VolumeConfiguration>(node);
                 if(cfg.Valid) 
                 {
                     cfg.name = config_name;

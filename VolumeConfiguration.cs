@@ -144,10 +144,10 @@ namespace AT_Utils
                         cfg.Volume = volume;
                         Volumes.Add(cfg);
                     }
-                    else Volumes.Add(ConfigNodeObject.FromConfig<TankVolume>(v));
+                    else Volumes.Add(FromConfig<TankVolume>(v));
                 }
                 else if(v.name == NODE_NAME)
-                    Volumes.Add(ConfigNodeObject.FromConfig<VolumeConfiguration>(v));
+                    Volumes.Add(FromConfig<VolumeConfiguration>(v));
             }
         }
 

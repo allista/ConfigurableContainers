@@ -44,7 +44,7 @@ namespace AT_Utils
                         #if DEBUG
                         Utils.Log("Parsing preset tank configuration:\n{}", n);
                         #endif
-                        var cfg = ConfigNodeObject.FromConfig<VolumeConfiguration>(n);
+                        var cfg = FromConfig<VolumeConfiguration>(n);
                         if(!cfg.Valid)
                         {
                             var msg = string.Format("ConfigurableContainers: configuration \"{0}\" is INVALID.", cfg.name);
@@ -85,7 +85,7 @@ namespace AT_Utils
                     {
                         foreach(var n in node.GetNodes(VolumeConfiguration.NODE_NAME))
                         {
-                            var cfg = ConfigNodeObject.FromConfig<VolumeConfiguration>(n);
+                            var cfg = FromConfig<VolumeConfiguration>(n);
                             if(!cfg.Valid)
                             {
                                 var msg = string.Format("ConfigurableContainers: configuration \"{0}\" is INVALID.", cfg.name);

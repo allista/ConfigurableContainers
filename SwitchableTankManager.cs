@@ -99,7 +99,7 @@ namespace AT_Utils
             var info = "";
             if(TypeChangeEnabled) 
                 info += SwitchableTankType.TypesInfo(include, exclude);
-            var volumes = ConfigNodeObject.FromConfig<VolumeConfiguration>(node);
+            var volumes = FromConfig<VolumeConfiguration>(node);
             if(volumes.Valid)
                 info = string.Concat(info, "Preconfigured Tanks:\n", volumes.Info());
             return info;
@@ -134,7 +134,7 @@ namespace AT_Utils
             tanks.Clear();
             total_volume = -1;
             init_supported_types();
-            if(node.HasValue(SwitchableTankManager.MANAGED))
+            if(node.HasValue(MANAGED))
             {
                 var existing_tanks = part.Modules.GetModules<ModuleSwitchableTank>();
                 foreach(var n in node.GetNodes(TankVolume.NODE_NAME))
@@ -163,7 +163,7 @@ namespace AT_Utils
             }
             else if(node.HasValue("Volume"))
             {
-                var cfg = ConfigNodeObject.FromConfig<VolumeConfiguration>(node);
+                var cfg = FromConfig<VolumeConfiguration>(node);
                 var add_remove = AddRemoveEnabled;
                 AddRemoveEnabled = true;
                 AddConfiguration(cfg, cfg.Volume, false);
