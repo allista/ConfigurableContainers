@@ -46,13 +46,13 @@ namespace AT_Utils
         public override float AddMass(float volume_conversion = 1)
         { 
             var t = Type;
-            return t == null ? 0 : t.AddMass(Volume*volume_conversion);
+            return t?.AddMass(Volume*volume_conversion) ?? 0;
         }
 
         public override float Cost(float volume_conversion = 1)
         { 
             var t = Type;
-            return t == null ? 0 : t.Cost(Volume*volume_conversion);
+            return t?.Cost(Volume*volume_conversion) ?? 0;
         }
 
         public override float ResourceCost(bool maxAmount = true, float volume_conversion = 1) 

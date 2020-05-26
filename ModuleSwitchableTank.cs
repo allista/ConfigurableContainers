@@ -73,12 +73,12 @@ namespace AT_Utils
         /// <summary>
         /// Cost of an empty tank of current type and volume
         /// </summary>
-        public float Cost => tank_type != null? tank_type.Cost(Volume) : 0;
+        public float Cost => tank_type?.Cost(Volume) ?? 0;
 
         /// <summary>
         /// Additional mass of an empty tank of current type and volume
         /// </summary>
-        public float AddMass => tank_type != null? tank_type.AddMass(Volume) : 0;
+        public float AddMass => tank_type?.AddMass(Volume) ?? 0;
 
         /// <summary>
         /// The initial partial amount of the CurrentResource.
@@ -125,12 +125,12 @@ namespace AT_Utils
 
         public double Amount 
         {
-            get => current_resource != null? current_resource.amount : 0;
+            get => current_resource?.amount ?? 0;
             set { if(current_resource != null) current_resource.amount = Utils.Clamp(value, 0, current_resource.maxAmount); }
         }
         public double MaxAmount 
         {
-            get => current_resource != null? current_resource.maxAmount : 0;
+            get => current_resource?.maxAmount ?? 0;
             set { if(current_resource != null) current_resource.maxAmount = value; }
         }
         public float MaxResourceInVolume =>
