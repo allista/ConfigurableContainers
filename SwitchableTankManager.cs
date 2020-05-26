@@ -220,14 +220,12 @@ namespace AT_Utils
             var V = cfg.TotalVolume;
             foreach(var v in cfg.Volumes)
             {
-                var t = v as TankVolume;
-                if(t != null) 
+                if(v is TankVolume t) 
                 { 
                     AddTank(t.TankType, volume*v.Volume/V, t.CurrentResource, t.InitialAmount, update_counterparts);
                     continue;
                 }
-                var c = v as VolumeConfiguration;
-                if(c != null)
+                if(v is VolumeConfiguration c)
                 {
                     AddConfiguration(c, volume*v.Volume/V, update_counterparts);
                     continue;
