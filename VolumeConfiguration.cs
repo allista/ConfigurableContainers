@@ -14,7 +14,7 @@ namespace AT_Utils
 {
     public class BaseVolume : ConfigNodeObject
     { 
-        new public const string NODE_NAME = "VOLUME";
+        public new const string NODE_NAME = "VOLUME";
         [Persistent] public float Volume = 1;
 
         public virtual string Info(float volume_conversion = 1)
@@ -35,7 +35,7 @@ namespace AT_Utils
 
     public class TankVolume : BaseVolume
     {
-        new public const string NODE_NAME = "TANK";
+        public new const string NODE_NAME = "TANK";
 
         [Persistent] public string TankType;
         [Persistent] public string CurrentResource;
@@ -115,7 +115,7 @@ namespace AT_Utils
 
     public class VolumeConfiguration : BaseVolume
     {
-        new public const string NODE_NAME = "TANKCONF";
+        public new const string NODE_NAME = "TANKCONF";
 
         /// <summary>
         /// The name of a configuration.

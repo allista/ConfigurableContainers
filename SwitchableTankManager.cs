@@ -16,7 +16,7 @@ namespace AT_Utils
 
     public partial class SwitchableTankManager : ConfigNodeObject
     {
-        new public const string NODE_NAME = "TANKMANAGER";
+        public new const string NODE_NAME = "TANKMANAGER";
         public const string MANAGED = "MANAGED";
 
         private readonly Part part;

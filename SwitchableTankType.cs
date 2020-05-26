@@ -130,7 +130,7 @@ namespace AT_Utils
         }
         #endregion
 
-        new public const string NODE_NAME = "TANKTYPE";
+        public new const string NODE_NAME = "TANKTYPE";
         /// <summary>
         /// The name of the tank type. 
         /// It is possible to edit these nodes with MM using NODE[name] syntax.
