@@ -18,7 +18,7 @@ namespace AT_Utils
         [Persistent] public float Volume = 1;
 
         public virtual string Info(float volume_conversion = 1)
-        { return string.Format("{0}\n", Utils.formatVolume(Volume*volume_conversion)); }
+        { return $"{Utils.formatVolume(Volume * volume_conversion)}\n"; }
 
         public virtual float AddMass(float volume_conversion = 1) { return 0f; }
 
@@ -86,11 +86,9 @@ namespace AT_Utils
             var info = " - " + TankType;
             if(!string.IsNullOrEmpty(CurrentResource)) 
                 info += " : "+CurrentResource;
-            info += string.Format("\n   {0} {1:F1}", 
-                                  Utils.formatVolume(Volume*volume_conversion), 
-                                  Cost(volume_conversion));
+            info += $"\n   {Utils.formatVolume(Volume * volume_conversion)} {Cost(volume_conversion):F1}";
             if(InitialAmount > 0)
-                info += string.Format("+{0:F1}", ResourceCost(false, volume_conversion));
+                info += $"+{ResourceCost(false, volume_conversion):F1}";
             info += " Cr";
             return info+"\n";
         }

@@ -42,7 +42,8 @@ namespace AT_Utils
                             var tank_type = FromConfig<SwitchableTankType>(n);
                             if(!tank_type.Valid)
                             {
-                                var msg = string.Format("[ConfigurableContainers] '{0}' tank type has no resources. Skipping.", tank_type.name);
+                                var msg =
+                                    $"[ConfigurableContainers] '{tank_type.name}' tank type has no resources. Skipping.";
                                 Utils.Message(6, msg);
                                 Utils.Log(msg);
                                 continue;
@@ -210,11 +211,10 @@ namespace AT_Utils
                     info = "";
                     info += "Tank can hold:\n";
                     foreach(var r in ResourceNames)
-                        info += string.Format("- {0}: {1}/L\n", 
-                            Resources[r].Name, Utils.formatUnits(Resources[r].UnitsPerLiter));
+                        info += $"- {Resources[r].Name}: {Utils.formatUnits(Resources[r].UnitsPerLiter)}/L\n";
                     var usefull_volume = UsefulVolume(100);
                     if(usefull_volume < 100)
-                        info += string.Format("Only {0:F0}% of the volume is used for resources.\n", usefull_volume);
+                        info += $"Only {usefull_volume:F0}% of the volume is used for resources.\n";
                     if(Boiloff||Cooling) info += "Tank is thermally insulated.\nEquipped with boil-off valve.\n";
                     if(Cooling) info += "Equipped with Active Cooling System.\n";
                 }

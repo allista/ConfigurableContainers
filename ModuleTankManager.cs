@@ -17,7 +17,7 @@ namespace AT_Utils
 
         public override string GetInfo()
         { 
-            var info = string.Format("Max. Volume: {0}\n", Utils.formatVolume(Volume)); 
+            var info = $"Max. Volume: {Utils.formatVolume(Volume)}\n"; 
             if(ModuleSave != null)
                 info += SwitchableTankManager.GetInfo(this, ModuleSave);
             return info;
@@ -215,9 +215,8 @@ namespace AT_Utils
             {
                 if(HighLogic.LoadedSceneIsEditor)
                 {
-                    var title = string.Format("Available Volume: {0} of {1}", 
-                                              Utils.formatVolume(Volume - tank_manager.TotalVolume), 
-                                              Utils.formatVolume(Volume));
+                    var title =
+                        $"Available Volume: {Utils.formatVolume(Volume - tank_manager.TotalVolume)} of {Utils.formatVolume(Volume)}";
                     tank_manager.DrawTanksManagerWindow(GetInstanceID(), title, add_tank, remove_tank);
                 }
                 else if(HighLogic.LoadedSceneIsFlight)

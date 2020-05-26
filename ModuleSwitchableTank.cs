@@ -336,9 +336,9 @@ namespace AT_Utils
         private void update_cooler_control()
         {
             if(cooler == null) return;
-            Events["ToggleCooler"].guiName = cooler.Enabled? 
-                string.Format("Disable {0} Cooling", current_resource_name) : 
-                string.Format("Enable {0} Cooling", current_resource_name);
+            Events["ToggleCooler"].guiName = cooler.Enabled
+                ? $"Disable {current_resource_name} Cooling"
+                : $"Enable {current_resource_name} Cooling";
         }
 
         private void update_boiloff_control()
@@ -637,9 +637,9 @@ namespace AT_Utils
                     if(tank_type == null || tank_type.name != TankType) 
                         change_tank_type();
                     if(boiloff != null && boiloff.Valid)
-                        BoiloffDisplay = "~"+Utils.formatSmallValue((float)boiloff.BoiloffAt300K*3600, "u/h");
-                    if(cooler != null && boiloff.Valid)
-                        EcDisplay = "~"+Utils.formatSmallValue((float)cooler.PowerConsumptionAt300K, "Ec/s");
+                        BoiloffDisplay = $"~{Utils.formatSmallValue((float)boiloff.BoiloffAt300K * 3600, "u/h")}";
+                    if(cooler != null && boiloff != null && boiloff.Valid)
+                        EcDisplay = $"~{Utils.formatSmallValue((float)cooler.PowerConsumptionAt300K, "Ec/s")}";
                 }
                 else if(tank_type != null && tank_type.name != TankType)
                 {

@@ -47,7 +47,7 @@ namespace AT_Utils
                         var cfg = FromConfig<VolumeConfiguration>(n);
                         if(!cfg.Valid)
                         {
-                            var msg = string.Format("ConfigurableContainers: configuration \"{0}\" is INVALID.", cfg.name);
+                            var msg = $"ConfigurableContainers: configuration \"{cfg.name}\" is INVALID.";
                             Utils.Message(6, msg);
                             Utils.Log(msg);
                             continue;
@@ -88,7 +88,7 @@ namespace AT_Utils
                             var cfg = FromConfig<VolumeConfiguration>(n);
                             if(!cfg.Valid)
                             {
-                                var msg = string.Format("ConfigurableContainers: configuration \"{0}\" is INVALID.", cfg.name);
+                                var msg = $"ConfigurableContainers: configuration \"{cfg.name}\" is INVALID.";
                                 Utils.Message(6, msg);
                                 Utils.Log(msg);
                                 continue;
