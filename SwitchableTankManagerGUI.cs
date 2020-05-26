@@ -28,11 +28,10 @@ namespace AT_Utils
         private class TankWrapper
         {
             private readonly SwitchableTankManager manager;
-            private readonly ModuleSwitchableTank tank;
+            public ModuleSwitchableTank Tank { get; }
 
-            public ModuleSwitchableTank Tank { get { return tank; } }
             public static implicit operator ModuleSwitchableTank(TankWrapper wrapper)
-            { return wrapper.tank; }
+            { return wrapper.Tank; }
 
             private readonly FloatField VolumeField = new FloatField(min:0);
             private bool edit;
@@ -42,7 +41,7 @@ namespace AT_Utils
 
             public TankWrapper(ModuleSwitchableTank tank, SwitchableTankManager manager) 
             { 
-                this.tank = tank; 
+                this.Tank = tank; 
                 this.manager = manager;
                 VolumeField.Value = tank.Volume;
             }
@@ -57,28 +56,28 @@ namespace AT_Utils
             {
                 if(manager.TypeChangeEnabled && manager.SupportedTypes.Count > 1) 
                 {
-                    var new_type = Utils.LeftRightChooser<string>(tank.TankType, tank.SupportedTypes, tank.Type.Info, 190);
-                    if(new_type != tank.TankType)
+                    var new_type = Utils.LeftRightChooser<string>(Tank.TankType, Tank.SupportedTypes, Tank.Type.Info, 190);
+                    if(new_type != Tank.TankType)
                     {
-                        tank.TankType = new_type;
-                        manager.update_symmetry_tanks(tank, t => t.TankType = tank.TankType);
+                        Tank.TankType = new_type;
+                        manager.update_symmetry_tanks(Tank, t => t.TankType = Tank.TankType);
                     }
                 }
-                else GUILayout.Label(tank.TankType, Styles.boxed_label, GUILayout.Width(170));
+                else GUILayout.Label(Tank.TankType, Styles.boxed_label, GUILayout.Width(170));
             }
 
             private void tank_resource_gui()
             {
-                if(tank.Type.Resources.Count > 1)
+                if(Tank.Type.Resources.Count > 1)
                 {
-                    var new_res = Utils.LeftRightChooser<string>(tank.CurrentResource, tank.Type.Resources.Keys, width: 160);
-                    if(new_res != tank.CurrentResource) 
+                    var new_res = Utils.LeftRightChooser<string>(Tank.CurrentResource, Tank.Type.Resources.Keys, width: 160);
+                    if(new_res != Tank.CurrentResource) 
                     {
-                        tank.CurrentResource = new_res;
-                        manager.update_symmetry_tanks(tank, t => t.CurrentResource = tank.CurrentResource);
+                        Tank.CurrentResource = new_res;
+                        manager.update_symmetry_tanks(Tank, t => t.CurrentResource = Tank.CurrentResource);
                     }
                 }
-                else GUILayout.Label(tank.CurrentResource, Styles.boxed_label, GUILayout.Width(170));
+                else GUILayout.Label(Tank.CurrentResource, Styles.boxed_label, GUILayout.Width(170));
             }
 
             public void ManageGUI()
@@ -93,34 +92,34 @@ namespace AT_Utils
                     {
                         if(VolumeField.Draw("m3", manager.Volume/20, "F2"))
                         {
-                            var max_volume = tank.Volume+manager.Volume-manager.TotalVolume;
+                            var max_volume = Tank.Volume+manager.Volume-manager.TotalVolume;
                             if(VolumeField.Value > max_volume) 
                                 VolumeField.Value = max_volume;
                             if(VolumeField.IsSet)
                             {
-                                tank.Volume = VolumeField.Value;
-                                tank.UpdateMaxAmount(true);
+                                Tank.Volume = VolumeField.Value;
+                                Tank.UpdateMaxAmount(true);
                                 manager.total_volume = -1;
                                 edit = false;
                             }
                         }
                     }
-                    else edit |= GUILayout.Button(new GUIContent(Utils.formatVolume(tank.Volume), "Edit tank volume"), 
+                    else edit |= GUILayout.Button(new GUIContent(Utils.formatVolume(Tank.Volume), "Edit tank volume"), 
                                                   Styles.open_button, GUILayout.ExpandWidth(true));
                 }
-                else GUILayout.Label(Utils.formatVolume(tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
+                else GUILayout.Label(Utils.formatVolume(Tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
                 if(!edit)
                 {
-                    var usage = tank.Usage;
+                    var usage = Tank.Usage;
                     GUILayout.Label("Filled: "+usage.ToString("P1"), Styles.fracStyle(usage), GUILayout.Width(95));
                     if(HighLogic.LoadedSceneIsEditor)
                     {
                         if(GUILayout.Button(fill_tank_gui_content,
                                             Styles.open_button, GUILayout.Width(20)))
-                            tank.Amount = tank.MaxAmount;
+                            Tank.Amount = Tank.MaxAmount;
                         if(GUILayout.Button(empty_tank_gui_content, 
                                             Styles.active_button, GUILayout.Width(20)))
-                            tank.Amount = 0;
+                            Tank.Amount = 0;
                     }
                     if(manager.AddRemoveEnabled)
                     {
@@ -128,7 +127,7 @@ namespace AT_Utils
                             Styles.danger_button,
                             GUILayout.Width(20)))
                             manager.part.StartCoroutine(
-                                CallbackUtil.DelayedCallback(1, remove_tank, tank));
+                                CallbackUtil.DelayedCallback(1, remove_tank, Tank));
                     }
                 }
                 GUILayout.EndHorizontal();
@@ -146,8 +145,8 @@ namespace AT_Utils
                 GUILayout.BeginHorizontal();
                 tank_resource_gui();
                 GUILayout.FlexibleSpace();
-                GUILayout.Label(Utils.formatVolume(tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
-                var usage = tank.Usage;
+                GUILayout.Label(Utils.formatVolume(Tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
+                var usage = Tank.Usage;
                 GUILayout.Label("Filled: "+usage.ToString("P1"), Styles.fracStyle(usage), GUILayout.Width(95));
                 GUILayout.EndHorizontal();
             }
