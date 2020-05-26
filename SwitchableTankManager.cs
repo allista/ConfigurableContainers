@@ -208,7 +208,7 @@ namespace AT_Utils
         }
 
         /// <summary>
-        /// Adds tanks accodring to the configuration.
+        /// Adds tanks according to the configuration.
         /// </summary>
         /// <returns><c>true</c>, if configuration was added, <c>false</c> otherwise.</returns>
         /// <param name="cfg">Predefined configuration of tanks.</param>
@@ -252,7 +252,7 @@ namespace AT_Utils
         }
 
         /// <summary>
-        /// Removes the tank from the part, if possible. Removed tank is destroyed immidiately, 
+        /// Removes the tank from the part, if possible. Removed tank is destroyed immediately, 
         /// so the provided reference becomes invalid.
         /// </summary>
         /// <returns><c>true</c>, if tank was removed, <c>false</c> otherwise.</returns>
@@ -278,7 +278,7 @@ namespace AT_Utils
         /// Amounts of resources are not rescaled.
         /// </summary>
         /// <param name="relative_scale">Relative scale. Should be in [0, +inf] interval.</param>
-        /// <param name = "update_amounts">If true, amount of resource in each tank will allso be updated.</param>
+        /// <param name = "update_amounts">If true, amount of resource in each tank will also be updated.</param>
         public void RescaleTanks(float relative_scale, bool update_amounts)
         {
             if(relative_scale <= 0) return;
