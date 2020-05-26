@@ -27,14 +27,14 @@ namespace AT_Utils
 
         private class TankWrapper
         {
-            private SwitchableTankManager manager;
-            private ModuleSwitchableTank tank;
+            private readonly SwitchableTankManager manager;
+            private readonly ModuleSwitchableTank tank;
 
             public ModuleSwitchableTank Tank { get { return tank; } }
             public static implicit operator ModuleSwitchableTank(TankWrapper wrapper)
             { return wrapper.tank; }
 
-            private FloatField VolumeField = new FloatField(min:0);
+            private readonly FloatField VolumeField = new FloatField(min:0);
             private bool edit;
             private static readonly GUIContent fill_tank_gui_content = new GUIContent("F", "Fill the tank with the resource");
             private static readonly GUIContent empty_tank_gui_content = new GUIContent("E", "Empty the tank");
@@ -240,7 +240,7 @@ namespace AT_Utils
             GUILayout.EndHorizontal();
         }
 
-        private static GUIContent colors_gui_content = new GUIContent("C", "Color Scheme");
+        private static readonly GUIContent colors_gui_content = new GUIContent("C", "Color Scheme");
 
         private void draw_colors_button()
         {
