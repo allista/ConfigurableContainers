@@ -6,12 +6,13 @@
 //  Copyright (c) 2016 Allis Tauri
 
 using System;
+using JetBrains.Annotations;
 
 namespace AT_Utils
 {
     public class ActiveCooling : ResourceBoiloff
     {
-        public new const string NODE_NAME = "RES_COOLING";
+        [UsedImplicitly] public new const string NODE_NAME = "RES_COOLING";
 
         [Persistent] public double CoolingEfficiency;
         private double Efficiency = 0.17f;

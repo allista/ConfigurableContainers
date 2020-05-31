@@ -191,7 +191,7 @@ namespace AT_Utils
         #endregion
 
         #region GUI
-        private enum TankWindows { None, EditTanks } //maybe we'll need more in the future
+        private enum TankWindows { [UsedImplicitly] None, EditTanks } //maybe we'll need more in the future
 
         private readonly Multiplexer<TankWindows> selected_window = new Multiplexer<TankWindows>();
 

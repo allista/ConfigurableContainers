@@ -6,13 +6,14 @@
 //  Copyright (c) 2016 Allis Tauri
 
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace AT_Utils
 {
     public class ResourceBoiloff : ConfigNodeObject
     {
-        public new const string NODE_NAME = "RES_BOILOFF";
+        [UsedImplicitly] public new const string NODE_NAME = "RES_BOILOFF";
 
         protected Part part;
         protected PartResource resource;
