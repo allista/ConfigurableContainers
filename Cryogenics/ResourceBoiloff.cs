@@ -1,4 +1,4 @@
-﻿//   Boiloff.cs
+//   Boiloff.cs
 //
 //  Author:
 //       Allis Tauri <allista@gmail.com>
@@ -29,7 +29,7 @@ namespace AT_Utils
         [Persistent] public double LastUpdateTime = -1;
 
         /// <summary>
-        /// The temperature (K) at which the boiloff occures.
+        /// The temperature (K) at which the boiloff occurs.
         /// </summary>
         protected double boiloffTemperature;
         /// <summary>
@@ -46,7 +46,7 @@ namespace AT_Utils
         protected double insulatorConductivity;
 
         /// <summary>
-        /// This is <c>true</c> if the SetResource is successfull, <c>false</c> otherwise.
+        /// This is <c>true</c> if the SetResource is successful, <c>false</c> otherwise.
         /// </summary>
         public bool Valid => cryo_info != null;
 

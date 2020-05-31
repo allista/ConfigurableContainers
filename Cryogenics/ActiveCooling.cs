@@ -34,8 +34,8 @@ namespace AT_Utils
         }
 
         /// <summary>
-        /// Converts the amount of heat that needs to be retreived from the core to the amount of work that is 
-        /// required to transfer that heat to the part's skin.
+        ///     Converts the amount of heat that needs to be retrieved from the core to the amount of work that is
+        ///     required to transfer that heat to the part's skin.
         /// </summary>
         protected double Q2W => (part.skinTemperature-CoreTemperature)/CoreTemperature/Efficiency;
 
@@ -93,7 +93,7 @@ namespace AT_Utils
 //                          electric_charge, electric_charge/deltaTime, MaxPower, cooled, temperature_excess);//debug
                 return;
             }
-            else if(CoolingEfficiency > 0) //catch up after bein unloaded
+            else if(CoolingEfficiency > 0) //catch up after being unloaded
             {
                 IsCooling = true;
                 CoreTemperature -= temperature_excess*CoolingEfficiency;

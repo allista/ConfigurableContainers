@@ -96,7 +96,7 @@ namespace AT_Utils
         }
 
         /// <summary>
-        /// Calculates conductivity of insulation of a given spheric volume.
+        ///     Calculates conductivity of insulation of a given spherical volume.
         /// </summary>
         /// <returns>The insulator conductivity in kW/K.</returns>
         /// <param name="volume">Volume of a tank.</param>
