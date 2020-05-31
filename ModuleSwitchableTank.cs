@@ -7,6 +7,7 @@
 
 using System.Linq;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace AT_Utils
@@ -578,6 +579,7 @@ namespace AT_Utils
         private bool switch_resource()
         { return TryRemoveResource() && init_resource(); }
 
+        [UsedImplicitly]
         [KSPEvent]
         private void resource_changed()
         {
@@ -586,6 +588,7 @@ namespace AT_Utils
         }
 
         //interface for ProceduralParts
+        [UsedImplicitly]
         [KSPEvent(guiActive=false, active = true)]
         private void OnPartVolumeChanged(BaseEventDetails data)
         {
@@ -597,6 +600,7 @@ namespace AT_Utils
         }
 
         //interface for TweakScale
+        [UsedImplicitly]
         [KSPEvent(guiActive=false, active = true)]
         private void OnPartScaleChanged(BaseEventDetails data)
         {
@@ -609,6 +613,7 @@ namespace AT_Utils
                 SetVolume(Volume*scale*scale*scale);
         }
 
+        [UsedImplicitly]
         [KSPEvent(guiActive=true, guiName = "Disable Cooling", active = false)]
         private void ToggleCooler()
         {
@@ -618,6 +623,7 @@ namespace AT_Utils
         }
 
         #if DEBUG
+        [UsedImplicitly]
         [KSPEvent(guiActive=true, guiActiveEditor = true, guiName = "Reload Cryogenics", active = true)]
         private void ReloadCryogenics() 
         { 
@@ -665,6 +671,7 @@ namespace AT_Utils
                 }
                 yield return new WaitForSeconds(0.1f);
             }
+            // ReSharper disable once IteratorNeverReturns
         }
 
         private void FixedUpdate()

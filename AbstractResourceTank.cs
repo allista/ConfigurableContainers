@@ -5,6 +5,7 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace AT_Utils
@@ -120,6 +121,7 @@ namespace AT_Utils
         #endregion
 
         #if DEBUG
+        [UsedImplicitly]
         [KSPField(isPersistant = true, guiActive = true, guiActiveEditor = true, guiName = "Module")]
         public string ThisModule = "";
 

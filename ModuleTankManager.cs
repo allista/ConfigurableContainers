@@ -5,6 +5,7 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace AT_Utils
@@ -140,6 +141,7 @@ namespace AT_Utils
         }
 
         //interface for ProceduralParts
+        [UsedImplicitly]
         [KSPEvent(guiActive=false, active = true)]
         private void OnPartVolumeChanged(BaseEventDetails data)
         {
@@ -150,6 +152,7 @@ namespace AT_Utils
         }
 
         //interface for TweakScale
+        [UsedImplicitly]
         [KSPEvent(guiActive=false, active = true)]
         private void OnPartScaleChanged(BaseEventDetails data)
         {
