@@ -38,13 +38,12 @@ namespace AT_Utils
         {
             get
             {
-                if(instance == null)
-                {
-                    instance = new CryogenicsParams();
-                    var node = GameDatabase.Instance.GetConfigNode(config_path+NODE_NAME);
-                    if(node != null) instance.Load(node);
-                    else Utils.Log("CryogenicsParams NODE not found: {}", config_path+NODE_NAME);
-                }
+                if(instance != null)
+                    return instance;
+                instance = new CryogenicsParams();
+                var node = GameDatabase.Instance.GetConfigNode(config_path+NODE_NAME);
+                if(node != null) instance.Load(node);
+                else Utils.Log("CryogenicsParams NODE not found: {}", config_path+NODE_NAME);
                 return instance;
             }
         }

@@ -212,18 +212,17 @@ namespace AT_Utils
             if(Event.current.type != EventType.Layout && Event.current.type != EventType.Repaint) return;
             if(!selected_window || tank_manager == null || tank_manager.EnablePartControls) return;
             Styles.Init();
-            if(selected_window[TankWindows.EditTanks])
+            if(!selected_window[TankWindows.EditTanks])
+                return;
+            if(HighLogic.LoadedSceneIsEditor)
             {
-                if(HighLogic.LoadedSceneIsEditor)
-                {
-                    var title =
-                        $"Available Volume: {Utils.formatVolume(Volume - tank_manager.TotalVolume)} of {Utils.formatVolume(Volume)}";
-                    tank_manager.DrawTanksManagerWindow(GetInstanceID(), title, add_tank, remove_tank);
-                }
-                else if(HighLogic.LoadedSceneIsFlight)
-                    tank_manager.DrawTanksControlWindow(GetInstanceID(), "Tank Manager");
-                if(tank_manager.Closed) selected_window.Off();
+                var title =
+                    $"Available Volume: {Utils.formatVolume(Volume - tank_manager.TotalVolume)} of {Utils.formatVolume(Volume)}";
+                tank_manager.DrawTanksManagerWindow(GetInstanceID(), title, add_tank, remove_tank);
             }
+            else if(HighLogic.LoadedSceneIsFlight)
+                tank_manager.DrawTanksControlWindow(GetInstanceID(), "Tank Manager");
+            if(tank_manager.Closed) selected_window.Off();
         }
         #endregion
     }

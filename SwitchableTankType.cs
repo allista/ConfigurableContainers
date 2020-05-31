@@ -27,36 +27,32 @@ namespace AT_Utils
         { 
             get
             {
-                if(_tank_types == null)
+                if(_tank_types != null)
+                    return _tank_types;
+                var nodes = GameDatabase.Instance.GetConfigNodes(NODE_NAME);
+                _tank_types = new SortedList<string, SwitchableTankType>();
+                for(int i = 0, nodesLength = nodes.Length; i < nodesLength; i++)
                 {
-                    var nodes = GameDatabase.Instance.GetConfigNodes(NODE_NAME);
-                    _tank_types = new SortedList<string, SwitchableTankType>();
-                    if(nodes != null)
+                    var n = nodes[i];
+#if DEBUG
+                    Utils.Log("\n{}", n.ToString());
+#endif
+                    var tank_type = FromConfig<SwitchableTankType>(n);
+                    if(!tank_type.Valid)
                     {
-                        for(int i = 0, nodesLength = nodes.Length; i < nodesLength; i++)
-                        {
-                            ConfigNode n = nodes[i];
-                            #if DEBUG
-                            Utils.Log("\n{}", n.ToString());
-                            #endif
-                            var tank_type = FromConfig<SwitchableTankType>(n);
-                            if(!tank_type.Valid)
-                            {
-                                var msg =
-                                    $"[ConfigurableContainers] '{tank_type.name}' tank type has no resources. Skipping.";
-                                Utils.Message(6, msg);
-                                Utils.Log(msg);
-                                continue;
-                            }
-                            try
-                            {
-                                _tank_types.Add(tank_type.name, tank_type);
-                            }
-                            catch
-                            {
-                                Utils.Log("SwitchableTankType: ignoring duplicate configuration of {} tank type. " + "Use ModuleManager to change the existing one.", tank_type.name);
-                            }
-                        }
+                        var msg =
+                            $"[ConfigurableContainers] '{tank_type.name}' tank type has no resources. Skipping.";
+                        Utils.Message(6, msg);
+                        Utils.Warning(msg);
+                        continue;
+                    }
+                    try
+                    {
+                        _tank_types.Add(tank_type.name, tank_type);
+                    }
+                    catch
+                    {
+                        Utils.Error($"SwitchableTankType: ignoring duplicate configuration of {tank_type.name} tank type. Use ModuleManager to change the existing one.");
                     }
                 }
                 return _tank_types;
@@ -206,18 +202,17 @@ namespace AT_Utils
             get 
             { 
                 if(!Valid) return "";
-                if(info == null)
-                {
-                    info = "";
-                    info += "Tank can hold:\n";
-                    foreach(var r in ResourceNames)
-                        info += $"- {Resources[r].Name}: {Utils.formatUnits(Resources[r].UnitsPerLiter)}/L\n";
-                    var usefull_volume = UsefulVolume(100);
-                    if(usefull_volume < 100)
-                        info += $"Only {usefull_volume:F0}% of the volume is used for resources.\n";
-                    if(Boiloff||Cooling) info += "Tank is thermally insulated.\nEquipped with boil-off valve.\n";
-                    if(Cooling) info += "Equipped with Active Cooling System.\n";
-                }
+                if(info != null)
+                    return info;
+                info = "";
+                info += "Tank can hold:\n";
+                foreach(var r in ResourceNames)
+                    info += $"- {Resources[r].Name}: {Utils.formatUnits(Resources[r].UnitsPerLiter)}/L\n";
+                var useful_volume = UsefulVolume(100);
+                if(useful_volume < 100)
+                    info += $"Only {useful_volume:F0}% of the volume is used for resources.\n";
+                if(Boiloff||Cooling) info += "Tank is thermally insulated.\nEquipped with boil-off valve.\n";
+                if(Cooling) info += "Equipped with Active Cooling System.\n";
                 return info;
             } 
         }
