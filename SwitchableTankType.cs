@@ -185,11 +185,11 @@ namespace AT_Utils
         public IList<string> ResourceNames => Resources.Keys;
         public TankResource DefaultResource => Resources.Values[0];
 
-        public TankResource this[string name]
+        public TankResource this[string resourceName]
         {
             get
             {
-                try { return Resources[name]; }
+                try { return Resources[resourceName]; }
                 catch { return null; }
             }
         }

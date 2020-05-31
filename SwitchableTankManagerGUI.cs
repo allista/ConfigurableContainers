@@ -282,16 +282,16 @@ namespace AT_Utils
         /// <returns>New window position.</returns>
         /// <param name="windowId">Window ID.</param>
         /// <param name="title">Window title.</param>
-        /// <param name="add_tank">This function should take selected tank type and value, 
+        /// <param name="onAddTank">This function should take selected tank type and value, 
         /// check them and if appropriate add new tank by calling AddTank method.</param>
-        /// <param name="remove_tank">This function should take selected tank 
+        /// <param name="onRemoveTank">This function should take selected tank 
         /// and if possible remove it using RemoveTank method.</param>
         public void DrawTanksManagerWindow(int windowId, string title, 
-                                           AddTankDelegate add_tank, 
-                                           Action<ModuleSwitchableTank> remove_tank)
+                                           AddTankDelegate onAddTank, 
+                                           Action<ModuleSwitchableTank> onRemoveTank)
         {
-            this.add_tank = add_tank;
-            this.remove_tank = remove_tank;
+            this.add_tank = onAddTank;
+            this.remove_tank = onRemoveTank;
             Utils.LockIfMouseOver(eLock, eWindowPos, !Closed);
             eWindowPos = GUILayout.Window(windowId, 
                                           eWindowPos, TanksManagerGUI, title,
