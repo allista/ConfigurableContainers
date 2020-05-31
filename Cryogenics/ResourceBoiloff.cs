@@ -169,18 +169,17 @@ namespace AT_Utils
                 return;
             UpdateCoreTemperature(deltaTime);
             var dTemp = CoreTemperature - boiloffTemperature;
-            if(dTemp > 0)
-            {
-                var boiled_off = resource.amount * (1 - Math.Exp(-dTemp * specificHeatCapacity / vaporizationHeat));
-                if(boiled_off > resource.amount)
-                    boiled_off = resource.amount;
+            if(dTemp <= 0)
+                return;
+            var boiled_off = resource.amount * (1 - Math.Exp(-dTemp * specificHeatCapacity / vaporizationHeat));
+            if(boiled_off > resource.amount)
+                boiled_off = resource.amount;
 //                Utils.Log("last amount {}, amount {}, boiled off {}",
 //                          resource.amount, resource.amount-boiled_off, boiled_off);//debug
-                resource.amount -= boiled_off;
-                if(resource.amount < 1e-9)
-                    resource.amount = 0;
-                CoreTemperature = boiloffTemperature;
-            }
+            resource.amount -= boiled_off;
+            if(resource.amount < 1e-9)
+                resource.amount = 0;
+            CoreTemperature = boiloffTemperature;
         }
 
         private double GetDeltaTime()

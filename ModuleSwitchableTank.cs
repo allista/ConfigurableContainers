@@ -478,13 +478,12 @@ namespace AT_Utils
             if(CurrentResource == string.Empty || !tank_type.Resources.ContainsKey(CurrentResource))
                 CurrentResource = tank_type.DefaultResource.Name;
             //initialize boiloff/cooling
-            if(tank_type.Boiloff || tank_type.Cooling)
-            {
-                boiloff = tank_type.Boiloff ? new ResourceBoiloff(this) : new ActiveCooling(this);
-                if(ModuleSave != null)
-                    boiloff.LoadFrom(ModuleSave);
-                cooler = boiloff as ActiveCooling;
-            }
+            if(!tank_type.Boiloff && !tank_type.Cooling)
+                return true;
+            boiloff = tank_type.Boiloff ? new ResourceBoiloff(this) : new ActiveCooling(this);
+            if(ModuleSave != null)
+                boiloff.LoadFrom(ModuleSave);
+            cooler = boiloff as ActiveCooling;
             return true;
         }
 
@@ -506,12 +505,10 @@ namespace AT_Utils
             }
             //setup new tank type
             tank_type = null;
-            if(init_tank_type() && switch_resource())
-            {
-                init_res_control();
-                return true;
-            }
-            return false;
+            if(!init_tank_type() || !switch_resource())
+                return false;
+            init_res_control();
+            return true;
         }
 
         /// <summary>
@@ -573,12 +570,10 @@ namespace AT_Utils
                 if(Resource != null)
                     Resource.amount = 0;
                 CurrentResource = new_resource;
-                if(switch_resource())
-                {
-                    update_res_control();
-                    return true;
-                }
-                return false;
+                if(!switch_resource())
+                    return false;
+                update_res_control();
+                return true;
             }
             var new_type = SwitchableTankType.FindTankType(new_resource);
             if(new_type == null)

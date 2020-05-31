@@ -122,6 +122,7 @@ namespace AT_Utils
         public virtual float GetModuleMass(float defaultMass, ModifierStagingSituation sit)
         {
             var mass = TankMass(defaultMass);
+            // ReSharper disable once InvertIf
             if(DoMassPatch)
             {
                 MassPatch = -Mathf.Min(mass, defaultMass);
