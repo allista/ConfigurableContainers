@@ -87,7 +87,7 @@ namespace AT_Utils
         [Persistent] public float ShutdownThreshold = 0.99f;
 
         /// <summary>
-        /// Retreive the cryogenic resource info for the given part resource.
+        /// Retrieve the cryogenic resource info for the given part resource.
         /// </summary>
         /// <returns>The cryogenic resource info.</returns>
         /// <param name="r">The part resource.</param>

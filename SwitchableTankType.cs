@@ -163,7 +163,7 @@ namespace AT_Utils
         /// </summary>
         [Persistent] public bool   Boiloff;
         /// <summary>
-        /// If the resources in this tank should be actively cooled untill below the boiloff temperature.
+        /// If the resources in this tank should be actively cooled until below the boiloff temperature.
         /// </summary>    
         [Persistent] public bool   Cooling;
 

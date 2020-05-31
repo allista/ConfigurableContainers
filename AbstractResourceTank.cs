@@ -57,9 +57,9 @@ namespace AT_Utils
         protected abstract float TankCost(float defaultCost);
 
         /// <summary>
-        /// This is called within the GetModuleCost to calculate the cost of tank resurces.
+        /// This is called within the GetModuleCost to calculate the cost of tank resources.
         /// </summary>
-        /// <param name="maxAmount">If true, returns the cost of maxAmount of resources; of currnt amount otherwise.</param>
+        /// <param name="maxAmount">If true, returns the cost of maxAmount of resources; of current amount otherwise.</param>
         protected abstract float ResourcesCost(bool maxAmount = true);
 
         /// <summary>
@@ -68,9 +68,9 @@ namespace AT_Utils
         protected abstract float TankMass(float defaultMass);
 
         /// <summary>
-        /// This is called within the GetModuleMass to calculate the mass of tank resurces.
+        /// This is called within the GetModuleMass to calculate the mass of tank resources.
         /// </summary>
-        /// <param name="maxAmount">If true, returns the mass of maxAmount of resources; of currnt amount otherwise.</param>
+        /// <param name="maxAmount">If true, returns the mass of maxAmount of resources; of current amount otherwise.</param>
         protected abstract float ResourcesMass(bool maxAmount = true);
 
         #region IPart*Modifiers
