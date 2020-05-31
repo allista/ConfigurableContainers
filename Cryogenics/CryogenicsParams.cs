@@ -139,6 +139,7 @@ namespace AT_Utils
         [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
         public class CryoResource : ConfigNodeObject
         {
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public new const string NODE_NAME = "RESOURCE";
             [Persistent] public float BoiloffTemperature = 120;
             [Persistent] public float CoolingEfficiency = 0.3f;
