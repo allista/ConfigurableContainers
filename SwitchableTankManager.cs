@@ -149,7 +149,8 @@ namespace AT_Utils
                     else 
                     {
                         tank = part.AddModule(n) as ModuleSwitchableTank;
-                        tank.id = ++max_id;
+                        if(tank != null)
+                            tank.id = ++max_id;
                     }
                     if(tank != null) 
                     {
