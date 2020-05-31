@@ -1,4 +1,4 @@
-//   Boiloff.cs
+﻿//   Boiloff.cs
 //
 //  Author:
 //       Allis Tauri <allista@gmail.com>
@@ -22,24 +22,30 @@ namespace AT_Utils
         /// <summary>
         /// Current temperature of the resource mass.
         /// </summary>
-        [Persistent] public double CoreTemperature = -1;
+        [Persistent]
+        public double CoreTemperature = -1;
+
         /// <summary>
         /// The last UT the core temperature was updated.
         /// </summary>
-        [Persistent] public double LastUpdateTime = -1;
+        [Persistent]
+        public double LastUpdateTime = -1;
 
         /// <summary>
         /// The temperature (K) at which the boiloff occurs.
         /// </summary>
         protected double boiloffTemperature;
+
         /// <summary>
         /// The vaporization heat of the resource per unit.
         /// </summary>
         protected double vaporizationHeat;
+
         /// <summary>
         /// The heat capacity of the resource per unit.
         /// </summary>
         protected double specificHeatCapacity;
+
         /// <summary>
         /// The insulator conductivity in kW/s.
         /// </summary>
@@ -50,33 +56,49 @@ namespace AT_Utils
         /// </summary>
         public bool Valid => cryo_info != null;
 
-        protected double temperatureTransfer(double deltaTime, double partThermalMass, double resThermalMass, double partT, double resT, out double equilibriumT)
+        protected double temperatureTransfer(
+            double deltaTime,
+            double partThermalMass,
+            double resThermalMass,
+            double partT,
+            double resT,
+            out double equilibriumT
+        )
         {
-            var totalThermalMass = partThermalMass+resThermalMass;
-            equilibriumT = (partT*partThermalMass+resT*resThermalMass)/totalThermalMass;
-            return 1-Math.Exp(deltaTime*insulatorConductivity*totalThermalMass/(partThermalMass+resThermalMass));
+            var totalThermalMass = partThermalMass + resThermalMass;
+            equilibriumT = (partT * partThermalMass + resT * resThermalMass) / totalThermalMass;
+            return 1
+                   - Math.Exp(deltaTime
+                              * insulatorConductivity
+                              * totalThermalMass
+                              / (partThermalMass + resThermalMass));
         }
 
         protected double CoreDeltaTAt300K(out double partThermalMass, out double resThermalMass)
         {
-            resThermalMass = resource.amount*specificHeatCapacity;
+            resThermalMass = resource.amount * specificHeatCapacity;
             partThermalMass = part.mass * PhysicsGlobals.StandardSpecificHeatCapacity * part.thermalMassModifier;
-            var transfer = temperatureTransfer(1, partThermalMass, resThermalMass, 300, boiloffTemperature, out var equilibriumT);
+            var transfer = temperatureTransfer(1,
+                partThermalMass,
+                resThermalMass,
+                300,
+                boiloffTemperature,
+                out var equilibriumT);
 //            Utils.Log("Eq.T {}, C.dT {}, conductivity {}, (P.tM {} + C.tM {})/(P.tM*C.tM) = {}, transfer {}", 
 //                      equilibriumT, (equilibriumT-boiloffTemperature)*transfer, 
 //                      insulatorConductivity,
 //                      partThermalMass, resThermalMass, (partThermalMass+resThermalMass)/(resThermalMass*partThermalMass),
 //                      transfer);//debug
-            return (equilibriumT-boiloffTemperature)*transfer;
+            return (equilibriumT - boiloffTemperature) * transfer;
         }
 
-        public double BoiloffAt300K 
-        { 
-            get 
+        public double BoiloffAt300K
+        {
+            get
             {
                 var CoreDeltaT = CoreDeltaTAt300K(out var partThemralMass, out var resThermalMass);
-                return resource.amount*(1-Math.Exp(-CoreDeltaT*specificHeatCapacity/vaporizationHeat));
-            } 
+                return resource.amount * (1 - Math.Exp(-CoreDeltaT * specificHeatCapacity / vaporizationHeat));
+            }
         }
 
         public ResourceBoiloff(ModuleSwitchableTank tank)
@@ -95,7 +117,8 @@ namespace AT_Utils
             }
             resource = res;
             cryo_info = CryogenicsParams.Instance.GetResource(res);
-            if(cryo_info == null) return;
+            if(cryo_info == null)
+                return;
             boiloffTemperature = cryo_info.BoiloffTemperature;
             specificHeatCapacity = res.info.specificHeatCapacity * res.info.density;
             vaporizationHeat = cryo_info.GetVaporizationHeat(res) * res.info.density;
@@ -103,16 +126,23 @@ namespace AT_Utils
         }
 
         public void UpdateInsulation()
-        { insulatorConductivity = CryogenicsParams.GetInsulatorConductivity(tank.Volume); }
+        {
+            insulatorConductivity = CryogenicsParams.GetInsulatorConductivity(tank.Volume);
+        }
 
         protected virtual void UpdateCoreTemperature(double deltaTime)
         {
-            var resThermalMass = resource.amount*specificHeatCapacity;
-            var partThermalMass = Math.Max(part.thermalMass-resThermalMass, 1e-3);
-            var transfer = temperatureTransfer(deltaTime, partThermalMass, resThermalMass, part.temperature, CoreTemperature, out var equilibriumT);
-            var CoreDeltaT = (equilibriumT-CoreTemperature)*transfer;
-            var PartDeltaT = (equilibriumT-part.temperature)*transfer;
-            part.AddThermalFlux(PartDeltaT*part.thermalMass/TimeWarp.fixedDeltaTime);
+            var resThermalMass = resource.amount * specificHeatCapacity;
+            var partThermalMass = Math.Max(part.thermalMass - resThermalMass, 1e-3);
+            var transfer = temperatureTransfer(deltaTime,
+                partThermalMass,
+                resThermalMass,
+                part.temperature,
+                CoreTemperature,
+                out var equilibriumT);
+            var CoreDeltaT = (equilibriumT - CoreTemperature) * transfer;
+            var PartDeltaT = (equilibriumT - part.temperature) * transfer;
+            part.AddThermalFlux(PartDeltaT * part.thermalMass / TimeWarp.fixedDeltaTime);
 //            Utils.Log("P.T {} > Eq.T {} < C.T {}, P.dT {}, C.dT {}, conductivity {}, (P.tM {} + C.tM {})/(P.tM*C.tM) = {}, transfer {}", 
 //                      part.temperature, equilibriumT, CoreTemperature, PartDeltaT, CoreDeltaT, 
 //                      insulatorConductivity,
@@ -123,31 +153,40 @@ namespace AT_Utils
 
         public virtual void FixedUpdate()
         {
-            if(!HighLogic.LoadedSceneIsFlight ||
-               resource == null || part == null || cryo_info == null ||
-               resource.amount <= 0) return;
+            if(!HighLogic.LoadedSceneIsFlight
+               || resource == null
+               || part == null
+               || cryo_info == null
+               || resource.amount <= 0)
+                return;
             if(LastUpdateTime < 0)
-                CoreTemperature = resource.amount > 0? Math.Max(boiloffTemperature-10, PhysicsGlobals.SpaceTemperature) : part.temperature;
+                CoreTemperature = resource.amount > 0
+                    ? Math.Max(boiloffTemperature - 10, PhysicsGlobals.SpaceTemperature)
+                    : part.temperature;
             var deltaTime = GetDeltaTime();
 //            Utils.Log("deltaTime: {}, fixedDeltaTime {}", deltaTime, TimeWarp.fixedDeltaTime);//debug
-            if(deltaTime < 0) return;
+            if(deltaTime < 0)
+                return;
             UpdateCoreTemperature(deltaTime);
-            var dTemp = CoreTemperature-boiloffTemperature;
+            var dTemp = CoreTemperature - boiloffTemperature;
             if(dTemp > 0)
             {
-                var boiled_off = resource.amount*(1-Math.Exp(-dTemp*specificHeatCapacity/vaporizationHeat));
-                if(boiled_off > resource.amount) boiled_off = resource.amount;
+                var boiled_off = resource.amount * (1 - Math.Exp(-dTemp * specificHeatCapacity / vaporizationHeat));
+                if(boiled_off > resource.amount)
+                    boiled_off = resource.amount;
 //                Utils.Log("last amount {}, amount {}, boiled off {}",
 //                          resource.amount, resource.amount-boiled_off, boiled_off);//debug
                 resource.amount -= boiled_off;
-                if(resource.amount < 1e-9) resource.amount = 0;
+                if(resource.amount < 1e-9)
+                    resource.amount = 0;
                 CoreTemperature = boiloffTemperature;
             }
         }
 
         private double GetDeltaTime()
         {
-            if(Time.timeSinceLevelLoad < 1 || !FlightGlobals.ready) return -1;
+            if(Time.timeSinceLevelLoad < 1 || !FlightGlobals.ready)
+                return -1;
             if(LastUpdateTime < 0)
             {
                 LastUpdateTime = Planetarium.GetUniversalTime();
@@ -160,4 +199,3 @@ namespace AT_Utils
         }
     }
 }
-

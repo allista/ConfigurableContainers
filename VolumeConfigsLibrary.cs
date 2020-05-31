@@ -19,11 +19,12 @@ namespace AT_Utils
 
         private static VolumeConfigsLibrary instance;
 
-        private static VolumeConfigsLibrary Instance 
-        { 
-            get 
-            { 
-                if(instance == null) instance = new VolumeConfigsLibrary();
+        private static VolumeConfigsLibrary Instance
+        {
+            get
+            {
+                if(instance == null)
+                    instance = new VolumeConfigsLibrary();
                 return instance;
             }
         }
@@ -31,8 +32,8 @@ namespace AT_Utils
         /// <summary>
         /// The library of tank configurations provided by mods.
         /// </summary>
-        public static SortedList<string, VolumeConfiguration> PresetConfigs 
-        { 
+        public static SortedList<string, VolumeConfiguration> PresetConfigs
+        {
             get
             {
                 if(presets == null)
@@ -41,9 +42,9 @@ namespace AT_Utils
                     presets = new SortedList<string, VolumeConfiguration>(nodes.Length);
                     foreach(var n in nodes)
                     {
-                        #if DEBUG
+#if DEBUG
                         Utils.Log("Parsing preset tank configuration:\n{}", n);
-                        #endif
+#endif
                         var cfg = FromConfig<VolumeConfiguration>(n);
                         if(!cfg.Valid)
                         {
@@ -52,11 +53,15 @@ namespace AT_Utils
                             Utils.Log(msg);
                             continue;
                         }
-                        try { presets.Add(cfg.name, cfg); }
+                        try
+                        {
+                            presets.Add(cfg.name, cfg);
+                        }
                         catch
-                        { 
-                            Utils.Log("SwitchableTankType: ignoring duplicate configuration of '{}' configuration. " +
-                                      "Use ModuleManager to change the existing one.", cfg.name); 
+                        {
+                            Utils.Log("SwitchableTankType: ignoring duplicate configuration of '{}' configuration. "
+                                      + "Use ModuleManager to change the existing one.",
+                                cfg.name);
                         }
                     }
                 }
@@ -70,7 +75,7 @@ namespace AT_Utils
         /// The library of tank configurations saved by the user.
         /// </summary>
         /// <value>The user configs.</value>
-        public static SortedList<string, VolumeConfiguration> UserConfigs 
+        public static SortedList<string, VolumeConfiguration> UserConfigs
         {
             get
             {
@@ -78,9 +83,9 @@ namespace AT_Utils
                 {
                     user_configs = new SortedList<string, VolumeConfiguration>();
                     var node = LoadNode(UserFile);
-                    #if DEBUG
+#if DEBUG
                     Utils.Log("Loading user configurations from:\n{}\n{}", UserFile, node);
-                    #endif
+#endif
                     if(node != null)
                     {
                         foreach(var n in node.GetNodes(VolumeConfiguration.NODE_NAME))
@@ -95,8 +100,10 @@ namespace AT_Utils
                             }
                             else
                             {
-                                if(SwitchableTankType.HaveTankType(cfg.name)) cfg.name += " [cfg]";
-                                if(PresetConfigs.ContainsKey(cfg.name)) cfg.name += " [usr]";
+                                if(SwitchableTankType.HaveTankType(cfg.name))
+                                    cfg.name += " [cfg]";
+                                if(PresetConfigs.ContainsKey(cfg.name))
+                                    cfg.name += " [usr]";
                                 add_unique(cfg, user_configs);
                             }
                         }
@@ -112,7 +119,7 @@ namespace AT_Utils
         {
             var index = 1;
             var basename = cfg.name;
-            while(db.ContainsKey(cfg.name)) 
+            while(db.ContainsKey(cfg.name))
                 cfg.name = string.Concat(basename, " ", index++);
             db.Add(cfg.name, cfg);
         }
@@ -121,7 +128,8 @@ namespace AT_Utils
         {
             var node = new ConfigNode();
             UserConfigs.ForEach(c => c.Value.SaveInto(node));
-            if(SaveNode(node, UserFile)) return true;
+            if(SaveNode(node, UserFile))
+                return true;
             Utils.Message("Unable to save tank configurations.");
             return false;
         }
@@ -136,13 +144,15 @@ namespace AT_Utils
         {
             if(UserConfigs.ContainsKey(cfg.name))
                 UserConfigs[cfg.name] = cfg;
-            else UserConfigs.Add(cfg.name, cfg);
+            else
+                UserConfigs.Add(cfg.name, cfg);
             save_user_configs();
         }
 
         public static bool RemoveConfig(string cfg_name)
-        { 
-            if(!UserConfigs.Remove(cfg_name)) return false;
+        {
+            if(!UserConfigs.Remove(cfg_name))
+                return false;
             save_user_configs();
             return true;
         }
@@ -154,14 +164,16 @@ namespace AT_Utils
                 exclude = SwitchableTankType.TankTypeNames(null, include).ToArray();
             if(exclude != null && exclude.Length > 0)
             {
-                names.AddRange(from cfg in PresetConfigs 
-                               where cfg.Value.ContainsTypes(exclude)
-                               select cfg.Value.name);
-                names.AddRange(from cfg in UserConfigs 
-                               where cfg.Value.ContainsTypes(exclude)
-                               select cfg.Value.name);
+                names.AddRange(
+                    from cfg in PresetConfigs
+                    where cfg.Value.ContainsTypes(exclude)
+                    select cfg.Value.name);
+                names.AddRange(
+                    from cfg in UserConfigs
+                    where cfg.Value.ContainsTypes(exclude)
+                    select cfg.Value.name);
             }
-            else 
+            else
             {
                 names.AddRange(PresetConfigs.Keys);
                 names.AddRange(UserConfigs.Keys);
@@ -171,14 +183,18 @@ namespace AT_Utils
 
         public static VolumeConfiguration GetConfig(string name)
         {
-            if(string.IsNullOrEmpty(name)) return null;
-            if(PresetConfigs.TryGetValue(name, out var cfg)) return cfg;
-            if(UserConfigs.TryGetValue(name, out cfg)) return cfg;
+            if(string.IsNullOrEmpty(name))
+                return null;
+            if(PresetConfigs.TryGetValue(name, out var cfg))
+                return cfg;
+            if(UserConfigs.TryGetValue(name, out cfg))
+                return cfg;
             return null;
         }
 
         public static bool HaveUserConfig(string name)
-        { return UserConfigs.ContainsKey(name); }
+        {
+            return UserConfigs.ContainsKey(name);
+        }
     }
 }
-
