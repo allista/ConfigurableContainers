@@ -5,8 +5,8 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AT_Utils
 {
@@ -50,10 +50,10 @@ namespace AT_Utils
     public class TankVolume : BaseVolume
     {
         public new const string NODE_NAME = "TANK";
-
-        [Persistent] public string TankType;
         [Persistent] public string CurrentResource;
         [Persistent] public float InitialAmount;
+
+        [Persistent] public string TankType;
 
         public SwitchableTankType Type => SwitchableTankType.GetTankType(TankType);
 
@@ -141,7 +141,7 @@ namespace AT_Utils
         public new const string NODE_NAME = "TANKCONF";
 
         /// <summary>
-        /// The name of a configuration.
+        ///     The name of a configuration.
         /// </summary>
         [Persistent]
         public string name = "";
@@ -170,10 +170,14 @@ namespace AT_Utils
                         Volumes.Add(cfg);
                     }
                     else
+                    {
                         Volumes.Add(FromConfig<TankVolume>(v));
+                    }
                 }
                 else if(v.name == NODE_NAME)
+                {
                     Volumes.Add(FromConfig<VolumeConfiguration>(v));
+                }
             }
         }
 

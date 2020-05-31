@@ -13,13 +13,15 @@ namespace AT_Utils
     {
         public new const string NODE_NAME = "RES_COOLING";
 
-        private double MaxPower = 10;
-        private double Efficiency = 0.17f;
-
         [Persistent] public double CoolingEfficiency;
+        private double Efficiency = 0.17f;
 
         [Persistent] public bool Enabled = true;
         [Persistent] public bool IsCooling;
+
+        private double MaxPower = 10;
+
+        public ActiveCooling(ModuleSwitchableTank tank) : base(tank) { }
 
         public double PowerConsumptionAt300K
         {
@@ -41,8 +43,6 @@ namespace AT_Utils
         ///     required to transfer that heat to the part's skin.
         /// </summary>
         protected double Q2W => (part.skinTemperature - CoreTemperature) / CoreTemperature / Efficiency;
-
-        public ActiveCooling(ModuleSwitchableTank tank) : base(tank) { }
 
         public override void SetResource(PartResource res)
         {
@@ -105,7 +105,7 @@ namespace AT_Utils
 //                          electric_charge, electric_charge/deltaTime, MaxPower, cooled, temperature_excess);//debug
                 return;
             }
-            else if(CoolingEfficiency > 0) //catch up after being unloaded
+            if(CoolingEfficiency > 0) //catch up after being unloaded
             {
                 IsCooling = true;
                 CoreTemperature -= temperature_excess * CoolingEfficiency;

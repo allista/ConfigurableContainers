@@ -5,18 +5,22 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AT_Utils
 {
     public static class VolumeConfigsLibrary
     {
         public const string USER_FILE = "VolumeConfigs.user";
+
+        private static SortedList<string, VolumeConfiguration> presets;
+
+        private static SortedList<string, VolumeConfiguration> user_configs;
         public static string UserFile => CustomConfig.GameDataFolder("ConfigurableContainers", USER_FILE);
 
         /// <summary>
-        /// The library of tank configurations provided by mods.
+        ///     The library of tank configurations provided by mods.
         /// </summary>
         public static SortedList<string, VolumeConfiguration> PresetConfigs
         {
@@ -54,10 +58,8 @@ namespace AT_Utils
             }
         }
 
-        private static SortedList<string, VolumeConfiguration> presets;
-
         /// <summary>
-        /// The library of tank configurations saved by the user.
+        ///     The library of tank configurations saved by the user.
         /// </summary>
         /// <value>The user configs.</value>
         public static SortedList<string, VolumeConfiguration> UserConfigs
@@ -92,8 +94,6 @@ namespace AT_Utils
                 return user_configs;
             }
         }
-
-        private static SortedList<string, VolumeConfiguration> user_configs;
 
         private static void add_unique(VolumeConfiguration cfg, IDictionary<string, VolumeConfiguration> db)
         {
