@@ -15,10 +15,10 @@ namespace AT_Utils
     {
         [UsedImplicitly] public new const string NODE_NAME = "RES_BOILOFF";
 
-        protected Part part;
+        protected readonly Part part;
         protected PartResource resource;
         protected CryogenicsParams.CryoResource cryo_info;
-        protected ModuleSwitchableTank tank;
+        private readonly ModuleSwitchableTank tank;
 
         /// <summary>
         /// Current temperature of the resource mass.
