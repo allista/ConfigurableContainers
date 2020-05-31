@@ -27,7 +27,7 @@ namespace AT_Utils
         {
             get
             {
-                var CoreDeltaT = CoreDeltaTAt300K(out var partThemralMass, out var resThermalMass);
+                var CoreDeltaT = CoreDeltaTAt300K(out _, out var resThermalMass);
                 return Math.Min(CoreDeltaT
                                 * resThermalMass
                                 * (300 - boiloffTemperature)

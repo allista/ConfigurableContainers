@@ -96,7 +96,7 @@ namespace AT_Utils
         {
             get
             {
-                var CoreDeltaT = CoreDeltaTAt300K(out var partThemralMass, out var resThermalMass);
+                var CoreDeltaT = CoreDeltaTAt300K(out _, out _);
                 return resource.amount * (1 - Math.Exp(-CoreDeltaT * specificHeatCapacity / vaporizationHeat));
             }
         }
