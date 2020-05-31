@@ -237,6 +237,7 @@ namespace AT_Utils
                               "SwitchableTank module is disabled.");
                 this.EnableModule(false);
                 part.Modules.Remove(this);
+                return;
             }
             DoCostPatch = false;
             DoMassPatch = true;
