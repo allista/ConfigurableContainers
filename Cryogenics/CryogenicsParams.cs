@@ -101,7 +101,7 @@ namespace AT_Utils
         /// </summary>
         /// <returns>The insulator conductivity in kW/K.</returns>
         /// <param name="volume">Volume of a tank.</param>
-        public double GetInsulatorConductivity(double volume)
+        public static double GetInsulatorConductivity(double volume)
         {
             return -Instance.InsulationConductivity * 
                 Math.Pow(48*Math.PI*Math.PI*volume/Instance.InsulationVolumeFraction, 1/3f);

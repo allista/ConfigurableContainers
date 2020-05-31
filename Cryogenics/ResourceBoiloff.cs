@@ -103,7 +103,7 @@ namespace AT_Utils
         }
 
         public void UpdateInsulation()
-        { insulatorConductivity = CryogenicsParams.Instance.GetInsulatorConductivity(tank.Volume); }
+        { insulatorConductivity = CryogenicsParams.GetInsulatorConductivity(tank.Volume); }
 
         protected virtual void UpdateCoreTemperature(double deltaTime)
         {
