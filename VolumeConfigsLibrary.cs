@@ -104,14 +104,13 @@ namespace AT_Utils
             db.Add(cfg.name, cfg);
         }
 
-        private static bool save_user_configs()
+        private static void save_user_configs()
         {
             var node = new ConfigNode();
             UserConfigs.ForEach(c => c.Value.SaveInto(node));
             if(CustomConfig.SaveNode(node, UserFile))
-                return true;
+                return;
             Utils.Message("Unable to save tank configurations.");
-            return false;
         }
 
         public static void AddConfig(VolumeConfiguration cfg)
