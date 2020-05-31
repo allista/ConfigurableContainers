@@ -128,7 +128,7 @@ namespace AT_Utils
             Volumes.Clear();
             base.Load(node);
             var volumes = node.GetNodes();
-            for(int i = 0; i < volumes.Length; i++)
+            for(var i = 0; i < volumes.Length; i++)
             {
                 var v = volumes[i];
                 if(v.name == TankVolume.NODE_NAME)

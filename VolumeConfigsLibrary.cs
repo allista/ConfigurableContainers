@@ -39,7 +39,7 @@ namespace AT_Utils
                 {
                     var nodes = GameDatabase.Instance.GetConfigNodes(VolumeConfiguration.NODE_NAME);
                     presets = new SortedList<string, VolumeConfiguration>(nodes.Length);
-                    foreach(ConfigNode n in nodes)
+                    foreach(var n in nodes)
                     {
                         #if DEBUG
                         Utils.Log("Parsing preset tank configuration:\n{}", n);
@@ -110,7 +110,7 @@ namespace AT_Utils
 
         private static void add_unique(VolumeConfiguration cfg, IDictionary<string, VolumeConfiguration> db)
         {
-            int index = 1;
+            var index = 1;
             var basename = cfg.name;
             while(db.ContainsKey(cfg.name)) 
                 cfg.name = string.Concat(basename, " ", index++);
