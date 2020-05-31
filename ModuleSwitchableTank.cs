@@ -93,7 +93,6 @@ namespace AT_Utils
         public string CurrentResource = string.Empty;
 
         private TankResource resource_info;
-        private PartResource current_resource;
         private string current_resource_name = string.Empty;
         private string previous_resource = string.Empty;
 
@@ -118,19 +117,19 @@ namespace AT_Utils
 
         private ActiveCooling cooler;
 
-        public float Usage => current_resource != null? (float)(current_resource.amount/current_resource.maxAmount) : 0;
-        public string ResourceInUse => current_resource != null? current_resource.resourceName : string.Empty;
-        public PartResource Resource => current_resource;
+        public PartResource Resource { get; private set; }
+        public float Usage => Resource != null? (float)(Resource.amount/Resource.maxAmount) : 0;
+        public string ResourceInUse => Resource != null? Resource.resourceName : string.Empty;
 
         public double Amount 
         {
-            get => current_resource?.amount ?? 0;
-            set { if(current_resource != null) current_resource.amount = Utils.Clamp(value, 0, current_resource.maxAmount); }
+            get => Resource?.amount ?? 0;
+            set { if(Resource != null) Resource.amount = Utils.Clamp(value, 0, Resource.maxAmount); }
         }
         public double MaxAmount 
         {
-            get => current_resource?.maxAmount ?? 0;
-            set { if(current_resource != null) current_resource.maxAmount = value; }
+            get => Resource?.maxAmount ?? 0;
+            set { if(Resource != null) Resource.maxAmount = value; }
         }
         public float MaxResourceInVolume =>
             tank_type == null || resource_info == null ? 0 : 
@@ -164,9 +163,9 @@ namespace AT_Utils
 
         protected override float ResourcesCost(bool maxAmount = true)
         {
-            var cost = 0f;
-            if(current_resource != null)
-                cost = (float)current_resource.maxAmount*current_resource.info.unitCost;
+            float cost;
+            if(Resource != null)
+                cost = (float)Resource.maxAmount*Resource.info.unitCost;
             else
             {
                 if(tank_type == null && !init_tank_type()) return 0;
@@ -179,9 +178,9 @@ namespace AT_Utils
 
         protected override float ResourcesMass(bool maxAmount = true)
         {
-            var mass = 0f;
-            if(current_resource != null)
-                mass = (float)current_resource.maxAmount*current_resource.info.density;
+            float mass;
+            if(Resource != null)
+                mass = (float)Resource.maxAmount*Resource.info.density;
             else
             {
                 if(tank_type == null && !init_tank_type()) return 0;
@@ -278,8 +277,8 @@ namespace AT_Utils
 
         public override void OnSave(ConfigNode node)
         {
-            if(current_resource != null)
-                InitialAmount = (float)(current_resource.amount/current_resource.maxAmount);
+            if(Resource != null)
+                InitialAmount = (float)(Resource.amount/Resource.maxAmount);
             base.OnSave(node);
             boiloff?.SaveInto(node);
         }
@@ -306,21 +305,21 @@ namespace AT_Utils
         /// <c>false</c> otherwise.</returns>
         public bool TryRemoveResource()
         {
-            if(current_resource == null) return true;
+            if(Resource == null) return true;
             if(HighLogic.LoadedSceneIsEditor)
-                current_resource.amount = 0;
+                Resource.amount = 0;
             {
-                if(current_resource.amount > 0)
+                if(Resource.amount > 0)
                 {
                     Utils.Message("Tank is in use");
-                    CurrentResource = current_resource.resourceName;
+                    CurrentResource = Resource.resourceName;
                     if(tank_type != null) TankType = tank_type.name;
                     return false;
                 }
             }
-            part.RemoveResource(current_resource.resourceName);
+            part.RemoveResource(Resource.resourceName);
             current_resource_name = string.Empty;
-            current_resource = null;
+            Resource = null;
             return true;
         }
 
@@ -390,7 +389,7 @@ namespace AT_Utils
 
         private void update_res_control()
         {
-            Fields["CurrentResource"].guiName = current_resource == null ? RES_UNMANAGED : RES_MANAGED;
+            Fields["CurrentResource"].guiName = Resource == null ? RES_UNMANAGED : RES_MANAGED;
             update_boiloff_control();
             part.UpdatePartMenu();
         }
@@ -433,11 +432,11 @@ namespace AT_Utils
         {
             //check if the tank is in use
             if(tank_type != null && 
-               current_resource != null &&
-               current_resource.amount > 0)
+               Resource != null &&
+               Resource.amount > 0)
             { 
                 if(HighLogic.LoadedSceneIsEditor) 
-                    current_resource.amount = 0;
+                    Resource.amount = 0;
                 else
                 {
                     Utils.Message("Cannot change tank type while tank is in use");
@@ -467,13 +466,13 @@ namespace AT_Utils
         /// <param name="update_amount">If set to <c>true</c> also updates amount.</param>
         public void UpdateMaxAmount(bool update_amount = false)
         {
-            if(current_resource == null) return;
-            var max_amount = current_resource.maxAmount;
-            current_resource.maxAmount = MaxResourceInVolume;
-            if(current_resource.amount > current_resource.maxAmount)
-                current_resource.amount = current_resource.maxAmount;
+            if(Resource == null) return;
+            var max_amount = Resource.maxAmount;
+            Resource.maxAmount = MaxResourceInVolume;
+            if(Resource.amount > Resource.maxAmount)
+                Resource.amount = Resource.maxAmount;
             else if(update_amount && max_amount > 0) 
-                current_resource.amount *= current_resource.maxAmount/max_amount;
+                Resource.amount *= Resource.maxAmount/max_amount;
             part.UpdatePartMenu();
         }
 
@@ -500,14 +499,14 @@ namespace AT_Utils
         public bool ForceSwitchResource(string new_resource)
         {
             //if nothing to do, return true
-            if(current_resource != null && 
-               current_resource.resourceName == new_resource)
+            if(Resource != null && 
+               Resource.resourceName == new_resource)
                 return true;
             //if the new resource is in the current tank type
             if(tank_type != null && tank_type.Resources.ContainsKey(new_resource))
             {
-                if(current_resource != null) 
-                    current_resource.amount = 0;
+                if(Resource != null) 
+                    Resource.amount = 0;
                 CurrentResource = new_resource;
                 if(switch_resource())
                 { update_res_control(); return true; }
@@ -517,7 +516,7 @@ namespace AT_Utils
             {
                 var new_type = SwitchableTankType.FindTankType(new_resource);
                 if(new_type == null) return false;
-                if(current_resource != null) current_resource.amount = 0;
+                if(Resource != null) Resource.amount = 0;
                 TankType = new_type.name;
                 CurrentResource = new_resource;
                 return change_tank_type();
@@ -526,9 +525,9 @@ namespace AT_Utils
 
         private bool init_resource()
         {
-            if(current_resource != null)
+            if(Resource != null)
             {
-                CurrentResource = current_resource.resourceName;
+                CurrentResource = Resource.resourceName;
                 return false;
             }
             if(tank_type == null) return false;
@@ -552,13 +551,13 @@ namespace AT_Utils
             var part_res = part.Resources[resource_info.Name];
             if(part_res != null) 
             { 
-                current_resource = part_res;
+                Resource = part_res;
                 //do not change resource amount/maxAmount in flight, unless we have none
-                if(HighLogic.LoadedSceneIsEditor || current_resource.amount.Equals(0))
+                if(HighLogic.LoadedSceneIsEditor || Resource.amount.Equals(0))
                 {
-                    current_resource.maxAmount = maxAmount;
-                    if(current_resource.amount > current_resource.maxAmount)
-                        current_resource.amount = current_resource.maxAmount;
+                    Resource.maxAmount = maxAmount;
+                    if(Resource.amount > Resource.maxAmount)
+                        Resource.amount = Resource.maxAmount;
                 }
             }
             else //create the new resource
@@ -567,10 +566,10 @@ namespace AT_Utils
                 node.AddValue("name", resource_info.Name);
                 node.AddValue("amount", initializing? maxAmount*InitialAmount : 0);
                 node.AddValue("maxAmount", maxAmount);
-                current_resource = part.AddResource(node);
+                Resource = part.AddResource(node);
             }
             current_resource_name = Utils.ParseCamelCase(CurrentResource);
-            boiloff?.SetResource(current_resource);
+            boiloff?.SetResource(Resource);
             if(part.Events != null) part.SendEvent("resource_changed");
             return true;
         }
@@ -581,7 +580,7 @@ namespace AT_Utils
         [KSPEvent]
         private void resource_changed()
         {
-            if(current_resource != null) return;
+            if(Resource != null) return;
             switch_resource();
         }
 
@@ -622,8 +621,8 @@ namespace AT_Utils
         private void ReloadCryogenics() 
         { 
             CryogenicsParams.Reload();
-            if(boiloff != null && current_resource != null)
-                boiloff.SetResource(current_resource);
+            if(boiloff != null && Resource != null)
+                boiloff.SetResource(Resource);
         }
         #endif
 
@@ -652,15 +651,15 @@ namespace AT_Utils
                 {
                     //temperature display
                     if(boiloff != null)
-                        CoreTemperatureDisplay = boiloff.CoreTemperature-273.15;
+                        CoreTemperatureDisplay = boiloff.CoreTemperature+CryogenicsParams.AbsZero;
                     if(cooler != null)
                     {
                         CoolingDisplay = cooler.IsCooling? cooler.CoolingEfficiency : 0;
                         update_cooler_control();
                     }
                     #if DEBUG
-                    PartTemperatureDisplay = (part.temperature-273.15).ToString("F1");
-                    SkinTemperatureDisplay = (part.skinTemperature-273.15).ToString("F1");
+                    PartTemperatureDisplay = (part.temperature+CryogenicsParams.AbsZero).ToString("F1");
+                    SkinTemperatureDisplay = (part.skinTemperature+CryogenicsParams.AbsZero).ToString("F1");
                     #endif
                 }
                 yield return new WaitForSeconds(0.1f);
