@@ -10,22 +10,10 @@ using System.Collections.Generic;
 
 namespace AT_Utils
 {
-    public class VolumeConfigsLibrary : CustomConfig
+    public static class VolumeConfigsLibrary
     {
-        public const string USERFILE = "VolumeConfigs.user";
-        public static string UserFile => GameDataFolder("ConfigurableContainers", USERFILE);
-
-        private static VolumeConfigsLibrary instance;
-
-        private static VolumeConfigsLibrary Instance
-        {
-            get
-            {
-                if(instance == null)
-                    instance = new VolumeConfigsLibrary();
-                return instance;
-            }
-        }
+        public const string USER_FILE = "VolumeConfigs.user";
+        public static string UserFile => CustomConfig.GameDataFolder("ConfigurableContainers", USER_FILE);
 
         /// <summary>
         /// The library of tank configurations provided by mods.
@@ -34,33 +22,32 @@ namespace AT_Utils
         {
             get
             {
-                if(presets == null)
+                if(presets != null)
+                    return presets;
+                var nodes = GameDatabase.Instance.GetConfigNodes(VolumeConfiguration.NODE_NAME);
+                presets = new SortedList<string, VolumeConfiguration>(nodes.Length);
+                foreach(var n in nodes)
                 {
-                    var nodes = GameDatabase.Instance.GetConfigNodes(VolumeConfiguration.NODE_NAME);
-                    presets = new SortedList<string, VolumeConfiguration>(nodes.Length);
-                    foreach(var n in nodes)
-                    {
 #if DEBUG
-                        Utils.Log("Parsing preset tank configuration:\n{}", n);
+                    Utils.Log("Parsing preset tank configuration:\n{}", n);
 #endif
-                        var cfg = FromConfig<VolumeConfiguration>(n);
-                        if(!cfg.Valid)
-                        {
-                            var msg = $"ConfigurableContainers: configuration \"{cfg.name}\" is INVALID.";
-                            Utils.Message(6, msg);
-                            Utils.Log(msg);
-                            continue;
-                        }
-                        try
-                        {
-                            presets.Add(cfg.name, cfg);
-                        }
-                        catch
-                        {
-                            Utils.Log("SwitchableTankType: ignoring duplicate configuration of '{}' configuration. "
-                                      + "Use ModuleManager to change the existing one.",
-                                cfg.name);
-                        }
+                    var cfg = ConfigNodeObject.FromConfig<VolumeConfiguration>(n);
+                    if(!cfg.Valid)
+                    {
+                        var msg = $"ConfigurableContainers: configuration \"{cfg.name}\" is INVALID.";
+                        Utils.Message(6, msg);
+                        Utils.Log(msg);
+                        continue;
+                    }
+                    try
+                    {
+                        presets.Add(cfg.name, cfg);
+                    }
+                    catch
+                    {
+                        Utils.Log("SwitchableTankType: ignoring duplicate configuration of '{}' configuration. "
+                                  + "Use ModuleManager to change the existing one.",
+                            cfg.name);
                     }
                 }
                 return presets;
@@ -77,35 +64,30 @@ namespace AT_Utils
         {
             get
             {
-                if(user_configs == null)
-                {
-                    user_configs = new SortedList<string, VolumeConfiguration>();
-                    var node = LoadNode(UserFile);
+                if(user_configs != null)
+                    return user_configs;
+                user_configs = new SortedList<string, VolumeConfiguration>();
+                var node = CustomConfig.LoadNode(UserFile);
 #if DEBUG
-                    Utils.Log("Loading user configurations from:\n{}\n{}", UserFile, node);
+                Utils.Log("Loading user configurations from:\n{}\n{}", UserFile, node);
 #endif
-                    if(node != null)
+                if(node == null)
+                    return user_configs;
+                foreach(var n in node.GetNodes(VolumeConfiguration.NODE_NAME))
+                {
+                    var cfg = ConfigNodeObject.FromConfig<VolumeConfiguration>(n);
+                    if(!cfg.Valid)
                     {
-                        foreach(var n in node.GetNodes(VolumeConfiguration.NODE_NAME))
-                        {
-                            var cfg = FromConfig<VolumeConfiguration>(n);
-                            if(!cfg.Valid)
-                            {
-                                var msg = $"ConfigurableContainers: configuration \"{cfg.name}\" is INVALID.";
-                                Utils.Message(6, msg);
-                                Utils.Log(msg);
-                                continue;
-                            }
-                            else
-                            {
-                                if(SwitchableTankType.HaveTankType(cfg.name))
-                                    cfg.name += " [cfg]";
-                                if(PresetConfigs.ContainsKey(cfg.name))
-                                    cfg.name += " [usr]";
-                                add_unique(cfg, user_configs);
-                            }
-                        }
+                        var msg = $"ConfigurableContainers: configuration \"{cfg.name}\" is INVALID.";
+                        Utils.Message(6, msg);
+                        Utils.Log(msg);
+                        continue;
                     }
+                    if(SwitchableTankType.HaveTankType(cfg.name))
+                        cfg.name += " [cfg]";
+                    if(PresetConfigs.ContainsKey(cfg.name))
+                        cfg.name += " [usr]";
+                    add_unique(cfg, user_configs);
                 }
                 return user_configs;
             }
@@ -126,7 +108,7 @@ namespace AT_Utils
         {
             var node = new ConfigNode();
             UserConfigs.ForEach(c => c.Value.SaveInto(node));
-            if(SaveNode(node, UserFile))
+            if(CustomConfig.SaveNode(node, UserFile))
                 return true;
             Utils.Message("Unable to save tank configurations.");
             return false;
