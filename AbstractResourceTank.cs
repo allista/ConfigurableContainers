@@ -31,25 +31,25 @@ namespace AT_Utils
         /// If set, this flag causes the Module to save the initial difference between the
         /// Part.cost and GetModuleCost value so that the total part cost is unchanged.
         /// </summary>
-        [KSPField(isPersistant = true)] public bool DoCostPatch = false;
+        [KSPField(isPersistant = true)] public bool DoCostPatch;
 
         /// <summary>
         /// The difference between the Part.cost and the initial value of the GetModuleCost.
         /// Used when the Patch flag is set.
         /// </summary>
-        [KSPField(isPersistant = true)] public float CostPatch = 0;
+        [KSPField(isPersistant = true)] public float CostPatch;
 
         /// <summary>
         /// If set, this flag causes the Module to save the initial difference between the
         /// Part.mass and GetModuleMass value so that the total part cost is unchanged.
         /// </summary>
-        [KSPField(isPersistant = true)] public bool DoMassPatch = false;
+        [KSPField(isPersistant = true)] public bool DoMassPatch;
 
         /// <summary>
         /// The difference between the Part.mass and the initial value of the GetModuleMass.
         /// Used when the Patch flag is set.
         /// </summary>
-        [KSPField(isPersistant = true)] public float MassPatch = 0;
+        [KSPField(isPersistant = true)] public float MassPatch;
 
         /// <summary>
         /// This is called within the GetModuleCost to calculate the cost of the tank.

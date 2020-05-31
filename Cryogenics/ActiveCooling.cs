@@ -16,7 +16,7 @@ namespace AT_Utils
         private double MaxPower = 10;
         private double Efficiency = 0.17f;
 
-        [Persistent] public double CoolingEfficiency = 0;
+        [Persistent] public double CoolingEfficiency;
 
         [Persistent] public bool   Enabled = true;
         [Persistent] public bool   IsCooling;

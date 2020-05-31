@@ -105,14 +105,14 @@ namespace AT_Utils
         #endif
 
         [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "T(Res)", guiFormat = "0.0°C")]
-        public double CoreTemperatureDisplay = 0;
+        public double CoreTemperatureDisplay;
         [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Boiloff")]
         public string BoiloffDisplay = "0";
 
         private ResourceBoiloff boiloff;
 
         [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling", guiFormat = "P1")]
-        public double CoolingDisplay = 0;
+        public double CoolingDisplay;
         [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling Cost")]
         public string EcDisplay = "0";
 

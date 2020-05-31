@@ -70,7 +70,7 @@ namespace AT_Utils
         /// </summary>
         public static List<string> TankTypeNames(string[] include = null, string[] exclude = null) 
         { 
-            IEnumerable<string> names = null;
+            IEnumerable<string> names;
             if(include != null && include.Length > 0)
                 names = TankTypes.Keys.Where(n => include.IndexOf(n) >= 0);
             else if(exclude != null && exclude.Length > 0)
@@ -200,7 +200,7 @@ namespace AT_Utils
             Resources = TankResource.ParseResourcesToSortedList(PossibleResources);
         }
 
-        private string info = null;
+        private string info;
         public string Info
         { 
             get 
