@@ -7,9 +7,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AT_Utils
 {
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
+     SuppressMessage("ReSharper", "ConvertToConstant.Global"),
+     SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Global")]
     public class CryogenicsParams : ConfigNodeObject
     {
         public new const string NODE_NAME = "CRYOGENICS";
@@ -132,6 +136,7 @@ namespace AT_Utils
             }
         }
 
+        [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
         public class CryoResource : ConfigNodeObject
         {
             public new const string NODE_NAME = "RESOURCE";
