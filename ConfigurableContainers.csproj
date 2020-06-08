@@ -104,9 +104,6 @@
     </ItemGroup>
     <ItemGroup>
         <None Include=".gitignore" />
-        <None Include="GameData\ConfigurableContainers\TankTypes.cfg" />
-        <None Include="GameData\ConfigurableContainers\TankConfigs.cfg" />
-        <None Include="GameData\ConfigurableContainers\Cryogenics.cfg" />
         <None Include="GameData\ConfigurableContainers\GPO_Patch.cfg" />
     </ItemGroup>
     <ItemGroup>
@@ -114,7 +111,6 @@
     </ItemGroup>
     <ItemGroup>
       <Content Include="ChangeLog.md" />
-      <Content Include="ConfigurableContainers-Core.netkan" />
       <Content Include="ConfigurableContainers-Intrusive.netkan" />
       <Content Include="ConfigurableContainers.netkan" />
       <Content Include="make-release.sh" />
