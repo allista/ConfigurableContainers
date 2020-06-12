@@ -168,7 +168,7 @@ namespace AT_Utils
         [Persistent]
         public string name = "";
 
-        public List<BaseVolume> Volumes = new List<BaseVolume>();
+        public readonly List<BaseVolume> Volumes = new List<BaseVolume>();
         public float TotalVolume { get { return Volumes.Aggregate(0f, (v, t) => v + t.Volume); } }
         public bool Valid => Volumes.Count > 0 && TotalVolume > 0;
 
@@ -180,25 +180,28 @@ namespace AT_Utils
             for(var i = 0; i < volumes.Length; i++)
             {
                 var v = volumes[i];
-                if(v.name == TankVolume.NODE_NAME)
+                switch(v.name)
                 {
-                    var preset = VolumeConfigsLibrary.GetConfig(v.GetValue("name"));
-                    if(preset != null)
+                    case TankVolume.NODE_NAME:
                     {
-                        if(!float.TryParse(v.GetValue("Volume"), out var volume))
-                            volume = 100f;
-                        var cfg = preset.Clone<VolumeConfiguration>();
-                        cfg.Volume = volume;
-                        Volumes.Add(cfg);
+                        var preset = VolumeConfigsLibrary.GetConfig(v.GetValue("name"));
+                        if(preset != null)
+                        {
+                            if(!float.TryParse(v.GetValue("Volume"), out var volume))
+                                volume = 100f;
+                            var cfg = preset.Clone<VolumeConfiguration>();
+                            cfg.Volume = volume;
+                            Volumes.Add(cfg);
+                        }
+                        else
+                        {
+                            Volumes.Add(FromConfig<TankVolume>(v));
+                        }
+                        break;
                     }
-                    else
-                    {
-                        Volumes.Add(FromConfig<TankVolume>(v));
-                    }
-                }
-                else if(v.name == NODE_NAME)
-                {
-                    Volumes.Add(FromConfig<VolumeConfiguration>(v));
+                    case NODE_NAME:
+                        Volumes.Add(FromConfig<VolumeConfiguration>(v));
+                        break;
                 }
             }
         }
@@ -244,7 +247,7 @@ namespace AT_Utils
             return Volumes.Any(v => v.ContainsType(tank_type));
         }
 
-        public bool ContainsTypes(string[] tank_types)
+        public bool ContainsTypes(IEnumerable<string> tank_types)
         {
             return tank_types.Any(ContainsType);
         }
