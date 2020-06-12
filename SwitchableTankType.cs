@@ -100,17 +100,18 @@ namespace AT_Utils
                     return "";
                 if(info != null)
                     return info;
-                info = "";
-                info += "Tank can hold:\n";
+                var _info = StringBuilderCache.Acquire();
+                _info.AppendLine("Tank can hold:");
                 foreach(var r in ResourceNames)
-                    info += $"- {Resources[r].Name}: {Utils.formatUnits(Resources[r].UnitsPerLiter)}/L\n";
+                    _info.AppendLine($"- {Resources[r].Name}: {Utils.formatUnits(Resources[r].UnitsPerLiter)}/L");
                 var useful_volume = UsefulVolume(100);
                 if(useful_volume < 100)
-                    info += $"Only {useful_volume:F0}% of the volume is used for resources.\n";
+                    _info.AppendLine($"Only {useful_volume:F0}% of the volume is used for resources.");
                 if(Boiloff || Cooling)
-                    info += "Tank is thermally insulated.\nEquipped with boil-off valve.\n";
+                    _info.AppendLine("Tank is thermally insulated.\nEquipped with boil-off valve.");
                 if(Cooling)
-                    info += "Equipped with Active Cooling System.\n";
+                    _info.AppendLine("Equipped with Active Cooling System.");
+                info = _info.ToStringAndRelease();
                 return info;
             }
         }
