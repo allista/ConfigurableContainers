@@ -286,7 +286,9 @@ namespace AT_Utils
                 }
                 else
                 {
-                    GUILayout.Label(Tank.CurrentResource, Styles.boxed_label, GUILayout.Width(170));
+                    GUILayout.Label("<", Styles.boxed_label, GUILayout.Width(20));
+                    GUILayout.Label(Tank.CurrentResource, Styles.boxed_label, GUILayout.Width(120));
+                    GUILayout.Label(">", Styles.boxed_label, GUILayout.Width(20));
                 }
             }
 
