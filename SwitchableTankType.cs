@@ -260,6 +260,8 @@ namespace AT_Utils
     {
         public float UnitsPerLiter { get; private set; }
 
+        public PartResourceDefinition def => PartResourceLibrary.Instance.GetDefinition(Name);
+
         public override void LoadDefinition(string resource_definition)
         {
             var upl = load_definition(resource_definition);

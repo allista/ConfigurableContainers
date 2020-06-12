@@ -40,6 +40,11 @@ namespace AT_Utils
             return 0f;
         }
 
+        public virtual float ResourceAmount(bool maxAmount = true, float volume_conversion = 1)
+        {
+            return 0f;
+        }
+
         public virtual bool ContainsType(string tank_type)
         {
             return false;
@@ -75,8 +80,7 @@ namespace AT_Utils
             {
                 var t = Type;
                 var res = t.Resources[CurrentResource];
-                var res_def = PartResourceLibrary.Instance.GetDefinition(res.Name);
-                var cost = res_def.unitCost * res.UnitsPerLiter * t.UsefulVolume(Volume) * volume_conversion * 1000;
+                var cost = res.def.unitCost * res.UnitsPerLiter * t.UsefulVolume(Volume) * volume_conversion * 1000;
                 return maxAmount ? cost : cost * InitialAmount;
             }
             catch
@@ -91,9 +95,23 @@ namespace AT_Utils
             {
                 var t = Type;
                 var res = t.Resources[CurrentResource];
-                var res_def = PartResourceLibrary.Instance.GetDefinition(res.Name);
-                var cost = res_def.density * res.UnitsPerLiter * t.UsefulVolume(Volume) * volume_conversion * 1000;
-                return maxAmount ? cost : cost * InitialAmount;
+                var mass = res.def.density * res.UnitsPerLiter * t.UsefulVolume(Volume) * volume_conversion * 1000;
+                return maxAmount ? mass : mass * InitialAmount;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public override float ResourceAmount(bool maxAmount = true, float volume_conversion = 1)
+        {
+            try
+            {
+                var t = Type;
+                var res = t.Resources[CurrentResource];
+                var amount = res.UnitsPerLiter * t.UsefulVolume(Volume) * volume_conversion * 1000;
+                return maxAmount ? amount : amount * InitialAmount;
             }
             catch
             {
@@ -103,14 +121,18 @@ namespace AT_Utils
 
         public override string Info(float volume_conversion = 1)
         {
-            var info = " - " + TankType;
+            var info = StringBuilderCache.Acquire();
+            info.Append($"- {TankType}");
             if(!string.IsNullOrEmpty(CurrentResource))
-                info += " : " + CurrentResource;
-            info += $"\n   {Utils.formatVolume(Volume * volume_conversion)} {Cost(volume_conversion):F1}";
+                info.Append($"/{CurrentResource}");
+            info.Append($"\n   {Utils.formatVolume(Volume * volume_conversion)}");
+            info.Append($"\n   {Utils.formatBigValue(ResourceAmount(true, volume_conversion), "u")}");
+            info.Append($"\n   {Utils.formatBigValue(ResourceMass(true, volume_conversion), "t")}");
+            info.Append($"\n   {Cost(volume_conversion):F1}");
             if(InitialAmount > 0)
-                info += $"+{ResourceCost(false, volume_conversion):F1}";
-            info += " Cr";
-            return info + "\n";
+                info.Append($"+{ResourceCost(false, volume_conversion):F1}");
+            info.Append(" Cr\n");
+            return info.ToStringAndRelease();
         }
 
         public override bool ContainsType(string tank_type)

@@ -14,7 +14,7 @@ namespace AT_Utils
     {
         public delegate float AddTankDelegate(string tank_type, float volume, bool percent);
 
-        private const int scroll_width = 600;
+        private const int scroll_width = 750;
         private const int scroll_height = 200;
         private const string eLock = "SwitchableTankManager.EditingTanks";
 
@@ -290,6 +290,15 @@ namespace AT_Utils
                 }
             }
 
+            private void tank_resource_info()
+            {
+                GUILayout.BeginHorizontal(Styles.white, GUILayout.Width(120));
+                GUILayout.Label(Utils.formatBigValue((float)Tank.MaxAmount, "u"));
+                GUILayout.FlexibleSpace();
+                GUILayout.Label(Utils.formatBigValue(Tank.ResourceMaxMass, "t"));
+                GUILayout.EndHorizontal();
+            }
+
             public void ManageGUI()
             {
                 GUILayout.BeginHorizontal();
@@ -325,6 +334,7 @@ namespace AT_Utils
                 {
                     GUILayout.Label(Utils.formatVolume(Tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
                 }
+                tank_resource_info();
                 if(!edit)
                 {
                     var usage = Tank.Usage;
@@ -364,6 +374,7 @@ namespace AT_Utils
                 tank_resource_gui();
                 GUILayout.FlexibleSpace();
                 GUILayout.Label(Utils.formatVolume(Tank.Volume), Styles.boxed_label, GUILayout.ExpandWidth(true));
+                tank_resource_info();
                 var usage = Tank.Usage;
                 GUILayout.Label("Filled: " + usage.ToString("P1"), Styles.fracStyle(usage), GUILayout.Width(95));
                 GUILayout.EndHorizontal();

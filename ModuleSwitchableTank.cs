@@ -133,6 +133,8 @@ namespace AT_Utils
 
         public PartResource Resource { get; private set; }
         public float Usage => Resource != null ? (float)(Resource.amount / Resource.maxAmount) : 0;
+        public float ResourceMass => Resource != null ? (float)(Resource.amount * Resource.info.density) : 0;
+        public float ResourceMaxMass => Resource != null ? (float)(Resource.maxAmount * Resource.info.density) : 0;
         public string ResourceInUse => Resource != null ? Resource.resourceName : string.Empty;
 
         public double Amount
