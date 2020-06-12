@@ -283,13 +283,10 @@ namespace AT_Utils
         {
             if(!AddRemoveEnabled)
                 return false;
-            if(AddTank(name, volume, update_counterparts: update_counterparts))
-                return true;
             var cfg = VolumeConfigsLibrary.GetConfig(name);
-            if(cfg != null)
-                return AddConfiguration(cfg, volume, update_counterparts);
-            Utils.Log("SwitchableTankManager: no such tank configuration: {}", name);
-            return false;
+            return cfg == null
+                ? AddTank(name, volume, update_counterparts: update_counterparts)
+                : AddConfiguration(cfg, volume, update_counterparts);
         }
 
         /// <summary>
