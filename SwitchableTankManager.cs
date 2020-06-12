@@ -182,7 +182,7 @@ namespace AT_Utils
                     }
                     else
                     {
-                        Utils.Log("SwitchableTankManager: unable to load module from config:\n{}", n);
+                        Utils.Error("SwitchableTankManager: unable to load module from config:\n{}", n);
                     }
                 }
                 tanks.ForEach(t => t.Tank.OnStart(part.GetModuleStartState()));
@@ -192,6 +192,7 @@ namespace AT_Utils
                 var cfg = FromConfig<VolumeConfiguration>(node);
                 var add_remove = AddRemoveEnabled;
                 AddRemoveEnabled = true;
+                Utils.Debug("Loading tank manager config: {}", cfg);//debug
                 AddConfiguration(cfg, cfg.Volume, false);
                 AddRemoveEnabled = add_remove;
             }
@@ -218,7 +219,7 @@ namespace AT_Utils
                 return false;
             if(!SwitchableTankType.HaveTankType(tank_type))
             {
-                Utils.Log("SwitchableTankManager: no such tank type: {}", tank_type);
+                Utils.Error("SwitchableTankManager: no such tank type: {}", tank_type);
                 return false;
             }
             var tank = part.AddModule(nameof(ModuleSwitchableTank)) as ModuleSwitchableTank;

@@ -32,15 +32,13 @@ namespace AT_Utils
                 presets = new SortedList<string, VolumeConfiguration>(nodes.Length);
                 foreach(var n in nodes)
                 {
-#if DEBUG
-                    Utils.Log("Parsing preset tank configuration:\n{}", n);
-#endif
+                    Utils.Debug("Parsing preset tank configuration:\n{}", n);
                     var cfg = ConfigNodeObject.FromConfig<VolumeConfiguration>(n);
                     if(!cfg.Valid)
                     {
                         var msg = $"ConfigurableContainers: configuration \"{cfg.name}\" is INVALID.";
                         Utils.Message(6, msg);
-                        Utils.Log(msg);
+                        Utils.Error(msg);
                         continue;
                     }
                     try
@@ -49,11 +47,12 @@ namespace AT_Utils
                     }
                     catch
                     {
-                        Utils.Log("SwitchableTankType: ignoring duplicate configuration of '{}' configuration. "
-                                  + "Use ModuleManager to change the existing one.",
+                        Utils.Warning("SwitchableTankType: ignoring duplicate configuration of '{}' configuration. "
+                                      + "Use ModuleManager to change the existing one.",
                             cfg.name);
                     }
                 }
+                Utils.Debug("Parsed presets: {}", presets);
                 return presets;
             }
         }
@@ -70,9 +69,7 @@ namespace AT_Utils
                     return user_configs;
                 user_configs = new SortedList<string, VolumeConfiguration>();
                 var node = CustomConfig.LoadNode(UserFile);
-#if DEBUG
-                Utils.Log("Loading user configurations from:\n{}\n{}", UserFile, node);
-#endif
+                Utils.Debug("Loading user configurations from:\n{}\n{}", UserFile, node);
                 if(node == null)
                     return user_configs;
                 foreach(var n in node.GetNodes(VolumeConfiguration.NODE_NAME))
@@ -82,7 +79,7 @@ namespace AT_Utils
                     {
                         var msg = $"ConfigurableContainers: configuration \"{cfg.name}\" is INVALID.";
                         Utils.Message(6, msg);
-                        Utils.Log(msg);
+                        Utils.Error(msg);
                         continue;
                     }
                     if(SwitchableTankType.HaveTankType(cfg.name))
@@ -91,6 +88,7 @@ namespace AT_Utils
                         cfg.name += " [usr]";
                     add_unique(cfg, user_configs);
                 }
+                Utils.Debug("Parsed user presets: {}", user_configs);
                 return user_configs;
             }
         }
