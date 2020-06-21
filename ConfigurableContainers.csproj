@@ -117,6 +117,7 @@
       <Content Include="GameData\ConfigurableContainers\Parts\Bluedog_DB_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\FuelTanksPlus_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\HangarResourceTanks.cfg" />
+      <Content Include="GameData\ConfigurableContainers\Parts\KerboNerdLaboratories.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\KWRocketry_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\MakingHistory_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\MiningExpansion_Patch.cfg" />
