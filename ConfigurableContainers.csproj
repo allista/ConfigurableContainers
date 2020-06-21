@@ -114,6 +114,7 @@
       <Content Include="ConfigurableContainers-Intrusive.netkan" />
       <Content Include="ConfigurableContainers.netkan" />
       <Content Include="GameData\ConfigurableContainers\Parts\B9_Aerospace_ProceduralWings_Patch.cfg" />
+      <Content Include="GameData\ConfigurableContainers\Parts\Benjee10_X-37B_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\Bluedog_DB_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\FuelTanksPlus_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\HangarResourceTanks.cfg" />

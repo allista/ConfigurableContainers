@@ -311,6 +311,7 @@ if __name__ == '__main__':
                        'ReStockPlus',
                        'PlanetaryBaseInc',  # Kerbal Planetary Base Systems
                        # 'FelineUtilityRover',  # uses ModuleKerbetrotterResourceSwitch
+                       'Benjee10_X-37B',  # Mk-X Spaceplane Parts
                        )
 
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Tal-Tanks_Patch.cfg'),
