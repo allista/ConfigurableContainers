@@ -259,7 +259,7 @@ class Patcher(object):
 
 
 if __name__ == '__main__':
-    patcher = Patcher('GameData/ConfigurableContainers/TankTypes.cfg',
+    patcher = Patcher('../GameData/000_AT_Utils/TankTypes.cfg',
                       '/home/storage/Games/KSP_linux/PluginsArchives/'
                       'Development/AT_KSP_Plugins/KSP-test/'
                       'KSP_test_1.9.1/GameData')
