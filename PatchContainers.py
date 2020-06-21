@@ -284,6 +284,13 @@ if __name__ == '__main__':
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Squad_Patch.cfg'),
                         [('Squad', 'Parts')], xenon_titles)
 
+    patcher.patch_parts(('ConfigurableContainers', 'Parts', 'MakingHistory_Patch.cfg'),
+                        [('SquadExpansion', 'MakingHistory', 'Parts')])
+
+    # nothing to patch there
+    # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Squad_Serenity_Patch.cfg'),
+    #                     [('SquadExpansion', 'Serenity', 'Parts')])
+
     patcher.patch_mods('KWRocketry',
                        'Mk2Expansion',
                        'Mk3Expansion',
@@ -310,9 +317,6 @@ if __name__ == '__main__':
                         [('ModsByTal', 'Parts')],
                         [(SearchTerm(''), Module.Patch('!', 'ModuleFuelTanks'))],
                         add_spec=':AFTER[ModsByTal]')
-
-    patcher.patch_parts(('ConfigurableContainers', 'Parts', 'MakingHistory_Patch.cfg'),
-                        [['ExpansionFuelTanks']])
 
     # USI uses FSfuelSwitch, so no patching for it
     # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'USI-MKS_Patch.cfg'),
