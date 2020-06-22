@@ -66,8 +66,7 @@
     [
         {
             "file": "GameData/ConfigurableContainers",
-            "install_to": "GameData",
-            "filter": [ "TankTypes.cfg", "TankConfigs.cfg", "Cryogenics.cfg" ]
+            "install_to": "GameData"
         }
     ]
 }
