@@ -129,7 +129,6 @@
       <Content Include="GameData\ConfigurableContainers\Parts\ModRocketSys_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\MunarIndustries_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\NearFuturePropulsion_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\OPT_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\PlanetaryBaseInc_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\RaginCaucasian_Patch.cfg" />
       <Content Include="GameData\ConfigurableContainers\Parts\ReStockPlus_Patch.cfg" />
