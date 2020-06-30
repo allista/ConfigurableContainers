@@ -131,7 +131,11 @@ namespace AT_Utils
         {
             base.OnStart(state);
             init_tank_manager();
+#if DEBUG
+            tank_manager.EnablePartControls = false;
+#else
             tank_manager.EnablePartControls = !HighLogic.LoadedSceneIsEditor && tank_manager.TanksCount < 2;
+#endif
             Utils.EnableEvent(Events["EditTanks"], !tank_manager.EnablePartControls);
             if(HighLogic.LoadedSceneIsFlight)
                 Events["EditTanks"].guiName = "Manage Tanks";

@@ -341,17 +341,10 @@ namespace AT_Utils
                 {
                     var usage = Tank.Usage;
                     GUILayout.Label("Filled: " + usage.ToString("P1"), Styles.fracStyle(usage), GUILayout.Width(95));
+#if !DEBUG
                     if(HighLogic.LoadedSceneIsEditor)
-                    {
-                        if(GUILayout.Button(fill_tank_gui_content,
-                            Styles.open_button,
-                            GUILayout.Width(20)))
-                            Tank.Amount = Tank.MaxAmount;
-                        if(GUILayout.Button(empty_tank_gui_content,
-                            Styles.active_button,
-                            GUILayout.Width(20)))
-                            Tank.Amount = 0;
-                    }
+#endif
+                    resource_amount_controls();
                     if(manager.AddRemoveEnabled)
                         if(GUILayout.Button(delete_tank_gui_content,
                             Styles.danger_button,
@@ -360,6 +353,18 @@ namespace AT_Utils
                                 CallbackUtil.DelayedCallback(1, remove_tank, Tank));
                 }
                 GUILayout.EndHorizontal();
+            }
+
+            private void resource_amount_controls()
+            {
+                if(GUILayout.Button(fill_tank_gui_content,
+                    Styles.open_button,
+                    GUILayout.Width(20)))
+                    Tank.Amount = Tank.MaxAmount;
+                if(GUILayout.Button(empty_tank_gui_content,
+                    Styles.active_button,
+                    GUILayout.Width(20)))
+                    Tank.Amount = 0;
             }
 
             private void remove_tank(ModuleSwitchableTank tank)
@@ -379,6 +384,9 @@ namespace AT_Utils
                 tank_resource_info();
                 var usage = Tank.Usage;
                 GUILayout.Label("Filled: " + usage.ToString("P1"), Styles.fracStyle(usage), GUILayout.Width(95));
+#if DEBUG
+                resource_amount_controls();
+#endif
                 GUILayout.EndHorizontal();
             }
         }
