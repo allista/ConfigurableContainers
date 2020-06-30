@@ -1,6 +1,29 @@
 #Configurable Containers ChangeLog
 
-* **v2.4.8.3**
+* **v2.5.0**
+  * **Moved CC configs to AT_Utils GameData and removed CC-Core**
+  * Added resource **max amount and max mass display**
+  * **Added new patches** 
+    * Dodo Labs - Stockalike Electron
+    * Mk2 Hypersonic Systems
+    * Mk-X
+    * Hyper Propulsion
+  * **Updated** patches
+    * BDB
+    * Mk2 Expansion
+    * ReStock+
+  * Only filter parts with **B9 Part Switch** if it has SUBTYPE with 
+  a tankType defined. This allowed to **add CC to several parts** that
+  only had mesh/node variants, not the resource switching. **Affects**
+    * Bluedog Design Bureau
+    * Mk2 Expansion
+    * Mk3 Expansion
+  * Moved hangar resource tanks to FuelTank category
+  * Removed the OPT patch since OPT Reconfig provides its own now
+  * Minor fixes and improvements
+  * Updated the list of supported mods in netkan
+
+* v2.4.8.3
     * Compiled against AT_Utils 1.9.3
 
 * v2.4.8.2
