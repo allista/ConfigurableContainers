@@ -192,7 +192,7 @@ namespace AT_Utils
                 var cfg = FromConfig<VolumeConfiguration>(node);
                 var add_remove = AddRemoveEnabled;
                 AddRemoveEnabled = true;
-                Utils.Debug("Loading tank manager config: {}", cfg);//debug
+                Utils.Debug("Loading tank manager config: {}", cfg); //debug
                 AddConfiguration(cfg, cfg.Volume, false);
                 AddRemoveEnabled = add_remove;
             }
@@ -339,18 +339,15 @@ namespace AT_Utils
                 var manager_module = p.Modules.GetModule(ind) as ITankManager;
                 if(manager_module == null)
                 {
-                    Utils.Log("SwitchableTankManager: counterparts should have ITankManager module at {} position, "
-                              + "but {} does not. This should never happen!",
-                        ind,
-                        p);
+                    Utils.Error($"SwitchableTankManager: counterparts should have ITankManager "
+                                + $"module at {ind} position, but {p.GetID()} does not. This should never happen!");
                     continue;
                 }
                 var manager = manager_module.GetTankManager();
                 if(manager == null)
                 {
-                    Utils.Log("SwitchableTankManager: WARNING, trying to update "
-                              + "ITankManager {} with uninitialized SwitchableTankManager",
-                        manager_module);
+                    Utils.Error("SwitchableTankManager: WARNING, trying to update "
+                                + $"ITankManager {manager_module.GetID()} with uninitialized SwitchableTankManager");
                     continue;
                 }
                 action(manager);
@@ -364,7 +361,7 @@ namespace AT_Utils
             {
                 var tank1 = m.GetTank(tank.id);
                 if(tank1 == null)
-                    Utils.Log("SwitchableTankManager: WARNING, no tank with {} id", tank.id);
+                    Utils.Warning($"SwitchableTankManager: no tank with {tank.id} id");
                 else
                     action(tank1);
             });
