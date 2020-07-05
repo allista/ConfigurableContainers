@@ -83,6 +83,12 @@ Tank.mirror_value('InitialAmount', round_float)
 Tank.mirror_value('TankType')
 Tank.mirror_value('CurrentResource')
 
+common_patch_spec = ':HAS[' \
+                    '!MODULE[InterstellarFuelSwitch],' \
+                    '!MODULE[FSfuelSwitch],' \
+                    '!MODULE[ModuleB9PartSwitch]:HAS[@SUBTYPE:HAS[#tankType]]]' \
+                    ':NEEDS[!modularFuelTanks&!RealFuels]'
+
 
 class Patcher(object):
     def __init__(self, typelib, gamedata):
@@ -145,13 +151,7 @@ class Patcher(object):
                     continue
                 print('Patching %s' % part.name)
                 res = resources[res_name]
-                patch = Part.Patch('@', part.name,
-                                   ':HAS['
-                                   '!MODULE[InterstellarFuelSwitch],'
-                                   '!MODULE[FSfuelSwitch],'
-                                   '!MODULE[ModuleB9PartSwitch]]'
-                                   ':NEEDS[!modularFuelTanks&!RealFuels]'
-                                   + add_spec)
+                patch = Part.Patch('@', part.name, common_patch_spec + add_spec)
                 V = res.maxAmount * rate
                 ini = res.amount / res.maxAmount
                 comment = f'{res.maxAmount} units of {res_name}: conversion rate is {rate:.6f} m3/u'
@@ -197,13 +197,7 @@ class Patcher(object):
                     continue
                 print('Patching %s' % part.name)
                 lf = resources['LiquidFuel']
-                patch = Part.Patch('@', part.name,
-                                   ':HAS['
-                                   '!MODULE[InterstellarFuelSwitch],'
-                                   '!MODULE[FSfuelSwitch],'
-                                   '!MODULE[ModuleB9PartSwitch]]'
-                                   ':NEEDS[!modularFuelTanks&!RealFuels]'
-                                   + add_spec)
+                patch = Part.Patch('@', part.name, common_patch_spec + add_spec)
                 patch.AddChild(Resource.Patch('!', 'LiquidFuel'))
                 patch.AddChild(Resource.Patch('!', 'Oxidizer'))
                 mgr = ModuleTankManager()
@@ -259,10 +253,10 @@ class Patcher(object):
 
 
 if __name__ == '__main__':
-    patcher = Patcher('GameData/ConfigurableContainers/TankTypes.cfg',
+    patcher = Patcher('../GameData/000_AT_Utils/TankTypes.cfg',
                       '/home/storage/Games/KSP_linux/PluginsArchives/'
                       'Development/AT_KSP_Plugins/KSP-test/'
-                      'KSP_test_1.7.0/GameData')
+                      'KSP_test_1.9.1/GameData')
 
     patcher.part_filter = SearchQuery('PART/MODULE:.*Engines.*/')
     patcher.part_filter.Or('PART/MODULE:.*Converter.*/')
@@ -270,7 +264,8 @@ if __name__ == '__main__':
     patcher.part_filter.Or('PART/MODULE:.*Drill.*/')
     patcher.part_filter.Or('PART/MODULE:.*[Ff]uelSwitch/')
     patcher.part_filter.Or('PART/MODULE:.*[Rr]esourceSwitch/')
-    patcher.part_filter.Or('PART/MODULE:ModuleB9PartSwitch/')
+    # filter out only resource switching B9PS
+    patcher.part_filter.Or('PART/MODULE:ModuleB9PartSwitch/SUBTYPE/tankType:.*')
 
     xenon_titles = [
         (SearchTerm('name:xenonTank$'),
@@ -283,6 +278,13 @@ if __name__ == '__main__':
 
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Squad_Patch.cfg'),
                         [('Squad', 'Parts')], xenon_titles)
+
+    patcher.patch_parts(('ConfigurableContainers', 'Parts', 'MakingHistory_Patch.cfg'),
+                        [('SquadExpansion', 'MakingHistory', 'Parts')])
+
+    # nothing to patch there
+    # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Squad_Serenity_Patch.cfg'),
+    #                     [('SquadExpansion', 'Serenity', 'Parts')])
 
     patcher.patch_mods('KWRocketry',
                        'Mk2Expansion',
@@ -304,15 +306,17 @@ if __name__ == '__main__':
                        'ReStockPlus',
                        'PlanetaryBaseInc',  # Kerbal Planetary Base Systems
                        # 'FelineUtilityRover',  # uses ModuleKerbetrotterResourceSwitch
+                       'Benjee10_X-37B',  # Mk-X Spaceplane Parts
+                       'Mk3HypersonicSystems',
+                       'DodoLabs',  # Stockalike Electron
+                       # 'Mkerb',  # no parts
+                       # 'JSI'  # no parts
                        )
 
     patcher.patch_parts(('ConfigurableContainers', 'Parts', 'Tal-Tanks_Patch.cfg'),
                         [('ModsByTal', 'Parts')],
                         [(SearchTerm(''), Module.Patch('!', 'ModuleFuelTanks'))],
                         add_spec=':AFTER[ModsByTal]')
-
-    patcher.patch_parts(('ConfigurableContainers', 'Parts', 'MakingHistory_Patch.cfg'),
-                        [['ExpansionFuelTanks']])
 
     # USI uses FSfuelSwitch, so no patching for it
     # patcher.patch_parts(('ConfigurableContainers', 'Parts', 'USI-MKS_Patch.cfg'),

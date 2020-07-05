@@ -25,11 +25,11 @@ using System.Reflection;
 // and "{Major}.{Minor}.{Build}.*" will update just the revision.
 
 #if NIGHTBUILD
-[assembly: AssemblyVersion("2.4.*")]
+[assembly: AssemblyVersion("2.5.*")]
 #else
-[assembly: AssemblyVersion("2.4.8.3")]
+[assembly: AssemblyVersion("2.5.0")]
 #endif
-[assembly: KSPAssembly("ConfigurableContainers", 2, 4)]
+[assembly: KSPAssembly("ConfigurableContainers", 2, 5)]
 
 // The following attributes are used to specify the signing key for the assembly,
 // if desired. See the Mono documentation for more information about signing.
@@ -46,7 +46,8 @@ namespace AT_Utils
             MinKSPVersion = new Version(1, 9, 0);
             MaxKSPVersion = new Version(1, 9, 1);
 
-            VersionURL = "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
+            VersionURL =
+                "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
             UpgradeURL = "https://spacedock.info/mod/1002/Configurable%20Containers";
         }
     }
