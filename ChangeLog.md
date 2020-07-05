@@ -1,5 +1,8 @@
 #Configurable Containers ChangeLog
 
+* **v2.5.0.1**
+    * Compiled against KSP-1.10
+
 * **v2.5.0**
     * **Moved CC configs to AT_Utils GameData and removed CC-Core**
     * Added resource **max amount and max mass display**
