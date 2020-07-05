@@ -27,7 +27,7 @@ using System.Reflection;
 #if NIGHTBUILD
 [assembly: AssemblyVersion("2.5.*")]
 #else
-[assembly: AssemblyVersion("2.5.0")]
+[assembly: AssemblyVersion("2.5.0.1")]
 #endif
 [assembly: KSPAssembly("ConfigurableContainers", 2, 5)]
 
@@ -44,7 +44,7 @@ namespace AT_Utils
         public CCModInfo()
         {
             MinKSPVersion = new Version(1, 9, 0);
-            MaxKSPVersion = new Version(1, 9, 1);
+            MaxKSPVersion = new Version(1, 10, 0);
 
             VersionURL =
                 "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
