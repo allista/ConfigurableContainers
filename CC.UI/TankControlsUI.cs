@@ -1,21 +1,18 @@
 using System.Collections.Generic;
-using System.Linq;
 using AT_Utils.UI;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace CC.UI
 {
     public interface ITankInfo
     {
-        IList<string> AllTankTypeNames { get; }
+        ITankManager Manager { get; }
         string TankTypeName { get; }
 
         IList<string> AllResourceNames { get; }
         string ResourceName { get; }
         float UsefulVolumeRatio { get; }
 
-        float TotalVolume { get; }
         float Volume { get; }
 
         float MaxAmount { get; }
@@ -29,7 +26,7 @@ namespace CC.UI
         void SetAmount(float newAmount);
     }
 
-    public class TankControlsUI : MonoBehaviour
+    public class TankControlsUI : TankManagerUIPart
     {
         public Button
             deleteButton,
@@ -58,6 +55,7 @@ namespace CC.UI
             volumeEditor;
 
         private ITankInfo tank;
+        public ITankInfo Tank => tank;
 
         public void SetTank(ITankInfo newTank)
         {
@@ -85,9 +83,9 @@ namespace CC.UI
                 resourceMass.gameObject.SetActive(false);
             }
             tankFullness.text = (tank.Amount / tank.MaxAmount).ToString("P1");
-            tankTypeDropdown.options = namesToOptions(tank.AllTankTypeNames);
-            resourceDropdown.options = namesToOptions(tank.AllResourceNames);
-            tankTypeDropdown.SetValueWithoutNotify(tank.AllTankTypeNames.IndexOf(tank.TankTypeName));
+            tankTypeDropdown.options = UI_Utils.namesToOptions(tank.Manager.AllTankTypeNames);
+            resourceDropdown.options = UI_Utils.namesToOptions(tank.AllResourceNames);
+            tankTypeDropdown.SetValueWithoutNotify(tank.Manager.AllTankTypeNames.IndexOf(tank.TankTypeName));
             resourceDropdown.SetValueWithoutNotify(tank.AllResourceNames.IndexOf(tank.ResourceName));
         }
 
@@ -103,14 +101,8 @@ namespace CC.UI
             resourceDropdown.onValueChanged.AddListener(changeResource);
             fullTankButton.onClick.AddListener(fillTank);
             emptyTankButton.onClick.AddListener(emptyTank);
+            deleteButton.onClick.AddListener(deleteSelf);
         }
-
-#if DEBUG
-        private void Start()
-        {
-            SetTank(new TestTankInfo());
-        }
-#endif
 
         private void OnDestroy()
         {
@@ -122,12 +114,17 @@ namespace CC.UI
             resourceDropdown.onValueChanged.RemoveAllListeners();
             fullTankButton.onClick.RemoveAllListeners();
             emptyTankButton.onClick.RemoveAllListeners();
+            deleteButton.onClick.RemoveAllListeners();
         }
 
-        private static List<Dropdown.OptionData> namesToOptions(IEnumerable<string> names) =>
-            names.Select(name =>
-                    new Dropdown.OptionData(FormatUtils.ParseCamelCase(name)))
-                .ToList();
+        private void deleteSelf()
+        {
+            tank.Manager.RemoveTank(tank);
+            if(managerUI != null)
+                managerUI.UpdateDisplay();
+            else
+                Destroy(gameObject);
+        }
 
         private void hideEditor()
         {
@@ -147,7 +144,7 @@ namespace CC.UI
             if(tank == null)
                 return;
             volumeEditor.suffix.text = "m3";
-            volumeEditor.Max = tank.TotalVolume;
+            volumeEditor.Max = tank.Manager.TotalVolume;
             volumeEditor.SetStep(volumeEditor.Max / 10);
             volumeEditor.SetValueWithoutNotify(tank.Volume);
             volumeEditor.onValueChanged.AddListener(changeTankVolume);
@@ -167,7 +164,7 @@ namespace CC.UI
             if(tank == null)
                 return;
             volumeEditor.suffix.text = "u";
-            volumeEditor.Max = tank.TotalVolume * tank.UnitsPerVolume * tank.UsefulVolumeRatio;
+            volumeEditor.Max = tank.Manager.TotalVolume * tank.UnitsPerVolume * tank.UsefulVolumeRatio;
             volumeEditor.SetStep(volumeEditor.Max / 10);
             volumeEditor.SetValueWithoutNotify(tank.MaxAmount);
             volumeEditor.onValueChanged.AddListener(changeTankMaxAmount);
@@ -186,7 +183,10 @@ namespace CC.UI
             if(tank == null)
                 return;
             volumeEditor.suffix.text = "t";
-            volumeEditor.Max = tank.TotalVolume * tank.UnitsPerVolume * tank.UsefulVolumeRatio * tank.Density;
+            volumeEditor.Max = tank.Manager.TotalVolume
+                               * tank.UnitsPerVolume
+                               * tank.UsefulVolumeRatio
+                               * tank.Density;
             volumeEditor.SetStep(volumeEditor.Max / 10);
             volumeEditor.SetValueWithoutNotify(tank.MaxAmount * tank.Density);
             volumeEditor.onValueChanged.AddListener(changeTankMaxMass);
@@ -220,7 +220,7 @@ namespace CC.UI
         {
             if(tank == null)
                 return;
-            tank.ChangeTankType(tank.AllTankTypeNames[index]);
+            tank.ChangeTankType(tank.Manager.AllTankTypeNames[index]);
             UpdateDisplay();
         }
 
