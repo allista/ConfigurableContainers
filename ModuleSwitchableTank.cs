@@ -392,15 +392,13 @@ namespace AT_Utils
                 return true;
             if(HighLogic.LoadedSceneIsEditor)
                 Resource.amount = 0;
+            if(Resource.amount > 0)
             {
-                if(Resource.amount > 0)
-                {
-                    Utils.Message("Tank is in use");
-                    CurrentResource = Resource.resourceName;
-                    if(tank_type != null)
-                        TankType = tank_type.name;
-                    return false;
-                }
+                Utils.Message("Tank is in use");
+                CurrentResource = Resource.resourceName;
+                if(tank_type != null)
+                    TankType = tank_type.name;
+                return false;
             }
             part.RemoveResource(Resource.resourceName);
             current_resource_name = string.Empty;
