@@ -738,7 +738,7 @@ namespace AT_Utils
             if(ModuleSaveFromPrefab && scale.Equals(1) && !abs_scale.Equals(1))
                 scale = abs_scale;
             if(!scale.Equals(1))
-                SetVolume(Volume * scale * scale * scale);
+                SetVolume(Volume * scale * scale * scale, HighLogic.LoadedSceneIsEditor);
         }
 
         [UsedImplicitly]
