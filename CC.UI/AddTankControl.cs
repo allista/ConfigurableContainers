@@ -83,7 +83,7 @@ namespace CC.UI
 
         private void updateTankTypes()
         {
-            tankTypeDropdown.options = UI_Utils.namesToOptions(tankManager.AllTankTypeNames);
+            tankTypeDropdown.options = UI_Utils.namesToOptions(tankManager.SupportedTypes);
         }
 
         private void setMaxVolume() => setVolume(1, true);
@@ -156,12 +156,13 @@ namespace CC.UI
         {
             if(!float.TryParse(volumeField.text, out var tankVolume))
                 return;
-            var tankType = tankManager.AllTankTypeNames[tankTypeDropdown.value];
+            var tankType = tankManager.SupportedTypes[tankTypeDropdown.value];
             if(currentUnits == VolumeUnits.PARTS)
-                tankVolume = Mathf.Clamp(tankManager.TotalVolume * tankVolume / 100,
+                tankVolume = Mathf.Clamp(tankManager.Volume * tankVolume / 100,
                     0,
                     tankManager.AvailableVolume);
-            tankManager.AddTank(tankType, tankVolume);
+            if(!tankManager.AddTank(tankType, tankVolume))
+                return;
             volumeField.SetTextWithoutNotify("");
             addButton.SetInteractable(false);
             managerUI.UpdateDisplay();

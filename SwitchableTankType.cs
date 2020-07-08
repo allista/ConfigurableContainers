@@ -126,15 +126,15 @@ namespace AT_Utils
             return volume * AddMassPerVolume;
         }
 
-        public float UsefulVolume(float volume)
+        public float GetEffectiveVolumeRatio()
         {
             var useful_volume = UsefulVolumeRatio;
             if(Boiloff || Cooling)
                 useful_volume -= CryogenicsParams.Instance.InsulationVolumeFraction;
-            if(useful_volume < 0)
-                return 0;
-            return volume * useful_volume;
+            return useful_volume < 0 ? 0 : useful_volume;
         }
+
+        public float UsefulVolume(float volume) => volume * GetEffectiveVolumeRatio();
 
         public override void Load(ConfigNode node)
         {
@@ -260,14 +260,17 @@ namespace AT_Utils
     public class TankResource : ResourceWrapper<TankResource>
     {
         public float UnitsPerLiter { get; private set; }
+        public float UnitsPerVolume { get; private set; }
 
         public PartResourceDefinition def => PartResourceLibrary.Instance.GetDefinition(Name);
 
         public override void LoadDefinition(string resource_definition)
         {
             var upl = load_definition(resource_definition);
-            if(Valid)
-                UnitsPerLiter = upl;
+            if(!Valid)
+                return;
+            UnitsPerLiter = upl;
+            UnitsPerVolume = upl * 1000;
         }
     }
 }

@@ -7,6 +7,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using CC.UI;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -17,7 +18,7 @@ namespace AT_Utils
     ///     Such tank may contain only one type of resources, but this type may be switched in-flight,
     ///     if the part has zero amount of the current resource.
     /// </summary>
-    public class ModuleSwitchableTank : AbstractResourceTank
+    public class ModuleSwitchableTank : AbstractResourceTank, ITankInfo
     {
         private const string RES_MANAGED = "Res";
         private const string RES_UNMANAGED = "N/A";
@@ -56,9 +57,11 @@ namespace AT_Utils
         /// <summary>
         ///     The name of a currently selected resource. Can be changed in flight if resource amount is zero.
         /// </summary>
-        [KSPField(isPersistant = true, guiActive = true, guiActiveEditor = true, guiName = RES_MANAGED)]
         [UI_ChooseOption]
+        [KSPField(isPersistant = true, guiActive = true, guiActiveEditor = true, guiName = RES_MANAGED)]
         public string CurrentResource = string.Empty;
+
+        string ITankInfo.CurrentResource => CurrentResource;
 
         [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling Cost")]
         public string EcDisplay = "0";
@@ -95,6 +98,8 @@ namespace AT_Utils
 
         private TankResource resource_info;
         public List<string> SupportedTypes = new List<string>();
+        IList<string> ITankInfo.SupportedTypes => SupportedTypes;
+
 
         private SwitchableTankType tank_type;
 
@@ -104,6 +109,12 @@ namespace AT_Utils
         [KSPField(isPersistant = true, guiActiveEditor = true, guiName = "Type")]
         [UI_ChooseOption(scene = UI_Scene.Editor)]
         public string TankType;
+
+        string ITankInfo.TankType => TankType;
+        public IList<string> SupportedResources => tank_type?.ResourceNames ?? new List<string>();
+
+        public SwitchableTankManager manager;
+        public ITankManager Manager => manager;
 
         public bool EnablePartControls
         {
@@ -133,9 +144,11 @@ namespace AT_Utils
 
         public PartResource Resource { get; private set; }
         public float Usage => Resource != null ? (float)(Resource.amount / Resource.maxAmount) : 0;
+        public float ResourceDensity => Resource != null ? Resource.info.density : 0;
         public float ResourceMass => Resource != null ? (float)(Resource.amount * Resource.info.density) : 0;
         public float ResourceMaxMass => Resource != null ? (float)(Resource.maxAmount * Resource.info.density) : 0;
         public string ResourceInUse => Resource != null ? Resource.resourceName : string.Empty;
+        float ITankInfo.Volume => Volume;
 
         public double Amount
         {
@@ -157,10 +170,22 @@ namespace AT_Utils
             }
         }
 
-        public float MaxResourceInVolume =>
+        public float MaxResourceInVolume => ResourceAmountInVolume(Volume);
+
+        public float ResourceAmountInVolume(float volume) =>
             tank_type == null || resource_info == null
                 ? 0
-                : tank_type.UsefulVolume(Volume) * resource_info.UnitsPerLiter * 1000f;
+                : tank_type.UsefulVolume(volume) * resource_info.UnitsPerVolume;
+
+        public float VolumeForResourceAmount(float amount)
+        {
+            if(tank_type == null || resource_info == null)
+                return 0;
+            var effectiveVolumeRatio = tank_type.GetEffectiveVolumeRatio();
+            return effectiveVolumeRatio > 0
+                ? amount / resource_info.UnitsPerVolume / effectiveVolumeRatio
+                : float.PositiveInfinity;
+        }
 
         public override string GetInfo()
         {
@@ -255,6 +280,8 @@ namespace AT_Utils
             init_tank_type();
             init_resource();
             init_res_control();
+            Fields[nameof(TankType)].OnValueModified += onTankTypeChange;
+            Fields[nameof(CurrentResource)].OnValueModified += onCurrentResourceChange;
             StartCoroutine(slow_update());
         }
 
@@ -429,20 +456,20 @@ namespace AT_Utils
 
         private void init_res_control()
         {
+            var f = Fields[nameof(CurrentResource)];
             if(tank_type == null || !enable_part_controls || tank_type.Resources.Count <= 1)
             {
-                Utils.EnableField(Fields["CurrentResource"], false);
+                Utils.EnableField(f, false);
             }
             else
             {
                 var res_values = tank_type.ResourceNames.ToArray();
                 var res_names = tank_type.ResourceNames.Select(Utils.ParseCamelCase).ToArray();
-                Utils.SetupChooser(res_names, res_values, Fields["CurrentResource"]);
-                Utils.EnableField(Fields["CurrentResource"]);
+                Utils.SetupChooser(res_names, res_values, Fields[nameof(CurrentResource)]);
+                Utils.EnableField(f);
             }
             update_boiloff_control();
-            if(part.started)
-                part.UpdatePartMenu();
+            part.UpdatePartMenu();
         }
 
         private void update_res_control()
@@ -507,10 +534,9 @@ namespace AT_Utils
             }
             //setup new tank type
             tank_type = null;
-            if(!init_tank_type() || !switch_resource())
-                return false;
+            var result = init_tank_type() && switch_resource();
             init_res_control();
-            return true;
+            return result;
         }
 
         /// <summary>
@@ -549,9 +575,41 @@ namespace AT_Utils
         /// <param name="update_amount">If set to <c>true</c> also updates amount.</param>
         public void SetVolume(float volume, bool update_amount = false)
         {
+            if(volume < 0)
+                volume = 0;
+            manager?.ClampNewVolume(Volume, ref volume);
             Volume = volume;
             UpdateMaxAmount(update_amount);
             boiloff?.UpdateInsulation();
+            manager?.InvalidateCaches();
+        }
+
+        /// <summary>
+        /// Change current tank type
+        /// </summary>
+        /// <param name="tankTypeName">The name of the new TankType.</param>
+        public void ChangeTankType(string tankTypeName)
+        {
+            Fields[nameof(TankType)].SetValue(tankTypeName, this);
+        }
+
+        /// <summary>
+        /// Change current resource
+        /// </summary>
+        /// <param name="resourceName">The name of the new Resource.</param>
+        public void ChangeResource(string resourceName)
+        {
+            Fields[nameof(CurrentResource)].SetValue(resourceName, this);
+        }
+
+        /// <summary>
+        /// Set current amount of the Resource, subject to clamping at Resource.maxAmount.
+        /// This a part of ITankInfo implementation.
+        /// </summary>
+        /// <param name="newAmount">New amount of the current Resource.</param>
+        public void SetAmount(float newAmount)
+        {
+            Amount = newAmount;
         }
 
         /// <summary>
@@ -704,30 +762,36 @@ namespace AT_Utils
         }
 #endif
 
+        private void onCurrentResourceChange(object value)
+        {
+            if(CurrentResource == previous_resource)
+                return;
+            switch_resource();
+            update_res_control();
+        }
+
+        private void onTankTypeChange(object value)
+        {
+            if(HighLogic.LoadedSceneIsEditor)
+            {
+                if(tank_type == null || tank_type.name != TankType)
+                    change_tank_type();
+                if(boiloff != null && boiloff.Valid)
+                    BoiloffDisplay = $"~{Utils.formatSmallValue((float)boiloff.BoiloffAt300K * 3600, "u/h")}";
+                if(cooler != null && boiloff != null && boiloff.Valid)
+                    EcDisplay = $"~{Utils.formatSmallValue((float)cooler.PowerConsumptionAt300K, "Ec/s")}";
+            }
+            else if(tank_type != null && tank_type.name != TankType)
+            {
+                Utils.Message("Cannot change the type of the already constructed tank");
+                TankType = tank_type.name;
+            }
+        }
+
         private IEnumerator<YieldInstruction> slow_update()
         {
             while(true)
             {
-                if(HighLogic.LoadedSceneIsEditor)
-                {
-                    if(tank_type == null || tank_type.name != TankType)
-                        change_tank_type();
-                    if(boiloff != null && boiloff.Valid)
-                        BoiloffDisplay = $"~{Utils.formatSmallValue((float)boiloff.BoiloffAt300K * 3600, "u/h")}";
-                    if(cooler != null && boiloff != null && boiloff.Valid)
-                        EcDisplay = $"~{Utils.formatSmallValue((float)cooler.PowerConsumptionAt300K, "Ec/s")}";
-                }
-                else if(tank_type != null && tank_type.name != TankType)
-                {
-                    Utils.Message("Cannot change the type of the already constructed tank");
-                    TankType = tank_type.name;
-                }
-                if(CurrentResource != previous_resource)
-                {
-                    switch_resource();
-                    update_res_control();
-                }
-
                 if(HighLogic.LoadedSceneIsFlight)
                 {
                     //temperature display

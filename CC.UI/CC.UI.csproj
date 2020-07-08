@@ -65,6 +65,8 @@
     <ItemGroup>
       <Compile Include="AddTankControl.cs" />
       <Compile Include="AssemblyInfo.cs" />
+      <Compile Include="Interfaces\ITankInfo.cs" />
+      <Compile Include="Interfaces\ITankManager.cs" />
       <Compile Include="TankControlsUI.cs" />
       <Compile Include="TankManagerUI.cs" />
       <Compile Include="TestTankInfo.cs" />

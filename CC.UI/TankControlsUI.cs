@@ -1,31 +1,9 @@
-using System.Collections.Generic;
 using AT_Utils.UI;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace CC.UI
 {
-    public interface ITankInfo
-    {
-        ITankManager Manager { get; }
-        string TankTypeName { get; }
-
-        IList<string> AllResourceNames { get; }
-        string ResourceName { get; }
-        float UsefulVolumeRatio { get; }
-
-        float Volume { get; }
-
-        float MaxAmount { get; }
-        float Amount { get; }
-        float UnitsPerVolume { get; }
-        float Density { get; }
-
-        void SetVolume(float newVolume);
-        void ChangeTankType(string tankTypeName);
-        void ChangeResource(string resourceName);
-        void SetAmount(float newAmount);
-    }
-
     public class TankControlsUI : TankManagerUIPart
     {
         public Button
@@ -54,46 +32,46 @@ namespace CC.UI
         public FloatController
             volumeEditor;
 
-        private ITankInfo tank;
-        public ITankInfo Tank => tank;
+        public ITankInfo Tank { get; private set; }
 
         public void SetTank(ITankInfo newTank)
         {
-            tank = newTank;
-            if(tank == null)
+            Tank = newTank;
+            if(Tank == null)
                 return;
             UpdateDisplay();
         }
 
         public void UpdateDisplay()
         {
-            resourceVolume.text = FormatUtils.formatVolume(tank.Volume);
-            resourceMaxAmount.text = FormatUtils.formatBigValue(tank.MaxAmount, "u");
-            resourceAmount.text = FormatUtils.formatBigValue(tank.Amount, "u");
-            if(tank.Density > 0)
+            resourceVolume.text = FormatUtils.formatVolume(Tank.Volume);
+            resourceMaxAmount.text = FormatUtils.formatBigValue((float)Tank.MaxAmount, "u");
+            resourceAmount.text = FormatUtils.formatBigValue((float)Tank.Amount, "u");
+            if(Tank.ResourceDensity > 0)
             {
-                resourceMaxMass.gameObject.SetActive(true);
+                editMaxMassButton.gameObject.SetActive(true);
                 resourceMass.gameObject.SetActive(true);
-                resourceMaxMass.text = FormatUtils.formatBigValue(tank.MaxAmount * tank.Density, "t");
-                resourceMass.text = FormatUtils.formatBigValue(tank.Amount * tank.Density, "t");
+                resourceMaxMass.text = FormatUtils.formatMass((float)(Tank.MaxAmount * Tank.ResourceDensity));
+                resourceMass.text = FormatUtils.formatMass((float)(Tank.Amount * Tank.ResourceDensity));
             }
             else
             {
-                resourceMaxMass.gameObject.SetActive(false);
+                editMaxMassButton.gameObject.SetActive(false);
                 resourceMass.gameObject.SetActive(false);
             }
-            tankFullness.text = (tank.Amount / tank.MaxAmount).ToString("P1");
-            tankTypeDropdown.options = UI_Utils.namesToOptions(tank.Manager.AllTankTypeNames);
-            resourceDropdown.options = UI_Utils.namesToOptions(tank.AllResourceNames);
-            tankTypeDropdown.SetValueWithoutNotify(tank.Manager.AllTankTypeNames.IndexOf(tank.TankTypeName));
-            resourceDropdown.SetValueWithoutNotify(tank.AllResourceNames.IndexOf(tank.ResourceName));
+            tankFullness.text = (Tank.Amount / Tank.MaxAmount).ToString("P1");
+            tankTypeDropdown.options = UI_Utils.namesToOptions(Tank.SupportedTypes);
+            resourceDropdown.options = UI_Utils.namesToOptions(Tank.SupportedResources);
+            if(!string.IsNullOrEmpty(Tank.TankType))
+                tankTypeDropdown.SetValueWithoutNotify(Tank.SupportedTypes.IndexOf(Tank.TankType));
+            if(!string.IsNullOrEmpty(Tank.CurrentResource))
+                resourceDropdown.SetValueWithoutNotify(Tank.SupportedResources.IndexOf(Tank.CurrentResource));
         }
 
         private void Awake()
         {
             volumeDisplay.SetActive(true);
             volumeEditor.SetActive(false);
-            volumeEditor.doneButton.onClick.AddListener(hideEditor);
             editVolumeButton.onClick.AddListener(showVolumeEditor);
             editMaxAmountButton.onClick.AddListener(showMaxAmountEditor);
             editMaxMassButton.onClick.AddListener(showMaxMassEditor);
@@ -106,7 +84,6 @@ namespace CC.UI
 
         private void OnDestroy()
         {
-            volumeEditor.doneButton.onClick.RemoveAllListeners();
             editVolumeButton.onClick.RemoveAllListeners();
             editMaxAmountButton.onClick.RemoveAllListeners();
             editMaxMassButton.onClick.RemoveAllListeners();
@@ -119,7 +96,8 @@ namespace CC.UI
 
         private void deleteSelf()
         {
-            tank.Manager.RemoveTank(tank);
+            if(!Tank.Manager.RemoveTank(Tank))
+                return;
             if(managerUI != null)
                 managerUI.UpdateDisplay();
             else
@@ -128,107 +106,110 @@ namespace CC.UI
 
         private void hideEditor()
         {
-            volumeEditor.onValueChanged.RemoveAllListeners();
+            volumeEditor.onDoneEditing.RemoveAllListeners();
             volumeEditor.SetActive(false);
             volumeDisplay.SetActive(true);
         }
 
-        private void showEditor()
+        private void showEditor(string units, float value, float max, UnityAction<float> onDone)
         {
+            volumeEditor.suffix.text = units;
+            volumeEditor.Max = max;
+            volumeEditor.SetStep(volumeEditor.Max / 10);
+            volumeEditor.SetValueWithoutNotify(value);
+            volumeEditor.onDoneEditing.AddListener(onDone);
             volumeDisplay.SetActive(false);
             volumeEditor.SetActive(true);
         }
 
         private void showVolumeEditor()
         {
-            if(tank == null)
+            if(Tank == null)
                 return;
-            volumeEditor.suffix.text = "m3";
-            volumeEditor.Max = tank.Manager.TotalVolume;
-            volumeEditor.SetStep(volumeEditor.Max / 10);
-            volumeEditor.SetValueWithoutNotify(tank.Volume);
-            volumeEditor.onValueChanged.AddListener(changeTankVolume);
-            showEditor();
+            showEditor(
+                "m3",
+                Tank.Volume,
+                Tank.Volume + Tank.Manager.AvailableVolume,
+                changeTankVolume
+            );
         }
 
         private void changeTankVolume(float newVolume)
         {
-            if(tank == null)
+            if(Tank == null)
                 return;
-            tank.SetVolume(newVolume);
+            Tank.SetVolume(newVolume, true);
+            hideEditor();
             UpdateDisplay();
         }
 
         private void showMaxAmountEditor()
         {
-            if(tank == null)
+            if(Tank == null)
                 return;
-            volumeEditor.suffix.text = "u";
-            volumeEditor.Max = tank.Manager.TotalVolume * tank.UnitsPerVolume * tank.UsefulVolumeRatio;
-            volumeEditor.SetStep(volumeEditor.Max / 10);
-            volumeEditor.SetValueWithoutNotify(tank.MaxAmount);
-            volumeEditor.onValueChanged.AddListener(changeTankMaxAmount);
-            showEditor();
+            showEditor(
+                "u",
+                (float)Tank.MaxAmount,
+                Tank.ResourceAmountInVolume(Tank.Volume + Tank.Manager.AvailableVolume),
+                changeTankMaxAmount
+            );
         }
 
         private void changeTankMaxAmount(float newMaxAmount)
         {
-            if(tank == null)
+            if(Tank == null)
                 return;
-            changeTankVolume(newMaxAmount / tank.UnitsPerVolume / tank.UsefulVolumeRatio);
+            changeTankVolume(Tank.VolumeForResourceAmount(newMaxAmount));
         }
 
         private void showMaxMassEditor()
         {
-            if(tank == null)
+            if(Tank == null)
                 return;
-            volumeEditor.suffix.text = "t";
-            volumeEditor.Max = tank.Manager.TotalVolume
-                               * tank.UnitsPerVolume
-                               * tank.UsefulVolumeRatio
-                               * tank.Density;
-            volumeEditor.SetStep(volumeEditor.Max / 10);
-            volumeEditor.SetValueWithoutNotify(tank.MaxAmount * tank.Density);
-            volumeEditor.onValueChanged.AddListener(changeTankMaxMass);
-            showEditor();
+            showEditor(
+                "t",
+                (float)(Tank.MaxAmount * Tank.ResourceDensity),
+                Tank.ResourceAmountInVolume(Tank.Volume + Tank.Manager.AvailableVolume) * Tank.ResourceDensity,
+                changeTankMaxMass
+            );
         }
 
         private void changeTankMaxMass(float newMaxMass)
         {
-            if(tank == null)
+            if(Tank == null)
                 return;
-            changeTankMaxAmount(newMaxMass / tank.Density);
+            changeTankMaxAmount(newMaxMass / Tank.ResourceDensity);
         }
 
         private void fillTank()
         {
-            if(tank == null)
+            if(Tank == null)
                 return;
-            tank.SetAmount(tank.MaxAmount);
+            Tank.SetAmount((float)Tank.MaxAmount);
             UpdateDisplay();
         }
 
         private void emptyTank()
         {
-            if(tank == null)
+            if(Tank == null)
                 return;
-            tank.SetAmount(0);
+            Tank.SetAmount(0);
             UpdateDisplay();
         }
 
         private void changeTankType(int index)
         {
-            if(tank == null)
+            if(Tank == null)
                 return;
-            tank.ChangeTankType(tank.Manager.AllTankTypeNames[index]);
+            Tank.ChangeTankType(Tank.Manager.SupportedTypes[index]);
             UpdateDisplay();
         }
 
         private void changeResource(int index)
         {
-            if(tank == null)
+            if(Tank == null)
                 return;
-            tank.ChangeResource(tank.AllResourceNames[index]);
+            Tank.ChangeResource(Tank.SupportedResources[index]);
             UpdateDisplay();
         }
     }

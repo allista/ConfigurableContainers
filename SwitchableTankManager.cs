@@ -8,23 +8,39 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CC.UI;
 using UnityEngine;
 
 namespace AT_Utils
 {
-    public interface ITankManager
+    public interface ITankManagerHost
     {
         SwitchableTankManager GetTankManager();
     }
 
-    public partial class SwitchableTankManager : ConfigNodeObject
+    public partial class SwitchableTankManager : ConfigNodeObject, ITankManager
     {
         public new const string NODE_NAME = "TANKMANAGER";
         public const string MANAGED = "MANAGED";
         private readonly PartModule host;
 
         private readonly Part part;
-        private readonly List<TankWrapper> tanks = new List<TankWrapper>();
+        private readonly List<ModuleSwitchableTank> tanks = new List<ModuleSwitchableTank>();
+        public IReadOnlyCollection<ModuleSwitchableTank> Tanks => tanks;
+        IReadOnlyCollection<ITankInfo> ITankManager.Tanks => tanks;
+
+        public readonly SwitchableTankManagerUI UI;
+
+        public delegate void TankAction(ModuleSwitchableTank tank);
+
+        public delegate void TankFailedAction(string tankType, float volume);
+
+        public delegate string TankValidator(string tankType, float volume);
+
+        public TankValidator onValidateNewTank = delegate { return null; };
+        public TankAction onTankAdded = delegate { };
+        public TankAction onTankRemoved = delegate { };
+        public TankFailedAction onTankFailedToAdd = delegate { };
 
         /// <summary>
         ///     If true, tanks may be added and removed.
@@ -53,6 +69,7 @@ namespace AT_Utils
         private int max_id = -1;
 
         public List<string> SupportedTypes = new List<string>();
+        IList<string> ITankManager.SupportedTypes => SupportedTypes;
 
         private float total_volume = -1;
 
@@ -67,10 +84,29 @@ namespace AT_Utils
         /// </summary>
         public float Volume = -1;
 
-        public SwitchableTankManager(PartModule host)
+        float ITankManager.Volume => Volume;
+
+        private float availableVolume = -1;
+        private float availableVolumePercent = -1;
+
+        public float AvailableVolume
         {
-            part = host.part;
-            this.host = host;
+            get
+            {
+                if(availableVolume < 0)
+                    availableVolume = Volume - TanksVolume;
+                return availableVolume;
+            }
+        }
+
+        public float AvailableVolumePercent
+        {
+            get
+            {
+                if(availableVolumePercent < 0)
+                    availableVolumePercent = AvailableVolume / Volume;
+                return availableVolume;
+            }
         }
 
         public bool EnablePartControls
@@ -81,32 +117,55 @@ namespace AT_Utils
                 if(value == enable_part_controls)
                     return;
                 enable_part_controls = value;
-                tanks.ForEach(t => t.Tank.EnablePartControls = enable_part_controls);
+                tanks.ForEach(t => t.EnablePartControls = enable_part_controls);
             }
         }
 
-        public IEnumerable<ModuleSwitchableTank> Tanks { get { return tanks.Select(t => t.Tank); } }
         public int TanksCount => tanks.Count;
-        public float TotalCost => tanks.Aggregate(0f, (c, t) => c + t.Tank.Cost);
+        public float TotalCost => tanks.Aggregate(0f, (c, t) => c + t.Cost);
 
-        public float TotalVolume
+        public string Title => part.Title();
+
+        public float TanksVolume
         {
             get
             {
                 if(total_volume < 0)
-                    total_volume = tanks.Aggregate(0f, (v, t) => v + t.Tank.Volume);
+                    total_volume = tanks.Aggregate(0f, (v, t) => v + t.Volume);
                 return total_volume;
             }
         }
 
-        public ModuleSwitchableTank GetTank(int id)
+        public SwitchableTankManager(PartModule host)
         {
-            return tanks.Find(t => t.Tank.id == id);
+            part = host.part;
+            this.host = host;
+            UI = new SwitchableTankManagerUI(this);
         }
 
-        public void ForceUpdateTotalVolume()
+        ~SwitchableTankManager()
+        {
+            UI?.Close();
+        }
+
+        public ModuleSwitchableTank GetTank(int id)
+        {
+            return tanks.Find(t => t.id == id);
+        }
+
+        public void InvalidateCaches()
         {
             total_volume = -1;
+            availableVolume = -1;
+            availableVolumePercent = -1;
+        }
+
+        public void ClampNewVolume(float oldVolume, ref float newVolume)
+        {
+            if(oldVolume > newVolume)
+                return;
+            if(newVolume - oldVolume > AvailableVolume)
+                newVolume = oldVolume + AvailableVolume;
         }
 
         public static string GetInfo(PartModule host, ConfigNode node)
@@ -134,8 +193,6 @@ namespace AT_Utils
             include = Utils.ParseLine(IncludeTankTypes, Utils.Comma);
             SupportedTypes = SwitchableTankType.TankTypeNames(include, exclude);
             SupportedTypes.AddRange(VolumeConfigsLibrary.AllConfigNames(include, exclude));
-            if(SupportedTypes.Count > 0)
-                selected_tank_type = SupportedTypes[0];
         }
 
         public override void Save(ConfigNode node)
@@ -143,7 +200,7 @@ namespace AT_Utils
             base.Save(node);
             if(tanks.Count == 0)
                 return;
-            tanks.ForEach(t => t.Tank.Save(node.AddNode(TankVolume.NODE_NAME)));
+            tanks.ForEach(t => t.Save(node.AddNode(TankVolume.NODE_NAME)));
             node.AddValue(MANAGED, true);
         }
 
@@ -178,14 +235,14 @@ namespace AT_Utils
                     if(tank != null)
                     {
                         tank.EnablePartControls = EnablePartControls;
-                        tanks.Add(new TankWrapper(tank, this));
+                        tanks.Add(tank);
                     }
                     else
                     {
                         Utils.Error("SwitchableTankManager: unable to load module from config:\n{}", n);
                     }
                 }
-                tanks.ForEach(t => t.Tank.OnStart(part.GetModuleStartState()));
+                tanks.ForEach(t => t.OnStart(part.GetModuleStartState()));
             }
             else if(node.HasValue("Volume"))
             {
@@ -193,7 +250,7 @@ namespace AT_Utils
                 var add_remove = AddRemoveEnabled;
                 AddRemoveEnabled = true;
                 Utils.Debug("Loading tank manager config: {}", cfg); //debug
-                AddConfiguration(cfg, cfg.Volume, false);
+                AddConfiguration(cfg, cfg.Volume, false, false, true);
                 AddRemoveEnabled = add_remove;
             }
         }
@@ -202,45 +259,80 @@ namespace AT_Utils
         ///     Adds a tank of the provided type and value to the part, if possible.
         /// </summary>
         /// <returns><c>true</c>, if tank was added, <c>false</c> otherwise.</returns>
-        /// <param name="tank_type">Tank type.</param>
+        /// <param name="tankType">Tank type.</param>
         /// <param name="volume">Tank volume.</param>
         /// <param name="resource">Current resource name.</param>
         /// <param name="amount">Initial amount of a resource in the tank: [0, 1]</param>
         /// <param name="update_counterparts">If counterparts are to be updated.</param>
-        public bool AddTank(
-            string tank_type,
+        /// <param name="notify">If onTankAdded action should be invoked.</param>
+        /// <param name="force">Force tank creation. No checks for AddRemoveEnabled
+        /// or onValidateNewTank are made.</param>
+        private bool AddTank(
+            string tankType,
             float volume,
-            string resource = "",
-            float amount = 0,
-            bool update_counterparts = true
+            string resource,
+            float amount,
+            bool update_counterparts,
+            bool notify,
+            bool force
         )
         {
-            if(!AddRemoveEnabled)
-                return false;
-            if(!SwitchableTankType.HaveTankType(tank_type))
+            if(!SwitchableTankType.HaveTankType(tankType))
             {
-                Utils.Error("SwitchableTankManager: no such tank type: {}", tank_type);
+                Utils.Error($"SwitchableTankManager: no such tank type: {tankType}");
                 return false;
+            }
+            if(!force)
+            {
+                if(!AddRemoveEnabled)
+                    return false;
+                foreach(var validateTank in onValidateNewTank.GetInvocationList().Cast<TankValidator>())
+                {
+                    var error = validateTank(tankType, volume);
+                    if(string.IsNullOrEmpty(error))
+                        continue;
+                    Utils.Message(error);
+                    return false;
+                }
             }
             var tank = part.AddModule(nameof(ModuleSwitchableTank)) as ModuleSwitchableTank;
             if(tank == null)
+            {
+                if(notify)
+                    onTankFailedToAdd(tankType, volume);
                 return false;
+            }
             tank.id = ++max_id;
             tank.managed = true;
+            tank.manager = this;
             tank.Volume = volume;
-            tank.TankType = tank_type;
+            tank.TankType = tankType;
             tank.EnablePartControls = EnablePartControls;
             tank.IncludeTankTypes = IncludeTankTypes;
             tank.ExcludeTankTypes = ExcludeTankTypes;
             tank.InitialAmount = HighLogic.LoadedSceneIsEditor ? Mathf.Clamp01(amount) : 0;
             if(!string.IsNullOrEmpty(resource))
                 tank.CurrentResource = resource;
-            tank.OnStart(part.GetModuleStartState());
-            tanks.ForEach(t => t.Tank.RegisterOtherTank(tank));
-            tanks.Add(new TankWrapper(tank, this));
+            try
+            {
+                tank.OnStart(part.GetModuleStartState());
+                tanks.ForEach(t => t.RegisterOtherTank(tank));
+            }
+            catch
+            {
+                host.Error($"Unable to initialize {tank.GetID()}: {tankType} : {volume} m3 : res '{resource}'");
+                if(notify)
+                    onTankFailedToAdd(tankType, volume);
+                return false;
+            }
+            tanks.Add(tank);
             total_volume = -1;
+            availableVolume = -1;
+            availableVolumePercent = -1;
+            if(notify)
+                onTankAdded(tank);
             if(update_counterparts)
-                update_symmetry_managers(m => m.AddTank(tank_type, volume, resource, amount, false));
+                update_symmetry_managers(m => m.AddTank(tankType, volume, resource, amount, false, notify, force));
             return true;
         }
 
@@ -251,7 +343,15 @@ namespace AT_Utils
         /// <param name="cfg">Predefined configuration of tanks.</param>
         /// <param name="volume">Total volume of the configuration.</param>
         /// <param name="update_counterparts">If counterparts are to be updated.</param>
-        public bool AddConfiguration(VolumeConfiguration cfg, float volume, bool update_counterparts = true)
+        /// <param name="notify">If onTankAdded action should be invoked.</param>
+        /// <param name="force">Force creation of the tanks.</param>
+        private bool AddConfiguration(
+            VolumeConfiguration cfg,
+            float volume,
+            bool update_counterparts,
+            bool notify,
+            bool force
+        )
         {
             if(!AddRemoveEnabled || !cfg.Valid)
                 return false;
@@ -264,10 +364,12 @@ namespace AT_Utils
                             volume * v.Volume / V,
                             t.CurrentResource,
                             t.InitialAmount,
-                            update_counterparts);
+                            update_counterparts,
+                            notify,
+                            force);
                         continue;
                     case VolumeConfiguration c:
-                        AddConfiguration(c, volume * v.Volume / V, update_counterparts);
+                        AddConfiguration(c, volume * v.Volume / V, update_counterparts, notify, force);
                         continue;
                 }
             return true;
@@ -286,9 +388,11 @@ namespace AT_Utils
                 return false;
             var cfg = VolumeConfigsLibrary.GetConfig(name);
             return cfg == null
-                ? AddTank(name, volume, update_counterparts: update_counterparts)
-                : AddConfiguration(cfg, volume, update_counterparts);
+                ? AddTank(name, volume, "", 0, update_counterparts, false, false)
+                : AddConfiguration(cfg, volume, update_counterparts, false, false);
         }
+
+        bool ITankManager.AddTank(string tankType, float volume) => AddVolume(tankType, volume);
 
         /// <summary>
         ///     Removes the tank from the part, if possible. Removed tank is destroyed immediately,
@@ -297,21 +401,58 @@ namespace AT_Utils
         /// <returns><c>true</c>, if tank was removed, <c>false</c> otherwise.</returns>
         /// <param name="tank">Tank to be removed.</param>
         /// <param name="update_counterparts">If counterparts are to be updated.</param>
-        public bool RemoveTank(ModuleSwitchableTank tank, bool update_counterparts = true)
+        /// <param name="notify">If onTankAdded action should be invoked.</param>
+        public bool RemoveTank(ModuleSwitchableTank tank, bool update_counterparts = true, bool notify = true)
         {
             if(!AddRemoveEnabled)
                 return false;
-            var wrapper = tanks.Find(t => t.Tank == tank);
-            if(wrapper == null)
+            if(!tanks.Contains(tank))
                 return false;
             if(!tank.TryRemoveResource())
                 return false;
-            tanks.Remove(wrapper);
-            tanks.ForEach(t => t.Tank.UnregisterOtherTank(tank));
+            tanks.Remove(tank);
+            tanks.ForEach(t => t.UnregisterOtherTank(tank));
             part.RemoveModule(tank);
             total_volume = -1;
+            availableVolume = -1;
+            availableVolumePercent = -1;
+            if(notify)
+                onTankRemoved(tank);
             if(update_counterparts)
-                update_symmetry_managers(m => m.RemoveTank(m.GetTank(tank.id), false));
+                update_symmetry_managers(m => m.RemoveTank(m.GetTank(tank.id), false, notify));
+            part.UpdatePartMenu();
+            return true;
+        }
+
+        bool ITankManager.RemoveTank(ITankInfo tank)
+        {
+            if(tank is ModuleSwitchableTank tankModule)
+                return RemoveTank(tankModule);
+            return false;
+        }
+
+        public bool AddTankConfig(string configName)
+        {
+            var node = new ConfigNode();
+            Save(node);
+            var cfg = FromConfig<VolumeConfiguration>(node);
+            if(cfg.Valid)
+            {
+                cfg.name = configName;
+                cfg.Volume = TanksVolume;
+                VolumeConfigsLibrary.AddOrSave(cfg);
+                init_supported_types();
+                return true;
+            }
+            Utils.Log("Configuration is invalid:\n{}\nThis should never happen!", node);
+            return false;
+        }
+
+        public bool RemoveTankConfig(string configName)
+        {
+            if(!VolumeConfigsLibrary.RemoveConfig(configName))
+                return false;
+            init_supported_types();
             return true;
         }
 
@@ -325,7 +466,7 @@ namespace AT_Utils
         {
             if(relative_scale <= 0)
                 return;
-            tanks.ForEach(t => t.SetVolume(t.Tank.Volume * relative_scale, update_amounts));
+            tanks.ForEach(t => t.SetVolume(t.Volume * relative_scale, update_amounts));
             total_volume = -1;
         }
 
@@ -336,7 +477,7 @@ namespace AT_Utils
             var ind = part.Modules.IndexOf(host);
             foreach(var p in part.symmetryCounterparts)
             {
-                var manager_module = p.Modules.GetModule(ind) as ITankManager;
+                var manager_module = p.Modules.GetModule(ind) as ITankManagerHost;
                 if(manager_module == null)
                 {
                     Utils.Error($"SwitchableTankManager: counterparts should have ITankManager "

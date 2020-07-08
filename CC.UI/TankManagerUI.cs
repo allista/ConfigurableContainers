@@ -5,19 +5,6 @@ using UnityEngine.UI;
 
 namespace CC.UI
 {
-    public interface ITankManager
-    {
-        string Title { get; }
-        IList<string> AllTankTypeNames { get; }
-        float TotalVolume { get; }
-        float AvailableVolume { get; }
-        float AvailableVolumePercent { get; }
-        IList<ITankInfo> Tanks { get; }
-
-        ITankInfo AddTank(string tankType, float volume);
-        bool RemoveTank(ITankInfo tank);
-    }
-
     public class TankManagerUI : ScreenBoundRect
     {
         private ITankManager tankManager;
@@ -27,9 +14,12 @@ namespace CC.UI
         public Button closeButton;
         public RectTransform tanksScroll;
         public GameObject tankControlPrefab;
+        public List<TankControlsUI> tankControls = new List<TankControlsUI>();
 
         public void SetTankManager(ITankManager newTankManager)
         {
+            tankControls.ForEach(t => Destroy(t.gameObject));
+            tankControls.Clear();
             tankManager = newTankManager;
             addTankControl.SetTankManager(tankManager);
             if(tankManager == null)
@@ -41,20 +31,16 @@ namespace CC.UI
         {
             partTitleLabel.text = tankManager.Title;
             volumeLabel.text =
-                $"{FormatUtils.formatVolume(tankManager.AvailableVolume)} / {FormatUtils.formatVolume(tankManager.TotalVolume)}";
+                $"{FormatUtils.formatVolume(tankManager.AvailableVolume)} / {FormatUtils.formatVolume(tankManager.Volume)}";
             updateTankControls();
         }
 
         private void updateTankControls()
         {
-            var existingTanks = new Dictionary<ITankInfo, TankControlsUI>(tanksScroll.childCount);
-            for(var i = tanksScroll.childCount - 1; i >= 0; i--)
+            var existingTanks = new Dictionary<ITankInfo, TankControlsUI>(tankControls.Count);
+            for(var i = tankControls.Count - 1; i >= 0; i--)
             {
-                var child = tanksScroll.GetChild(i);
-                var tankControl = child.GetComponent<TankControlsUI>();
-                if(tankControl == null
-                   || tankControl.Tank == null)
-                    continue;
+                var tankControl = tankControls[i];
                 existingTanks[tankControl.Tank] = tankControl;
             }
             var newTanks = new HashSet<ITankInfo>();
@@ -65,27 +51,38 @@ namespace CC.UI
                     continue;
                 var newTankControlObj = Instantiate(tankControlPrefab, tanksScroll);
                 if(newTankControlObj == null)
+                {
+                    Debug.LogError($"Unable to instantiate prefab: {tankControlPrefab}");
                     continue;
+                }
                 newTankControlObj.transform.SetAsLastSibling();
                 var newTankControl = newTankControlObj.GetComponent<TankControlsUI>();
                 if(newTankControl == null)
+                {
+                    Debug.LogError($"No {nameof(TankControlsUI)} in prefab {tankControlPrefab}");
                     continue;
+                }
                 newTankControl.managerUI = this;
                 newTankControl.SetTank(tank);
+                tankControls.Add(newTankControl);
             }
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach(var tank in existingTanks)
             {
                 if(newTanks.Contains(tank.Key))
                     continue;
+                tankControls.Remove(tank.Value);
                 Destroy(tank.Value.gameObject);
             }
+            tankControls.ForEach(t => t.UpdateDisplay());
         }
 
 #if DEBUG
-        private void Start()
+        protected override void Start()
         {
-            SetTankManager(new TestTankManager());
+            base.Start();
+            if(Application.isEditor)
+                SetTankManager(new TestTankManager());
         }
 #endif
     }

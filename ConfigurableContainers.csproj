@@ -78,13 +78,13 @@
     <ItemGroup>
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="SwitchableTankManager.cs" />
+        <Compile Include="SwitchableTankManagerUI.cs" />
         <Compile Include="SwitchableTankType.cs" />
         <Compile Include="ModuleTankManager.cs" />
         <Compile Include="ModuleSwitchableTank.cs" />
         <Compile Include="VolumeConfiguration.cs" />
         <Compile Include="AbstractResourceTank.cs" />
         <Compile Include="VolumeConfigsLibrary.cs" />
-        <Compile Include="SwitchableTankManagerGUI.cs" />
         <Compile Include="Cryogenics\CryogenicsParams.cs" />
         <Compile Include="Cryogenics\ResourceBoiloff.cs" />
         <Compile Include="Cryogenics\ActiveCooling.cs" />
@@ -99,6 +99,11 @@
         <ProjectReference Include="..\AT_Utils.csproj">
             <Project>{64CC36A2-0610-4F74-9F31-3D4E22866B7E}</Project>
             <Name>AT_Utils</Name>
+            <Private>False</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\Unity\AT_Utils.UI.csproj">
+            <Project>{0b711e55-8312-144f-53ad-eda5a8cee04a}</Project>
+            <Name>AT_Utils.UI</Name>
             <Private>False</Private>
         </ProjectReference>
         <ProjectReference Include="CC.UI\CC.UI.csproj">
