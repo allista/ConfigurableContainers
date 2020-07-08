@@ -411,8 +411,8 @@ namespace AT_Utils
             if(!enable_part_controls || !ChooseTankType || SupportedTypes.Count <= 1)
                 return;
             var tank_names = SupportedTypes.Select(Utils.ParseCamelCase).ToArray();
-            Utils.SetupChooser(tank_names, SupportedTypes.ToArray(), Fields["TankType"]);
-            Utils.EnableField(Fields["TankType"]);
+            Utils.SetupChooser(tank_names, SupportedTypes.ToArray(), Fields[nameof(TankType)]);
+            Utils.EnableField(Fields[nameof(TankType)]);
         }
 
         private void update_cooler_control()
@@ -476,15 +476,15 @@ namespace AT_Utils
 
         private void update_res_control()
         {
-            Fields["CurrentResource"].guiName = Resource == null ? RES_UNMANAGED : RES_MANAGED;
+            Fields[nameof(CurrentResource)].guiName = Resource == null ? RES_UNMANAGED : RES_MANAGED;
             update_boiloff_control();
             part.UpdatePartMenu();
         }
 
         private void disable_part_controls()
         {
-            Utils.EnableField(Fields["TankType"], false);
-            Utils.EnableField(Fields["CurrentResource"], false);
+            Utils.EnableField(Fields[nameof(TankType)], false);
+            Utils.EnableField(Fields[nameof(CurrentResource)], false);
         }
 
         private bool init_tank_type()
