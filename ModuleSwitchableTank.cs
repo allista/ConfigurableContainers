@@ -27,6 +27,7 @@ namespace AT_Utils
 
         private ResourceBoiloff boiloff;
 
+        [UsedImplicitly]
         [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Boiloff")]
         public string BoiloffDisplay = "0";
 
@@ -38,6 +39,7 @@ namespace AT_Utils
 
         private ActiveCooling cooler;
 
+        [UsedImplicitly]
         [KSPField(isPersistant = true,
             guiActive = false,
             guiActiveEditor = false,
@@ -45,6 +47,7 @@ namespace AT_Utils
             guiFormat = "P1")]
         public double CoolingDisplay;
 
+        [UsedImplicitly]
         [KSPField(isPersistant = true,
             guiActive = false,
             guiActiveEditor = false,
@@ -63,6 +66,7 @@ namespace AT_Utils
 
         string ITankInfo.CurrentResource => CurrentResource;
 
+        [UsedImplicitly]
         [KSPField(isPersistant = true, guiActive = false, guiActiveEditor = false, guiName = "Cooling Cost")]
         public string EcDisplay = "0";
 
