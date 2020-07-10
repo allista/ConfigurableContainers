@@ -214,8 +214,12 @@ namespace AT_Utils
 
         public override string Info(float volume_conversion = 1)
         {
+            if(!Valid)
+                return $"{name}: configuration invalid";
+            var info = StringBuilderCache.Acquire();
             volume_conversion = Volume * volume_conversion / TotalVolume;
-            return Volumes.Aggregate("", (s, v) => s + v.Info(volume_conversion));
+            Volumes.ForEach(v => info.Append(v.Info(volume_conversion)));
+            return info.ToStringAndRelease();
         }
 
         public override float AddMass(float volume_conversion = 1)
