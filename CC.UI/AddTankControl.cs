@@ -29,6 +29,8 @@ namespace CC.UI
 
         public void SetTankManager(ITankManager newTankManager)
         {
+            if(newTankManager == tankManager)
+                return;
             tankManager = newTankManager;
             if(tankManager == null)
                 return;

@@ -39,6 +39,8 @@ namespace CC.UI
 
         public void SetTank(ITankInfo newTank)
         {
+            if(newTank == tank)
+                return;
             tank = newTank;
             if(tank == null)
                 return;

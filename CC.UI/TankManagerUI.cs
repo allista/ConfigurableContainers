@@ -18,6 +18,8 @@ namespace CC.UI
 
         public void SetTankManager(ITankManager newTankManager)
         {
+            if(newTankManager == tankManager)
+                return;
             tankControls.ForEach(t => Destroy(t.gameObject));
             tankControls.Clear();
             tankManager = newTankManager;
