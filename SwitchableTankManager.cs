@@ -70,6 +70,7 @@ namespace AT_Utils
 
         public List<string> SupportedTypes = new List<string>();
         IList<string> ITankManager.SupportedTypes => SupportedTypes;
+        IList<string> ITankManager.SupportedTankConfigs => VolumeConfigsLibrary.UserConfigs.Keys;
 
         private float total_volume = -1;
 

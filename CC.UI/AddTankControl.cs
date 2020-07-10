@@ -37,7 +37,7 @@ namespace CC.UI
             tankManager = newTankManager;
             if(tankManager == null)
                 return;
-            updateTankTypes();
+            UpdateTankTypes();
         }
 
         private void Awake()
@@ -88,8 +88,10 @@ namespace CC.UI
             unitsLabel.text = unitNames[currentUnits];
         }
 
-        private void updateTankTypes()
+        public void UpdateTankTypes()
         {
+            if(tankManager == null)
+                return;
             tankTypeDropdown.options = UI_Utils.namesToOptions(tankManager.SupportedTypes);
             updateTankTypeDropdownTooltip(tankTypeDropdown.value);
         }

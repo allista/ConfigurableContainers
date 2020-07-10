@@ -10,6 +10,7 @@ namespace CC.UI
     {
         public string Title { get; }
         public IList<string> SupportedTypes { get; }
+        public IList<string> SupportedTankConfigs { get; }
         public float Volume { get; }
         public float AvailableVolume { get; private set; }
         public float AvailableVolumePercent { get; private set; }
@@ -37,17 +38,18 @@ namespace CC.UI
 
         public bool AddTankConfig(string configName)
         {
-            throw new NotImplementedException();
+            if(SupportedTankConfigs.Contains(configName))
+                return false;
+            SupportedTankConfigs.Add(configName);
+            return true;
         }
 
-        public bool RemoveTankConfig(string configName)
-        {
-            throw new NotImplementedException();
-        }
+        public bool RemoveTankConfig(string configName) => SupportedTankConfigs.Remove(configName);
 
         public TestTankManager()
         {
             SupportedTypes = new List<string> { "LiquidChemicals", "Components", "Soil" };
+            SupportedTankConfigs = new List<string> { "LFO", "LoX", "CA" };
             Volume = 15.79089f;
             AvailableVolume = Volume;
             AvailableVolumePercent = 100;

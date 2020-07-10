@@ -6,6 +6,7 @@ namespace CC.UI
     {
         string Title { get; }
         IList<string> SupportedTypes { get; }
+        IList<string> SupportedTankConfigs { get; }
         float Volume { get; }
         float AvailableVolume { get; }
         float AvailableVolumePercent { get; }

@@ -11,6 +11,7 @@ namespace CC.UI
         private ITankManager tankManager;
 
         public AddTankControl addTankControl;
+        public TankConfigsControl tankConfigsControl;
         public Text partTitleLabel, volumeLabel;
         public Button closeButton;
         public RectTransform tanksScroll;
@@ -26,6 +27,7 @@ namespace CC.UI
             tankControls.Clear();
             tankManager = newTankManager;
             addTankControl.SetTankManager(tankManager);
+            tankConfigsControl.SetTankManager(tankManager);
             if(tankManager == null)
                 return;
             UpdateDisplay();
@@ -74,6 +76,7 @@ namespace CC.UI
                 Destroy(tank.Value.gameObject);
                 tankControls.Remove(tank.Key);
             }
+            tankConfigsControl.EnableControls(tankManager.Tanks.Count > 0);
         }
 
 #if DEBUG

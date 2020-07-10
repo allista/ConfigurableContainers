@@ -68,6 +68,7 @@
       <Compile Include="AssemblyInfo.cs" />
       <Compile Include="Interfaces\ITankInfo.cs" />
       <Compile Include="Interfaces\ITankManager.cs" />
+      <Compile Include="TankConfigsControl.cs" />
       <Compile Include="TankControlsUI.cs" />
       <Compile Include="TankManagerUI.cs" />
       <Compile Include="TestTankInfo.cs" />
