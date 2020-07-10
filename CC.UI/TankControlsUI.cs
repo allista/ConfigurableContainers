@@ -34,11 +34,16 @@ namespace CC.UI
 
         private ITankInfo tank;
 
+        private void updateResourcesDropdown() =>
+            resourceDropdown.options = UI_Utils.namesToOptions(tank.SupportedResources);
+
         public void SetTank(ITankInfo newTank)
         {
             tank = newTank;
             if(tank == null)
                 return;
+            tankTypeDropdown.options = UI_Utils.namesToOptions(tank.SupportedTypes);
+            updateResourcesDropdown();
             UpdateDisplay();
         }
 
@@ -60,12 +65,24 @@ namespace CC.UI
                 resourceMass.gameObject.SetActive(false);
             }
             tankFullness.text = (tank.Amount / tank.MaxAmount).ToString("P1");
-            tankTypeDropdown.options = UI_Utils.namesToOptions(tank.SupportedTypes);
-            resourceDropdown.options = UI_Utils.namesToOptions(tank.SupportedResources);
-            if(!string.IsNullOrEmpty(tank.TankType))
+            var resourcesDropdownUpdated = false;
+            if(!string.IsNullOrEmpty(tank.TankType)
+               && (tankTypeDropdown.value >= tank.SupportedTypes.Count
+                   || tank.TankType != tank.SupportedTypes[tankTypeDropdown.value]))
+            {
                 tankTypeDropdown.SetValueWithoutNotify(tank.SupportedTypes.IndexOf(tank.TankType));
-            if(!string.IsNullOrEmpty(tank.CurrentResource))
+                updateResourcesDropdown();
+                resourcesDropdownUpdated = true;
+            }
+            // ReSharper disable once InvertIf
+            if(!string.IsNullOrEmpty(tank.CurrentResource)
+               && (resourceDropdown.value >= tank.SupportedResources.Count
+                   || tank.CurrentResource != tank.SupportedResources[resourceDropdown.value]))
+            {
+                if(!resourcesDropdownUpdated)
+                    updateResourcesDropdown();
                 resourceDropdown.SetValueWithoutNotify(tank.SupportedResources.IndexOf(tank.CurrentResource));
+            }
         }
 
         private void Awake()
@@ -202,6 +219,7 @@ namespace CC.UI
             if(tank == null)
                 return;
             tank.ChangeTankType(tank.Manager.SupportedTypes[index]);
+            updateResourcesDropdown();
             UpdateDisplay();
         }
 
