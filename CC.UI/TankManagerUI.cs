@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AT_Utils.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,13 +15,14 @@ namespace CC.UI
         public Button closeButton;
         public RectTransform tanksScroll;
         public GameObject tankControlPrefab;
-        public List<TankControlsUI> tankControls = new List<TankControlsUI>();
+        public Dictionary<ITankInfo, TankControlsUI> tankControls = new Dictionary<ITankInfo, TankControlsUI>();
 
         public void SetTankManager(ITankManager newTankManager)
         {
             if(newTankManager == tankManager)
                 return;
-            tankControls.ForEach(t => Destroy(t.gameObject));
+            foreach(var t in tankControls.Values)
+                Destroy(t.gameObject);
             tankControls.Clear();
             tankManager = newTankManager;
             addTankControl.SetTankManager(tankManager);
@@ -39,17 +41,11 @@ namespace CC.UI
 
         private void updateTankControls()
         {
-            var existingTanks = new Dictionary<ITankInfo, TankControlsUI>(tankControls.Count);
-            for(var i = tankControls.Count - 1; i >= 0; i--)
-            {
-                var tankControl = tankControls[i];
-                existingTanks[tankControl.Tank] = tankControl;
-            }
             var newTanks = new HashSet<ITankInfo>();
             foreach(var tank in tankManager.Tanks)
             {
                 newTanks.Add(tank);
-                if(existingTanks.ContainsKey(tank))
+                if(tankControls.ContainsKey(tank))
                     continue;
                 var newTankControlObj = Instantiate(tankControlPrefab, tanksScroll);
                 if(newTankControlObj == null)
@@ -66,17 +62,18 @@ namespace CC.UI
                 }
                 newTankControl.managerUI = this;
                 newTankControl.SetTank(tank);
-                tankControls.Add(newTankControl);
+                tankControls.Add(tank, newTankControl);
             }
-            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach(var tank in existingTanks)
+            foreach(var tank in tankControls.ToList())
             {
                 if(newTanks.Contains(tank.Key))
+                {
+                    tank.Value.UpdateDisplay();
                     continue;
-                tankControls.Remove(tank.Value);
+                }
                 Destroy(tank.Value.gameObject);
+                tankControls.Remove(tank.Key);
             }
-            tankControls.ForEach(t => t.UpdateDisplay());
         }
 
 #if DEBUG
