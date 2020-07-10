@@ -32,40 +32,40 @@ namespace CC.UI
         public FloatController
             volumeEditor;
 
-        public ITankInfo Tank { get; private set; }
+        private ITankInfo tank;
 
         public void SetTank(ITankInfo newTank)
         {
-            Tank = newTank;
-            if(Tank == null)
+            tank = newTank;
+            if(tank == null)
                 return;
             UpdateDisplay();
         }
 
         public void UpdateDisplay()
         {
-            resourceVolume.text = FormatUtils.formatVolume(Tank.Volume);
-            resourceMaxAmount.text = FormatUtils.formatBigValue((float)Tank.MaxAmount, "u");
-            resourceAmount.text = FormatUtils.formatBigValue((float)Tank.Amount, "u");
-            if(Tank.ResourceDensity > 0)
+            resourceVolume.text = FormatUtils.formatVolume(tank.Volume);
+            resourceMaxAmount.text = FormatUtils.formatBigValue((float)tank.MaxAmount, "u");
+            resourceAmount.text = FormatUtils.formatBigValue((float)tank.Amount, "u");
+            if(tank.ResourceDensity > 0)
             {
                 editMaxMassButton.gameObject.SetActive(true);
                 resourceMass.gameObject.SetActive(true);
-                resourceMaxMass.text = FormatUtils.formatMass((float)(Tank.MaxAmount * Tank.ResourceDensity));
-                resourceMass.text = FormatUtils.formatMass((float)(Tank.Amount * Tank.ResourceDensity));
+                resourceMaxMass.text = FormatUtils.formatMass((float)(tank.MaxAmount * tank.ResourceDensity));
+                resourceMass.text = FormatUtils.formatMass((float)(tank.Amount * tank.ResourceDensity));
             }
             else
             {
                 editMaxMassButton.gameObject.SetActive(false);
                 resourceMass.gameObject.SetActive(false);
             }
-            tankFullness.text = (Tank.Amount / Tank.MaxAmount).ToString("P1");
-            tankTypeDropdown.options = UI_Utils.namesToOptions(Tank.SupportedTypes);
-            resourceDropdown.options = UI_Utils.namesToOptions(Tank.SupportedResources);
-            if(!string.IsNullOrEmpty(Tank.TankType))
-                tankTypeDropdown.SetValueWithoutNotify(Tank.SupportedTypes.IndexOf(Tank.TankType));
-            if(!string.IsNullOrEmpty(Tank.CurrentResource))
-                resourceDropdown.SetValueWithoutNotify(Tank.SupportedResources.IndexOf(Tank.CurrentResource));
+            tankFullness.text = (tank.Amount / tank.MaxAmount).ToString("P1");
+            tankTypeDropdown.options = UI_Utils.namesToOptions(tank.SupportedTypes);
+            resourceDropdown.options = UI_Utils.namesToOptions(tank.SupportedResources);
+            if(!string.IsNullOrEmpty(tank.TankType))
+                tankTypeDropdown.SetValueWithoutNotify(tank.SupportedTypes.IndexOf(tank.TankType));
+            if(!string.IsNullOrEmpty(tank.CurrentResource))
+                resourceDropdown.SetValueWithoutNotify(tank.SupportedResources.IndexOf(tank.CurrentResource));
         }
 
         private void Awake()
@@ -96,7 +96,7 @@ namespace CC.UI
 
         private void deleteSelf()
         {
-            if(!Tank.Manager.RemoveTank(Tank))
+            if(!tank.Manager.RemoveTank(tank))
                 return;
             if(managerUI != null)
                 managerUI.UpdateDisplay();
@@ -124,92 +124,92 @@ namespace CC.UI
 
         private void showVolumeEditor()
         {
-            if(Tank == null)
+            if(tank == null)
                 return;
             showEditor(
                 "m3",
-                Tank.Volume,
-                Tank.Volume + Tank.Manager.AvailableVolume,
+                tank.Volume,
+                tank.Volume + tank.Manager.AvailableVolume,
                 changeTankVolume
             );
         }
 
         private void changeTankVolume(float newVolume)
         {
-            if(Tank == null)
+            if(tank == null)
                 return;
-            Tank.SetVolume(newVolume, true);
+            tank.SetVolume(newVolume, true);
             hideEditor();
             UpdateDisplay();
         }
 
         private void showMaxAmountEditor()
         {
-            if(Tank == null)
+            if(tank == null)
                 return;
             showEditor(
                 "u",
-                (float)Tank.MaxAmount,
-                Tank.ResourceAmountInVolume(Tank.Volume + Tank.Manager.AvailableVolume),
+                (float)tank.MaxAmount,
+                tank.ResourceAmountInVolume(tank.Volume + tank.Manager.AvailableVolume),
                 changeTankMaxAmount
             );
         }
 
         private void changeTankMaxAmount(float newMaxAmount)
         {
-            if(Tank == null)
+            if(tank == null)
                 return;
-            changeTankVolume(Tank.VolumeForResourceAmount(newMaxAmount));
+            changeTankVolume(tank.VolumeForResourceAmount(newMaxAmount));
         }
 
         private void showMaxMassEditor()
         {
-            if(Tank == null)
+            if(tank == null)
                 return;
             showEditor(
                 "t",
-                (float)(Tank.MaxAmount * Tank.ResourceDensity),
-                Tank.ResourceAmountInVolume(Tank.Volume + Tank.Manager.AvailableVolume) * Tank.ResourceDensity,
+                (float)(tank.MaxAmount * tank.ResourceDensity),
+                tank.ResourceAmountInVolume(tank.Volume + tank.Manager.AvailableVolume) * tank.ResourceDensity,
                 changeTankMaxMass
             );
         }
 
         private void changeTankMaxMass(float newMaxMass)
         {
-            if(Tank == null)
+            if(tank == null)
                 return;
-            changeTankMaxAmount(newMaxMass / Tank.ResourceDensity);
+            changeTankMaxAmount(newMaxMass / tank.ResourceDensity);
         }
 
         private void fillTank()
         {
-            if(Tank == null)
+            if(tank == null)
                 return;
-            Tank.SetAmount((float)Tank.MaxAmount);
+            tank.SetAmount((float)tank.MaxAmount);
             UpdateDisplay();
         }
 
         private void emptyTank()
         {
-            if(Tank == null)
+            if(tank == null)
                 return;
-            Tank.SetAmount(0);
+            tank.SetAmount(0);
             UpdateDisplay();
         }
 
         private void changeTankType(int index)
         {
-            if(Tank == null)
+            if(tank == null)
                 return;
-            Tank.ChangeTankType(Tank.Manager.SupportedTypes[index]);
+            tank.ChangeTankType(tank.Manager.SupportedTypes[index]);
             UpdateDisplay();
         }
 
         private void changeResource(int index)
         {
-            if(Tank == null)
+            if(tank == null)
                 return;
-            Tank.ChangeResource(Tank.SupportedResources[index]);
+            tank.ChangeResource(tank.SupportedResources[index]);
             UpdateDisplay();
         }
     }
