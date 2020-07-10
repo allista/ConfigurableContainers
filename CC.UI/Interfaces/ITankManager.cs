@@ -11,6 +11,8 @@ namespace CC.UI
         float AvailableVolumePercent { get; }
         IReadOnlyCollection<ITankInfo> Tanks { get; }
 
+        string GetTypeInfo(string tankType);
+
         bool AddTank(string tankType, float volume);
         bool RemoveTank(ITankInfo tank);
 

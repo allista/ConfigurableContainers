@@ -23,6 +23,8 @@ namespace CC.UI
             AvailableVolumePercent = AvailableVolume / Volume * 100;
         }
 
+        public string GetTypeInfo(string tankType) => $"{tankType}: This is a test info.";
+
         public bool AddTank(string tankType, float volume)
         {
             var tankInfo = new TestTankInfo(tankType, Mathf.Min(volume, AvailableVolume), this);

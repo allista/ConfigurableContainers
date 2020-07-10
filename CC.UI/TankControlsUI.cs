@@ -26,6 +26,9 @@ namespace CC.UI
             tankTypeDropdown,
             resourceDropdown;
 
+        public TooltipTrigger
+            tankTypeTooltip;
+
         public PanelledUI
             volumeDisplay;
 
@@ -37,6 +40,9 @@ namespace CC.UI
         private void updateResourcesDropdown() =>
             resourceDropdown.options = UI_Utils.namesToOptions(tank.SupportedResources);
 
+        private void updateTankTypeDropdownTooltip(string tankType) =>
+            tankTypeTooltip.SetText(tank.Manager.GetTypeInfo(tankType));
+
         public void SetTank(ITankInfo newTank)
         {
             if(newTank == tank)
@@ -45,6 +51,7 @@ namespace CC.UI
             if(tank == null)
                 return;
             tankTypeDropdown.options = UI_Utils.namesToOptions(tank.SupportedTypes);
+            updateTankTypeDropdownTooltip(tank.SupportedTypes[tankTypeDropdown.value]);
             updateResourcesDropdown();
             UpdateDisplay();
         }
@@ -73,6 +80,7 @@ namespace CC.UI
                    || tank.TankType != tank.SupportedTypes[tankTypeDropdown.value]))
             {
                 tankTypeDropdown.SetValueWithoutNotify(tank.SupportedTypes.IndexOf(tank.TankType));
+                updateTankTypeDropdownTooltip(tank.TankType);
                 updateResourcesDropdown();
                 resourcesDropdownUpdated = true;
             }
@@ -220,7 +228,9 @@ namespace CC.UI
         {
             if(tank == null)
                 return;
-            tank.ChangeTankType(tank.Manager.SupportedTypes[index]);
+            var tankType = tank.SupportedTypes[index];
+            tank.ChangeTankType(tankType);
+            updateTankTypeDropdownTooltip(tankType);
             updateResourcesDropdown();
             UpdateDisplay();
         }

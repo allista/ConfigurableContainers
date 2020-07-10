@@ -23,6 +23,9 @@ namespace CC.UI
         public Text unitsLabel;
         public Colorizer volumeFieldColorizer;
         public TooltipTrigger volumeFieldTooltip;
+        public TooltipTrigger
+            tankTypeTooltip;
+
 
         public ITankManager tankManager;
         public VolumeUnits currentUnits = VolumeUnits.CUBIC_METERS;
@@ -40,6 +43,7 @@ namespace CC.UI
         private void Awake()
         {
             updateUnitsLabel();
+            tankTypeDropdown.onValueChanged.AddListener(updateTankTypeDropdownTooltip);
             volumeField.onValueChanged.AddListener(onVolumeChange);
             unitsSwitchButton.onClick.AddListener(onUnitsSwitch);
             maxVolumeButton.onClick.AddListener(setMaxVolume);
@@ -50,6 +54,7 @@ namespace CC.UI
 
         private void OnDestroy()
         {
+            tankTypeDropdown.onValueChanged.RemoveAllListeners();
             volumeField.onValueChanged.RemoveAllListeners();
             unitsSwitchButton.onClick.RemoveAllListeners();
             maxVolumeButton.onClick.RemoveAllListeners();
@@ -86,7 +91,11 @@ namespace CC.UI
         private void updateTankTypes()
         {
             tankTypeDropdown.options = UI_Utils.namesToOptions(tankManager.SupportedTypes);
+            updateTankTypeDropdownTooltip(tankTypeDropdown.value);
         }
+
+        private void updateTankTypeDropdownTooltip(int index) =>
+            tankTypeTooltip.SetText(tankManager.GetTypeInfo(tankManager.SupportedTypes[index]));
 
         private void setMaxVolume() => setVolume(1, true);
 

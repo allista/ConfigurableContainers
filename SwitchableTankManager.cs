@@ -153,6 +153,14 @@ namespace AT_Utils
             return tanks.Find(t => t.id == id);
         }
 
+        string ITankManager.GetTypeInfo(string tankType)
+        {
+            var info = SwitchableTankType.GetTankTypeInfo(tankType);
+            return string.IsNullOrEmpty(info)
+                ? VolumeConfigsLibrary.GetConfigInfo(tankType)
+                : info;
+        }
+
         public void InvalidateCaches()
         {
             total_volume = -1;
