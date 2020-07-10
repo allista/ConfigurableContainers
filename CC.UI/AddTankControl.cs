@@ -17,15 +17,29 @@ namespace CC.UI
 
         private static readonly int numUnits = Enum.GetNames(typeof(VolumeUnits)).Length;
 
-        public Dropdown tankTypeDropdown;
-        public InputField volumeField;
-        public Button unitsSwitchButton, maxVolumeButton, halfVolumeButton, addButton;
-        public Text unitsLabel;
-        public Colorizer volumeFieldColorizer;
-        public TooltipTrigger volumeFieldTooltip;
+        public Dropdown
+            tankTypeDropdown;
+
         public TooltipTrigger
             tankTypeTooltip;
 
+        public InputField
+            volumeField;
+
+        public Button
+            unitsSwitchButton,
+            maxVolumeButton,
+            halfVolumeButton,
+            addButton;
+
+        public Text
+            unitsLabel;
+
+        public Colorizer
+            volumeFieldColorizer;
+
+        public TooltipTrigger
+            volumeFieldTooltip;
 
         public ITankManager tankManager;
         public VolumeUnits currentUnits = VolumeUnits.CUBIC_METERS;
