@@ -8,12 +8,15 @@ namespace CC.UI
 {
     public class TankManagerUI : ScreenBoundRect
     {
+        public Button
+            closeButton,
+            colorSettingsButton;
+
         private ITankManager tankManager;
 
         public AddTankControl addTankControl;
         public TankConfigsControl tankConfigsControl;
         public Text partTitleLabel, volumeLabel;
-        public Button closeButton;
         public RectTransform tanksScroll;
         public GameObject tankControlPrefab;
         public Dictionary<ITankInfo, TankControlsUI> tankControls = new Dictionary<ITankInfo, TankControlsUI>();

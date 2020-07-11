@@ -1,4 +1,5 @@
 using System;
+using AT_Utils.UI;
 using CC.UI;
 using UnityEngine;
 
@@ -22,8 +23,11 @@ namespace AT_Utils
         {
             base.init_controller();
             Controller.closeButton.onClick.AddListener(Close);
+            Controller.colorSettingsButton.onClick.AddListener(toggleColors);
             Controller.SetTankManager(manager);
         }
+
+        private void toggleColors() => Controller.ToggleStylesUI();
 
         public void Toggle(MonoBehaviour monoBehaviour) => Toggle(monoBehaviour, !manager.EnablePartControls);
 
