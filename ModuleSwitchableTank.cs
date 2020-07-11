@@ -153,6 +153,7 @@ namespace AT_Utils
         public float ResourceMaxMass => Resource != null ? (float)(Resource.maxAmount * Resource.info.density) : 0;
         public string ResourceInUse => Resource != null ? Resource.resourceName : string.Empty;
         float ITankInfo.Volume => Volume;
+        bool ITankInfo.Valid => Resource != null;
 
         public double Amount
         {

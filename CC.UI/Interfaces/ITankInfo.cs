@@ -10,6 +10,7 @@ namespace CC.UI
         IList<string> SupportedResources { get; }
         IList<string> SupportedTypes { get; }
         string CurrentResource { get; }
+        bool Valid { get; }
 
         float Volume { get; }
 

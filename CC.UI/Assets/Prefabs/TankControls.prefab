@@ -587,9 +587,10 @@ MonoBehaviour:
   resourceMaxMass: {fileID: 6192040459333471885}
   resourceMass: {fileID: 7031013253057666654}
   tankFullness: {fileID: 8238877579375471844}
-  tankTypeDropdown: {fileID: 3780448767454741943}
-  resourceDropdown: {fileID: 4608441830051822025}
-  tankTypeTooltip: {fileID: 228957319168385790}
+  tankTypeDropdown: {fileID: 6391978674279202680}
+  resourceDropdown: {fileID: 5996118280555102982}
+  tankTypeTooltip: {fileID: 8401498828442157589}
+  resourceAmountColorizer: {fileID: 4852457028002213490}
   volumeDisplay: {fileID: 8363797924985148663}
   volumeEditor: {fileID: 3385243223835311838}
 --- !u!114 &3484988889573017947
@@ -2429,7 +2430,7 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 5592575468121172473, guid: 3cbbbb8b2864042dd8d7139154886d38, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 3cbbbb8b2864042dd8d7139154886d38, type: 3}
---- !u!114 &4608441830051822025 stripped
+--- !u!114 &5996118280555102982 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4242498043517884386, guid: 3cbbbb8b2864042dd8d7139154886d38,
     type: 3}
@@ -2601,7 +2602,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3cbbbb8b2864042dd8d7139154886d38, type: 3}
---- !u!114 &228957319168385790 stripped
+--- !u!114 &8401498828442157589 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 989613336085246123, guid: 3cbbbb8b2864042dd8d7139154886d38,
     type: 3}
@@ -2613,7 +2614,7 @@ MonoBehaviour:
   m_Script: {fileID: -382320990, guid: 23fd6eb82728348aba7ba3f92873da24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3780448767454741943 stripped
+--- !u!114 &6391978674279202680 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4242498043517884386, guid: 3cbbbb8b2864042dd8d7139154886d38,
     type: 3}

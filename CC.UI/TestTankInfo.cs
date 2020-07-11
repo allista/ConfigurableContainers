@@ -72,6 +72,7 @@ namespace CC.UI
         public double Amount { get; private set; }
         private float UnitsPerVolume { get; }
         public float ResourceDensity { get; }
+        public bool Valid => CurrentResource != "Oxidizer";
         public float ResourceAmountInVolume(float volume) => volume * UnitsPerVolume * UsefulVolumeRatio;
 
         public float VolumeForResourceAmount(float amount) => amount / UnitsPerVolume / UsefulVolumeRatio;

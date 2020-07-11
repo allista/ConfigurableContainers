@@ -29,6 +29,9 @@ namespace CC.UI
         public TooltipTrigger
             tankTypeTooltip;
 
+        public Colorizer
+            resourceAmountColorizer;
+
         public PanelledUI
             volumeDisplay;
 
@@ -59,21 +62,40 @@ namespace CC.UI
         public void UpdateDisplay()
         {
             resourceVolume.text = FormatUtils.formatVolume(tank.Volume);
-            resourceMaxAmount.text = FormatUtils.formatBigValue((float)tank.MaxAmount, "u");
-            resourceAmount.text = FormatUtils.formatBigValue((float)tank.Amount, "u");
-            if(tank.ResourceDensity > 0)
+            if(tank.Valid)
             {
-                editMaxMassButton.gameObject.SetActive(true);
-                resourceMass.gameObject.SetActive(true);
-                resourceMaxMass.text = FormatUtils.formatMass((float)(tank.MaxAmount * tank.ResourceDensity));
-                resourceMass.text = FormatUtils.formatMass((float)(tank.Amount * tank.ResourceDensity));
+                editMaxAmountButton.gameObject.SetActive(true);
+                tankFullness.gameObject.SetActive(true);
+                fullTankButton.gameObject.SetActive(true);
+                emptyTankButton.gameObject.SetActive(true);
+                resourceMaxAmount.text = FormatUtils.formatBigValue((float)tank.MaxAmount, "u");
+                resourceAmount.text = FormatUtils.formatBigValue((float)tank.Amount, "u");
+                tankFullness.text = (tank.Amount / tank.MaxAmount).ToString("P1");
+                resourceAmountColorizer.SetColor(Colors.Selected1);
+                if(tank.ResourceDensity > 0)
+                {
+                    editMaxMassButton.gameObject.SetActive(true);
+                    resourceMass.gameObject.SetActive(true);
+                    resourceMaxMass.text = FormatUtils.formatMass((float)(tank.MaxAmount * tank.ResourceDensity));
+                    resourceMass.text = FormatUtils.formatMass((float)(tank.Amount * tank.ResourceDensity));
+                }
+                else
+                {
+                    editMaxMassButton.gameObject.SetActive(false);
+                    resourceMass.gameObject.SetActive(false);
+                }
             }
             else
             {
+                editMaxAmountButton.gameObject.SetActive(false);
                 editMaxMassButton.gameObject.SetActive(false);
                 resourceMass.gameObject.SetActive(false);
+                tankFullness.gameObject.SetActive(false);
+                fullTankButton.gameObject.SetActive(false);
+                emptyTankButton.gameObject.SetActive(false);
+                resourceAmount.text = "TANK CONFIGURATION IS INVALID";
+                resourceAmountColorizer.SetColor(Colors.Danger);
             }
-            tankFullness.text = (tank.Amount / tank.MaxAmount).ToString("P1");
             var resourcesDropdownUpdated = false;
             if(!string.IsNullOrEmpty(tank.TankType)
                && (tankTypeDropdown.value >= tank.SupportedTypes.Count
