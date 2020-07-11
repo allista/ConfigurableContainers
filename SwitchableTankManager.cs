@@ -248,6 +248,7 @@ namespace AT_Utils
                     if(tank != null)
                     {
                         tank.EnablePartControls = EnablePartControls;
+                        tank.manager = this;
                         tanks.Add(tank);
                     }
                     else
