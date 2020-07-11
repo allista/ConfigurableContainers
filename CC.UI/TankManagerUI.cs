@@ -8,6 +8,9 @@ namespace CC.UI
 {
     public class TankManagerUI : ScreenBoundRect
     {
+        public int
+            maxTitleLength = 50;
+
         public Button
             closeButton,
             colorSettingsButton;
@@ -38,7 +41,10 @@ namespace CC.UI
 
         public void UpdateDisplay()
         {
-            partTitleLabel.text = tankManager.Title;
+            var title = tankManager.Title;
+            partTitleLabel.text = title.Length <= maxTitleLength + 3
+                ? title
+                : $"{title.Substring(0, maxTitleLength)}...";
             volumeLabel.text =
                 $"{FormatUtils.formatVolume(tankManager.AvailableVolume)} / {FormatUtils.formatVolume(tankManager.Volume)}";
             updateTankControls();

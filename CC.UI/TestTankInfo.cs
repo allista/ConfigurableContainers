@@ -54,7 +54,7 @@ namespace CC.UI
             AvailableVolume = Volume;
             AvailableVolumePercent = 100;
             Tanks = new List<TestTankInfo>();
-            Title = "Big Resource Tank";
+            Title = "Big Resource Tank - with a long long, very long name indeed!";
         }
     }
 

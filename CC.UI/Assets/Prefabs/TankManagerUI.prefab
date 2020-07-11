@@ -1056,6 +1056,7 @@ MonoBehaviour:
   m_Script: {fileID: 97952435, guid: 8ce64d87cbac85e0491acc102797cabc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxTitleLength: 50
   addTankControl: {fileID: 6689861229489110753}
   tankConfigsControl: {fileID: 1129694275671550861}
   partTitleLabel: {fileID: 114341554723646872}
