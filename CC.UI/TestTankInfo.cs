@@ -48,7 +48,17 @@ namespace CC.UI
 
         public TestTankManager()
         {
-            SupportedTypes = new List<string> { "LiquidChemicals", "Components", "Soil" };
+            SupportedTypes = new List<string>
+            {
+                "LiquidChemicals",
+                "Components",
+                "Soil",
+                "Type 1",
+                "Type 2",
+                "Type 3",
+                "Type 4",
+                "Type 5"
+            };
             SupportedTankConfigs = new List<string> { "LFO", "LoX", "CA" };
             Volume = 15.79089f;
             AvailableVolume = Volume;
