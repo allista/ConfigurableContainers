@@ -11,17 +11,27 @@ namespace CC.UI
         public int
             maxTitleLength = 50;
 
+        public AddTankControl
+            addTankControl;
+
+        public TankConfigsControl
+            tankConfigsControl;
+
+        public Text
+            partTitleLabel,
+            volumeLabel;
+
         public Button
             closeButton,
             colorSettingsButton;
 
-        private ITankManager tankManager;
+        public RectTransform
+            tanksScroll;
 
-        public AddTankControl addTankControl;
-        public TankConfigsControl tankConfigsControl;
-        public Text partTitleLabel, volumeLabel;
-        public RectTransform tanksScroll;
-        public GameObject tankControlPrefab;
+        public GameObject
+            tankControlPrefab;
+
+        private ITankManager tankManager;
         public Dictionary<ITankInfo, TankControlsUI> tankControls = new Dictionary<ITankInfo, TankControlsUI>();
 
         public void SetTankManager(ITankManager newTankManager)
