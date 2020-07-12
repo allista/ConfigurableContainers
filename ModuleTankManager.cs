@@ -5,6 +5,7 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
+using System;
 using JetBrains.Annotations;
 
 namespace AT_Utils
@@ -139,6 +140,11 @@ namespace AT_Utils
             Utils.EnableEvent(editTankEvent, !tank_manager.EnablePartControls);
             if(HighLogic.LoadedSceneIsFlight)
                 editTankEvent.guiName = "Manage Tanks";
+        }
+
+        private void OnDestroy()
+        {
+            tank_manager?.UI?.Close();
         }
 
         public void Rescale(float relative_scale, bool update_amounts = false)
