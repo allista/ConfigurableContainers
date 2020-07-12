@@ -17,6 +17,11 @@ namespace CC.UI
 
         private readonly List<TestTankInfo> Tanks;
         IReadOnlyCollection<ITankInfo> ITankManager.Tanks => Tanks;
+        public bool AddRemoveEnabled => true;
+        public bool TypeChangeEnabled => true;
+        public bool VolumeChangeEnabled => true;
+        public bool FillEnabled => true;
+        public bool EmptyEnabled => true;
 
         public void UpdateAvailableVolume()
         {

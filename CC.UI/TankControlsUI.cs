@@ -61,6 +61,13 @@ namespace CC.UI
 
         public void UpdateDisplay()
         {
+            tankTypeDropdown.SetInteractable(tank.Manager.TypeChangeEnabled);
+            editVolumeButton.SetInteractable(tank.Manager.VolumeChangeEnabled);
+            editMaxAmountButton.SetInteractable(editVolumeButton.interactable);
+            editMaxMassButton.SetInteractable(editVolumeButton.interactable);
+            fullTankButton.SetInteractable(tank.Manager.FillEnabled);
+            emptyTankButton.SetInteractable(tank.Manager.EmptyEnabled);
+            deleteButton.SetInteractable(tank.Manager.AddRemoveEnabled);
             resourceVolume.text = FormatUtils.formatVolume(tank.Volume);
             if(tank.Valid)
             {

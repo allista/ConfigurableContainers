@@ -57,6 +57,8 @@ namespace CC.UI
                 : $"{title.Substring(0, maxTitleLength)}...";
             volumeLabel.text =
                 $"{FormatUtils.formatVolume(tankManager.AvailableVolume)} / {FormatUtils.formatVolume(tankManager.Volume)}";
+            addTankControl.gameObject.SetActive(tankManager.AddRemoveEnabled);
+            tankConfigsControl.gameObject.SetActive(tankManager.AddRemoveEnabled);
             updateTankControls();
         }
 

@@ -48,6 +48,19 @@ namespace AT_Utils
         [Persistent]
         public bool AddRemoveEnabled = true;
 
+        bool ITankManager.AddRemoveEnabled => AddRemoveEnabled && HighLogic.LoadedSceneIsEditor;
+
+        /// <summary>
+        ///     If true, type of tanks may be changed.
+        /// </summary>
+        [Persistent]
+        public bool TypeChangeEnabled = true;
+
+        bool ITankManager.TypeChangeEnabled => TypeChangeEnabled && HighLogic.LoadedSceneIsEditor;
+        bool ITankManager.VolumeChangeEnabled => HighLogic.LoadedSceneIsEditor;
+        bool ITankManager.FillEnabled => HighLogic.LoadedSceneIsEditor;
+        bool ITankManager.EmptyEnabled => HighLogic.LoadedSceneIsEditor;
+
         private bool enable_part_controls;
 
         private string[] exclude;
@@ -73,12 +86,6 @@ namespace AT_Utils
         IList<string> ITankManager.SupportedTankConfigs => VolumeConfigsLibrary.UserConfigs.Keys;
 
         private float total_volume = -1;
-
-        /// <summary>
-        ///     If true, type of tanks may be changed.
-        /// </summary>
-        [Persistent]
-        public bool TypeChangeEnabled = true;
 
         /// <summary>
         ///     Maximum total volume of all tanks in m^3. It is used for reference and in tank controls.
