@@ -1,4 +1,5 @@
 using AT_Utils.UI;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace CC.UI
@@ -21,7 +22,8 @@ namespace CC.UI
 
         public AddTankControl addTankControl;
 
-        private bool controlsEnabled;
+        private bool addUpdateEnabled;
+        private bool deleteEnabled = true;
 
         private ITankManager tankManager;
 
@@ -44,11 +46,18 @@ namespace CC.UI
             configNameField.onValueChanged.RemoveAllListeners();
         }
 
-        public void EnableControls(bool enable)
+        public void EnableControls(bool enable) => enableControls(enable, true);
+
+        private void enableControls(bool addUpdate, bool delete)
         {
-            controlsEnabled = enable;
-            addConfigButton.SetInteractable(controlsEnabled && !string.IsNullOrEmpty(configNameField.text));
-            updateConfigButton.SetInteractable(controlsEnabled);
+            addUpdateEnabled = addUpdate;
+            deleteEnabled = delete;
+            addConfigButton.SetInteractable(addUpdateEnabled
+                                            && !string.IsNullOrEmpty(configNameField.text));
+            updateConfigButton.SetInteractable(addUpdateEnabled);
+            deleteConfigButton.SetInteractable(deleteEnabled
+                                               && tankManager != null
+                                               && tankManager.SupportedTankConfigs.Count > 0);
         }
 
         public void SetTankManager(ITankManager manager)
@@ -65,6 +74,8 @@ namespace CC.UI
         private void updateConfigsDropdown()
         {
             configsDropdown.options = UI_Utils.namesToOptions(tankManager.SupportedTankConfigs, false);
+            if(configsDropdown.value >= configsDropdown.options.Count)
+                configsDropdown.SetValueWithoutNotify(configsDropdown.options.Count - 1);
             updateConfigsDropdownTooltip(configsDropdown.value);
             addTankControl.UpdateTankTypes();
         }
@@ -72,16 +83,25 @@ namespace CC.UI
         private void updateConfigsDropdownTooltip(int index) =>
             configsDropdownTooltip.SetText(tankManager.GetTypeInfo(tankManager.SupportedTankConfigs[index]));
 
-        private void onConfigNameChanged(string newConfigName)
-        {
-            addConfigButton.SetInteractable(controlsEnabled && !string.IsNullOrEmpty(newConfigName));
-        }
+        private void onConfigNameChanged(string newConfigName) =>
+            addConfigButton.SetInteractable(addUpdateEnabled && !string.IsNullOrEmpty(newConfigName));
 
-        private void onUpdateConfig()
+        private void onUpdateConfig() => updateConfig(tankManager.SupportedTankConfigs[configsDropdown.value]);
+
+        private void updateConfig(string tankConfig, UnityAction onSuccess = null)
         {
-            var tankConfig = tankManager.SupportedTankConfigs[configsDropdown.value];
-            tankManager.AddTankConfig(tankConfig);
-            updateConfigsDropdown();
+            var controlsWereEnabled = addUpdateEnabled;
+            enableControls(false, false);
+            DialogFactory.Danger($"Are you sure you want to <b>{Colors.Warning.Tag("overwrite")}</b> "
+                                 + $"the <b>{Colors.Selected1.Tag(tankConfig)}</b> preset?",
+                () =>
+                {
+                    if(!tankManager.AddTankConfig(tankConfig))
+                        return;
+                    updateConfigsDropdown();
+                    onSuccess?.Invoke();
+                },
+                onClose: () => enableControls(controlsWereEnabled, true));
         }
 
         private void onAddConfig()
@@ -89,18 +109,28 @@ namespace CC.UI
             var tankConfig = configNameField.text;
             if(string.IsNullOrEmpty(tankConfig))
                 return;
-            if(!tankManager.AddTankConfig(tankConfig))
-                return;
-            configNameField.text = "";
-            updateConfigsDropdown();
+            if(tankManager.SupportedTankConfigs.Contains(tankConfig))
+                updateConfig(tankConfig, () => configNameField.text = "");
+            else if(tankManager.AddTankConfig(tankConfig))
+            {
+                configNameField.text = "";
+                updateConfigsDropdown();
+            }
         }
 
         private void onDeleteConfig()
         {
             var tankConfig = tankManager.SupportedTankConfigs[configsDropdown.value];
-            if(!tankManager.RemoveTankConfig(tankConfig))
-                return;
-            updateConfigsDropdown();
+            var controlsWereEnabled = addUpdateEnabled;
+            enableControls(false, false);
+            DialogFactory.Danger($"Are you sure you want to <b>{Colors.Danger.Tag("delete")}</b> "
+                                 + $"the <b>{Colors.Selected1.Tag(tankConfig)}</b> preset?",
+                () =>
+                {
+                    if(tankManager.RemoveTankConfig(tankConfig))
+                        updateConfigsDropdown();
+                },
+                onClose: () => enableControls(controlsWereEnabled, true));
         }
     }
 }
