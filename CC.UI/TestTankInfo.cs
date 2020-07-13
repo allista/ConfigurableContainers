@@ -43,9 +43,8 @@ namespace CC.UI
 
         public bool AddTankConfig(string configName)
         {
-            if(SupportedTankConfigs.Contains(configName))
-                return false;
-            SupportedTankConfigs.Add(configName);
+            if(!SupportedTankConfigs.Contains(configName))
+                SupportedTankConfigs.Add(configName);
             return true;
         }
 
