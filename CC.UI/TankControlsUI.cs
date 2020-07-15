@@ -65,9 +65,9 @@ namespace CC.UI
             editVolumeButton.SetInteractable(tank.Manager.VolumeChangeEnabled);
             editMaxAmountButton.SetInteractable(editVolumeButton.interactable);
             editMaxMassButton.SetInteractable(editVolumeButton.interactable);
-            fullTankButton.SetInteractable(tank.Manager.FillEnabled);
-            emptyTankButton.SetInteractable(tank.Manager.EmptyEnabled);
-            deleteButton.SetInteractable(tank.Manager.AddRemoveEnabled);
+            fullTankButton.gameObject.SetActive(tank.Manager.FillEnabled);
+            emptyTankButton.gameObject.SetActive(tank.Manager.EmptyEnabled);
+            deleteButton.gameObject.SetActive(tank.Manager.AddRemoveEnabled);
             resourceVolume.text = FormatUtils.formatVolume(tank.Volume);
             if(tank.Valid)
             {
