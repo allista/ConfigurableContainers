@@ -23,7 +23,6 @@ namespace CC.UI
         public AddTankControl addTankControl;
 
         private bool addUpdateEnabled;
-        private bool deleteEnabled = true;
 
         private ITankManager tankManager;
 
@@ -46,18 +45,25 @@ namespace CC.UI
             configNameField.onValueChanged.RemoveAllListeners();
         }
 
-        public void EnableControls(bool enable) => enableControls(enable, true);
-
-        private void enableControls(bool addUpdate, bool delete)
+        public void EnableControls(bool enable)
         {
-            addUpdateEnabled = addUpdate;
-            deleteEnabled = delete;
+            addUpdateEnabled = enable;
+            updateControls();
+        }
+
+        private void updateControls()
+        {
+            var noDialogOpen = !DialogFactory.ContextIsActive(this);
             addConfigButton.SetInteractable(addUpdateEnabled
+                                            && noDialogOpen
                                             && !string.IsNullOrEmpty(configNameField.text));
-            updateConfigButton.SetInteractable(addUpdateEnabled);
-            deleteConfigButton.SetInteractable(deleteEnabled
+            updateConfigButton.SetInteractable(addUpdateEnabled
+                                               && noDialogOpen);
+            deleteConfigButton.SetInteractable(noDialogOpen
                                                && tankManager != null
                                                && tankManager.SupportedTankConfigs.Count > 0);
+            configsDropdown.SetInteractable(noDialogOpen);
+            configNameField.SetInteractable(noDialogOpen);
         }
 
         public void SetTankManager(ITankManager manager)
@@ -90,8 +96,6 @@ namespace CC.UI
 
         private void updateConfig(string tankConfig, UnityAction onSuccess = null)
         {
-            var controlsWereEnabled = addUpdateEnabled;
-            enableControls(false, false);
             DialogFactory.Danger($"Are you sure you want to <b>{Colors.Warning.Tag("overwrite")}</b> "
                                  + $"the <b>{Colors.Selected1.Tag(tankConfig)}</b> preset?",
                 () =>
@@ -101,7 +105,9 @@ namespace CC.UI
                     updateConfigsDropdown();
                     onSuccess?.Invoke();
                 },
-                onClose: () => enableControls(controlsWereEnabled, true));
+                onDestroy: updateControls,
+                context: this);
+            updateControls();
         }
 
         private void onAddConfig()
@@ -121,8 +127,6 @@ namespace CC.UI
         private void onDeleteConfig()
         {
             var tankConfig = tankManager.SupportedTankConfigs[configsDropdown.value];
-            var controlsWereEnabled = addUpdateEnabled;
-            enableControls(false, false);
             DialogFactory.Danger($"Are you sure you want to <b>{Colors.Danger.Tag("delete")}</b> "
                                  + $"the <b>{Colors.Selected1.Tag(tankConfig)}</b> preset?",
                 () =>
@@ -130,7 +134,9 @@ namespace CC.UI
                     if(tankManager.RemoveTankConfig(tankConfig))
                         updateConfigsDropdown();
                 },
-                onClose: () => enableControls(controlsWereEnabled, true));
+                onDestroy: updateControls,
+                context: this);
+            updateControls();
         }
     }
 }
