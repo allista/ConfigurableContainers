@@ -23,8 +23,8 @@ namespace AT_Utils
         public new const string NODE_NAME = "TANKMANAGER";
         public const string MANAGED = "MANAGED";
         private readonly PartModule host;
+        public Part part => host.part;
 
-        private readonly Part part;
         private readonly List<ModuleSwitchableTank> tanks = new List<ModuleSwitchableTank>();
         public IReadOnlyCollection<ModuleSwitchableTank> Tanks => tanks;
         IReadOnlyCollection<ITankInfo> ITankManager.Tanks => tanks;
@@ -146,7 +146,6 @@ namespace AT_Utils
 
         public SwitchableTankManager(PartModule host)
         {
-            part = host.part;
             this.host = host;
             UI = new SwitchableTankManagerUI(this);
         }

@@ -2,6 +2,7 @@ using System;
 using AT_Utils.UI;
 using CC.UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace AT_Utils
 {
@@ -24,10 +25,32 @@ namespace AT_Utils
             base.init_controller();
             Controller.closeButton.onClick.AddListener(Close);
             Controller.colorSettingsButton.onClick.AddListener(toggleColors);
+            Controller.onPointerEnterEvent.AddListener(highlightPart);
+            Controller.onPointerExitEvent.AddListener(highlightPartDefault);
             Controller.SetTankManager(manager);
         }
 
         private void toggleColors() => Controller.ToggleStylesUI();
+
+        private void highlightPart(PointerEventData _)
+        {
+            var part = manager?.part;
+            if(part != null)
+                part.HighlightAlways(Colors.Active.color);
+        }
+
+        private void highlightPartDefault(PointerEventData _)
+        {
+            var part = manager?.part;
+            if(part != null)
+                part.SetHighlightDefault();
+        }
+
+        protected override void onClose()
+        {
+            base.onClose();
+            highlightPartDefault(null);
+        }
 
         public void Toggle(MonoBehaviour monoBehaviour) => Toggle(monoBehaviour, !manager.EnablePartControls);
 
