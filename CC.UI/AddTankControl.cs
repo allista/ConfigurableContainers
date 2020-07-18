@@ -106,7 +106,7 @@ namespace CC.UI
         {
             if(tankManager == null)
                 return;
-            tankTypeDropdown.options = UI_Utils.namesToOptions(tankManager.SupportedTypes);
+            tankTypeDropdown.SetOptionsSafe(UI_Utils.namesToOptions(tankManager.SupportedTypes));
             updateTankTypeDropdownTooltip(tankTypeDropdown.value);
         }
 

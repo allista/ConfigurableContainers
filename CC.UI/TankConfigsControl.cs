@@ -79,9 +79,7 @@ namespace CC.UI
 
         private void updateConfigsDropdown()
         {
-            configsDropdown.options = UI_Utils.namesToOptions(tankManager.SupportedTankConfigs, false);
-            if(configsDropdown.value >= configsDropdown.options.Count)
-                configsDropdown.SetValueWithoutNotify(configsDropdown.options.Count - 1);
+            configsDropdown.SetOptionsSafe(UI_Utils.namesToOptions(tankManager.SupportedTankConfigs, false));
             updateConfigsDropdownTooltip(configsDropdown.value);
             addTankControl.UpdateTankTypes();
         }
