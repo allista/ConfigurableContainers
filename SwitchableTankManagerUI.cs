@@ -28,6 +28,8 @@ namespace AT_Utils
             Controller.onPointerEnterEvent.AddListener(highlightPart);
             Controller.onPointerExitEvent.AddListener(highlightPartDefault);
             Controller.SetTankManager(manager);
+            if(manager != null)
+                pos = manager.uiPos;
         }
 
         private void toggleColors() => Controller.ToggleStylesUI();
@@ -44,6 +46,13 @@ namespace AT_Utils
             var part = manager?.part;
             if(part != null)
                 part.SetHighlightDefault();
+        }
+
+        public override void SyncState()
+        {
+            base.SyncState();
+            if(manager != null)
+                manager.uiPos = pos;
         }
 
         protected override void onClose()

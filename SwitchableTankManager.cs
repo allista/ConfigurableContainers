@@ -33,6 +33,7 @@ namespace AT_Utils
         IReadOnlyCollection<ITankInfo> ITankManager.Tanks => tanks;
 
         public readonly SwitchableTankManagerUI UI;
+        [Persistent] public Vector3 uiPos = Vector3.zero;
 
         public delegate void TankAction(ModuleSwitchableTank tank);
 
