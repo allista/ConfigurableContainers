@@ -133,7 +133,7 @@ namespace CC.UI
             resourceDropdown.onValueChanged.AddListener(changeResource);
             fullTankButton.onClick.AddListener(fillTank);
             emptyTankButton.onClick.AddListener(emptyTank);
-            deleteButton.onClick.AddListener(deleteSelf);
+            deleteButton.onClick.AddListener(onDelete);
         }
 
         private void OnDestroy()
@@ -146,6 +146,16 @@ namespace CC.UI
             fullTankButton.onClick.RemoveAllListeners();
             emptyTankButton.onClick.RemoveAllListeners();
             deleteButton.onClick.RemoveAllListeners();
+        }
+
+        private void onDelete()
+        {
+            if(tank.Manager.Capabilities.ConfirmRemove)
+                DialogFactory
+                    .Danger($"Are you sure you want to <b>{Colors.Danger.Tag("delete")}</b> this tank?",
+                        deleteSelf);
+            else
+                deleteSelf();
         }
 
         private void deleteSelf()
