@@ -496,19 +496,6 @@ namespace AT_Utils
             }
         }
 
-        private void update_symmetry_tanks(ModuleSwitchableTank tank, Action<ModuleSwitchableTank> action)
-        {
-            update_symmetry_managers
-            (m =>
-            {
-                var tank1 = m.GetTank(tank.id);
-                if(tank1 == null)
-                    Utils.Warning($"SwitchableTankManager: no tank with {tank.id} id");
-                else
-                    action(tank1);
-            });
-        }
-
         private class DefaultCapabilities : ITankManagerCapabilities
         {
             public bool AddRemoveEnabled => HighLogic.LoadedSceneIsEditor;
