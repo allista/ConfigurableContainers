@@ -2,6 +2,16 @@ using System.Collections.Generic;
 
 namespace CC.UI
 {
+    public interface ITankManagerCapabilities
+    {
+        bool AddRemoveEnabled { get; }
+        bool ConfirmRemove { get; }
+        bool TypeChangeEnabled { get; }
+        bool VolumeChangeEnabled { get; }
+        bool FillEnabled { get; }
+        bool EmptyEnabled { get; }
+    }
+
     public interface ITankManager
     {
         string Title { get; }
@@ -11,11 +21,7 @@ namespace CC.UI
         float AvailableVolume { get; }
         float AvailableVolumePercent { get; }
         IReadOnlyCollection<ITankInfo> Tanks { get; }
-        bool AddRemoveEnabled { get; }
-        bool TypeChangeEnabled { get; }
-        bool VolumeChangeEnabled { get; }
-        bool FillEnabled { get; }
-        bool EmptyEnabled { get; }
+        ITankManagerCapabilities Capabilities { get; }
 
         string GetTypeInfo(string tankType);
 

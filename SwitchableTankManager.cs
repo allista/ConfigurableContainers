@@ -22,8 +22,11 @@ namespace AT_Utils
     {
         public new const string NODE_NAME = "TANKMANAGER";
         public const string MANAGED = "MANAGED";
+        private static readonly DefaultCapabilities defaultCapabilities = new DefaultCapabilities();
+
         private readonly PartModule host;
         public Part part => host.part;
+        public ITankManagerCapabilities Capabilities => host as ITankManagerCapabilities ?? defaultCapabilities;
 
         private readonly List<ModuleSwitchableTank> tanks = new List<ModuleSwitchableTank>();
         public IReadOnlyCollection<ModuleSwitchableTank> Tanks => tanks;
@@ -41,25 +44,6 @@ namespace AT_Utils
         public TankAction onTankAdded = delegate { };
         public TankAction onTankRemoved = delegate { };
         public TankFailedAction onTankFailedToAdd = delegate { };
-
-        /// <summary>
-        ///     If true, tanks may be added and removed.
-        /// </summary>
-        [Persistent]
-        public bool AddRemoveEnabled = true;
-
-        bool ITankManager.AddRemoveEnabled => AddRemoveEnabled && HighLogic.LoadedSceneIsEditor;
-
-        /// <summary>
-        ///     If true, type of tanks may be changed.
-        /// </summary>
-        [Persistent]
-        public bool TypeChangeEnabled = true;
-
-        bool ITankManager.TypeChangeEnabled => TypeChangeEnabled && HighLogic.LoadedSceneIsEditor;
-        bool ITankManager.VolumeChangeEnabled => HighLogic.LoadedSceneIsEditor;
-        bool ITankManager.FillEnabled => HighLogic.LoadedSceneIsEditor;
-        bool ITankManager.EmptyEnabled => HighLogic.LoadedSceneIsEditor;
 
         private bool enable_part_controls;
 
@@ -194,8 +178,7 @@ namespace AT_Utils
             base.Load(node);
             init_supported_types();
             var info = StringBuilderCache.Acquire();
-            if(TypeChangeEnabled)
-                info.Append(SwitchableTankType.TypesInfo(include, exclude));
+            info.Append(SwitchableTankType.TypesInfo(include, exclude));
             var volumes = FromConfig<VolumeConfiguration>(node);
             // ReSharper disable once InvertIf
             if(volumes.Valid)
@@ -267,11 +250,8 @@ namespace AT_Utils
             else if(node.HasValue("Volume"))
             {
                 var cfg = FromConfig<VolumeConfiguration>(node);
-                var add_remove = AddRemoveEnabled;
-                AddRemoveEnabled = true;
                 Utils.Debug("Loading tank manager config: {}", cfg); //debug
                 AddConfiguration(cfg, cfg.Volume, false, false, true);
-                AddRemoveEnabled = add_remove;
             }
         }
 
@@ -304,7 +284,7 @@ namespace AT_Utils
             }
             if(!force)
             {
-                if(!AddRemoveEnabled)
+                if(!Capabilities.AddRemoveEnabled)
                     return false;
                 foreach(var validateTank in onValidateNewTank.GetInvocationList().Cast<TankValidator>())
                 {
@@ -373,7 +353,7 @@ namespace AT_Utils
             bool force
         )
         {
-            if(!AddRemoveEnabled || !cfg.Valid)
+            if(!((force || Capabilities.AddRemoveEnabled) && cfg.Valid))
                 return false;
             var V = cfg.TotalVolume;
             foreach(var v in cfg.Volumes)
@@ -404,7 +384,7 @@ namespace AT_Utils
         /// <param name="update_counterparts">If counterparts are to be updated.</param>
         public bool AddVolume(string name, float volume, bool update_counterparts = true)
         {
-            if(!AddRemoveEnabled)
+            if(!Capabilities.AddRemoveEnabled)
                 return false;
             var cfg = VolumeConfigsLibrary.GetConfig(name);
             return cfg == null
@@ -424,7 +404,7 @@ namespace AT_Utils
         /// <param name="notify">If onTankAdded action should be invoked.</param>
         public bool RemoveTank(ModuleSwitchableTank tank, bool update_counterparts = true, bool notify = true)
         {
-            if(!AddRemoveEnabled)
+            if(!Capabilities.AddRemoveEnabled)
                 return false;
             if(!tanks.Contains(tank))
                 return false;
@@ -526,6 +506,16 @@ namespace AT_Utils
                 else
                     action(tank1);
             });
+        }
+
+        private class DefaultCapabilities : ITankManagerCapabilities
+        {
+            public bool AddRemoveEnabled => HighLogic.LoadedSceneIsEditor;
+            public bool ConfirmRemove => !HighLogic.LoadedSceneIsEditor;
+            public bool TypeChangeEnabled => HighLogic.LoadedSceneIsEditor;
+            public bool VolumeChangeEnabled => HighLogic.LoadedSceneIsEditor;
+            public bool FillEnabled => HighLogic.LoadedSceneIsEditor;
+            public bool EmptyEnabled => HighLogic.LoadedSceneIsEditor;
         }
     }
 }

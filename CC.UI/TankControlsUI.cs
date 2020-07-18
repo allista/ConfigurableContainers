@@ -61,20 +61,18 @@ namespace CC.UI
 
         public void UpdateDisplay()
         {
-            tankTypeDropdown.SetInteractable(tank.Manager.TypeChangeEnabled);
-            editVolumeButton.SetInteractable(tank.Manager.VolumeChangeEnabled);
+            tankTypeDropdown.SetInteractable(tank.Manager.Capabilities.TypeChangeEnabled);
+            editVolumeButton.SetInteractable(tank.Manager.Capabilities.VolumeChangeEnabled);
             editMaxAmountButton.SetInteractable(editVolumeButton.interactable);
             editMaxMassButton.SetInteractable(editVolumeButton.interactable);
-            fullTankButton.gameObject.SetActive(tank.Manager.FillEnabled);
-            emptyTankButton.gameObject.SetActive(tank.Manager.EmptyEnabled);
-            deleteButton.gameObject.SetActive(tank.Manager.AddRemoveEnabled);
+            deleteButton.gameObject.SetActive(tank.Manager.Capabilities.AddRemoveEnabled);
             resourceVolume.text = FormatUtils.formatVolume(tank.Volume);
             if(tank.Valid)
             {
                 editMaxAmountButton.gameObject.SetActive(true);
                 tankFullness.gameObject.SetActive(true);
-                fullTankButton.gameObject.SetActive(true);
-                emptyTankButton.gameObject.SetActive(true);
+                fullTankButton.gameObject.SetActive(tank.Manager.Capabilities.FillEnabled);
+                emptyTankButton.gameObject.SetActive(tank.Manager.Capabilities.EmptyEnabled);
                 resourceMaxAmount.text = FormatUtils.formatBigValue((float)tank.MaxAmount, "u");
                 resourceAmount.text = FormatUtils.formatBigValue((float)tank.Amount, "u");
                 tankFullness.text = (tank.Amount / tank.MaxAmount).ToString("P1");

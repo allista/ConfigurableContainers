@@ -5,14 +5,13 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
-using System;
+using CC.UI;
 using JetBrains.Annotations;
 
 namespace AT_Utils
 {
-    public class ModuleTankManager : AbstractResourceTank, ITankManagerHost
+    public class ModuleTankManager : AbstractResourceTank, ITankManagerHost, ITankManagerCapabilities
     {
-        #region Tanks
         private SwitchableTankManager tank_manager;
 
         public SwitchableTankManager GetTankManager()
@@ -198,6 +197,14 @@ namespace AT_Utils
             }
             base.OnBeforeSerialize();
         }
+
+        #region ITankManagerCapabilities
+        public bool AddRemoveEnabled => HighLogic.LoadedSceneIsEditor;
+        public bool ConfirmRemove => !HighLogic.LoadedSceneIsEditor;
+        public bool TypeChangeEnabled => HighLogic.LoadedSceneIsEditor;
+        public bool VolumeChangeEnabled => HighLogic.LoadedSceneIsEditor;
+        public bool FillEnabled => HighLogic.LoadedSceneIsEditor;
+        public bool EmptyEnabled => HighLogic.LoadedSceneIsEditor;
         #endregion
 
         #region GUI
