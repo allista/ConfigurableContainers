@@ -135,7 +135,7 @@ namespace AT_Utils
 #else
             tank_manager.EnablePartControls = !HighLogic.LoadedSceneIsEditor && tank_manager.TanksCount < 2;
 #endif
-            var editTankEvent = Events[nameof(EditTanks)]; 
+            var editTankEvent = Events[nameof(EditTanks)];
             Utils.EnableEvent(editTankEvent, !tank_manager.EnablePartControls);
             if(HighLogic.LoadedSceneIsFlight)
                 editTankEvent.guiName = "Manage Tanks";

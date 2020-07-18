@@ -18,7 +18,7 @@ namespace AT_Utils
         SwitchableTankManager GetTankManager();
     }
 
-    public partial class SwitchableTankManager : ConfigNodeObject, ITankManager
+    public class SwitchableTankManager : ConfigNodeObject, ITankManager
     {
         public new const string NODE_NAME = "TANKMANAGER";
         public const string MANAGED = "MANAGED";
