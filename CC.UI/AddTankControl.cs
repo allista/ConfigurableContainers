@@ -76,6 +76,13 @@ namespace CC.UI
             addButton.onClick.RemoveAllListeners();
         }
 
+        private float partsToVolume(float value) => tankManager.AvailableVolume * value;
+
+        private float volumeToParts(float value) =>
+            tankManager.AvailableVolume > 0
+                ? value / tankManager.AvailableVolume
+                : 0;
+
         private void onUnitsSwitch()
         {
             var oldUnits = currentUnits;
@@ -90,9 +97,7 @@ namespace CC.UI
                     setVolume(volume / 100);
                     break;
                 case VolumeUnits.PARTS when oldUnits == VolumeUnits.CUBIC_METERS:
-                    setVolume(tankManager.AvailableVolume > 0
-                        ? volume / tankManager.AvailableVolume
-                        : 0);
+                    setVolume(volumeToParts(volume));
                     break;
             }
         }
@@ -120,7 +125,7 @@ namespace CC.UI
         private void setVolume(float part, bool updateState = false)
         {
             volumeField.SetTextWithoutNotify(currentUnits == VolumeUnits.CUBIC_METERS
-                ? (tankManager.AvailableVolume * part).ToString("R")
+                ? partsToVolume(part).ToString("R")
                 : (part * 100).ToString("R"));
             if(!updateState)
                 return;
@@ -185,7 +190,7 @@ namespace CC.UI
                 return;
             var tankType = tankManager.SupportedTypes[tankTypeDropdown.value];
             if(currentUnits == VolumeUnits.PARTS)
-                tankVolume = Mathf.Clamp(tankManager.Volume * tankVolume / 100,
+                tankVolume = Mathf.Clamp(partsToVolume(tankVolume / 100),
                     0,
                     tankManager.AvailableVolume);
             if(!tankManager.AddTank(tankType, tankVolume))
