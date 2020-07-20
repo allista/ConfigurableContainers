@@ -18,7 +18,7 @@ namespace CC.UI
         private readonly List<TestTankInfo> Tanks;
         IReadOnlyCollection<ITankInfo> ITankManager.Tanks => Tanks;
 
-        public class TestTankManagerCapabilities : ITankManagerCapabilities
+        private class TestTankManagerCapabilities : ITankManagerCapabilities
         {
             public bool AddRemoveEnabled => true;
             public bool ConfirmRemove => true;
@@ -36,6 +36,8 @@ namespace CC.UI
             AvailableVolume = Volume - Tanks.Aggregate(0f, (res, t) => res + t.Volume);
             AvailableVolumePercent = AvailableVolume / Volume * 100;
         }
+
+        public string OnVolumeChanged(string tankType, float volume) => null;
 
         public string GetTypeInfo(string tankType) => $"{tankType}: This is a test info.";
 

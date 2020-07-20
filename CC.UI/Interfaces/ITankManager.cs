@@ -23,6 +23,8 @@ namespace CC.UI
         IReadOnlyCollection<ITankInfo> Tanks { get; }
         ITankManagerCapabilities Capabilities { get; }
 
+        string OnVolumeChanged(string tankType, float volume);
+
         string GetTypeInfo(string tankType);
 
         bool AddTank(string tankType, float volume);

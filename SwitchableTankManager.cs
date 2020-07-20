@@ -41,6 +41,8 @@ namespace AT_Utils
 
         public delegate string TankValidator(string tankType, float volume);
 
+        public TankValidator onNewTankVolumeChanged = delegate { return null; };
+        string ITankManager.OnVolumeChanged(string tankType, float volume) => onNewTankVolumeChanged(tankType, volume);
         public TankValidator onValidateNewTank = delegate { return null; };
         public TankAction onTankAdded = delegate { };
         public TankAction onTankRemoved = delegate { };

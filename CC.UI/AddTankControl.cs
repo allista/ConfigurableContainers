@@ -83,6 +83,8 @@ namespace CC.UI
                 ? value / tankManager.AvailableVolume
                 : 0;
 
+        private string tankType => tankManager.SupportedTypes[tankTypeDropdown.value];
+
         private void onUnitsSwitch()
         {
             var oldUnits = currentUnits;
@@ -124,13 +126,17 @@ namespace CC.UI
 
         private void setVolume(float part, bool updateState = false)
         {
-            volumeField.SetTextWithoutNotify(currentUnits == VolumeUnits.CUBIC_METERS
-                ? partsToVolume(part).ToString("R")
-                : (part * 100).ToString("R"));
+            var newVolume = currentUnits == VolumeUnits.CUBIC_METERS
+                ? partsToVolume(part)
+                : part * 100;
+            volumeField.SetTextWithoutNotify(newVolume.ToString("R"));
             if(!updateState)
                 return;
             if(tankManager.AvailableVolume > 0)
-                volumeOk();
+                volumeOk(tankManager.OnVolumeChanged(tankType,
+                    currentUnits == VolumeUnits.CUBIC_METERS
+                        ? newVolume
+                        : partsToVolume(part)));
             else
                 volumeNotOk("No free space left");
         }
@@ -143,10 +149,10 @@ namespace CC.UI
             addButton.SetInteractable(false);
         }
 
-        private void volumeOk()
+        private void volumeOk(string tooltip = null)
         {
             volumeFieldColorizer.SetColor(Colors.Neutral);
-            volumeFieldTooltip.SetText("Volume of the new tank");
+            volumeFieldTooltip.SetText(tooltip ?? "Volume of the new tank");
             addButton.SetInteractable(true);
         }
 
@@ -162,6 +168,7 @@ namespace CC.UI
                 volumeNotOk("Enter positive number");
                 return;
             }
+            string info = null;
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch(currentUnits)
             {
@@ -171,24 +178,24 @@ namespace CC.UI
                         volumeNotOk("Entered volume is greater than the available volume");
                         return;
                     }
+                    info = tankManager.OnVolumeChanged(tankType, newValue);
                     break;
                 case VolumeUnits.PARTS:
-                    var maxParts = tankManager.AvailableVolumePercent;
-                    if(newValue > maxParts)
+                    if(newValue > tankManager.AvailableVolumePercent)
                     {
                         volumeNotOk("Entered volume is greater than the available volume");
                         return;
                     }
+                    info = tankManager.OnVolumeChanged(tankType, partsToVolume(newValue / 100));
                     break;
             }
-            volumeOk();
+            volumeOk(info);
         }
 
         private void addTank()
         {
             if(!float.TryParse(volumeField.text, out var tankVolume))
                 return;
-            var tankType = tankManager.SupportedTypes[tankTypeDropdown.value];
             if(currentUnits == VolumeUnits.PARTS)
                 tankVolume = Mathf.Clamp(partsToVolume(tankVolume / 100),
                     0,
