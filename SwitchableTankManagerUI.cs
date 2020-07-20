@@ -8,7 +8,7 @@ namespace AT_Utils
 {
     public static class CC_UI
     {
-        public static readonly UIBundle AssetBundle = new UIBundle("ConfigurableContainers/cc_ui.bundle");
+        public static readonly UIBundle AssetBundle = UIBundle.Create("ConfigurableContainers/cc_ui.bundle");
     }
 
     public class SwitchableTankManagerUI : UIWindowBase<TankManagerUI>
