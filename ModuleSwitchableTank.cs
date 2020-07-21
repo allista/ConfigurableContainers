@@ -194,15 +194,14 @@ namespace AT_Utils
 
         public override string GetInfo()
         {
-            var info = "";
+            var info = StringBuilderCache.Acquire();
+            info.AppendLine($"<b>Tank Volume: {Utils.formatVolume(Volume)}</b>");
             init_supported_types();
             if(ChooseTankType)
-                info += SwitchableTankType.TypesInfo(include, exclude);
-            if(!init_tank_type())
-                return info;
-            info += tank_type.Info;
-            info += "Tank Volume: " + Utils.formatVolume(Volume);
-            return info;
+                info.AppendLine(SwitchableTankType.TypesInfo(include, exclude));
+            if(init_tank_type())
+                info.AppendLine(tank_type.Info);
+            return info.ToStringAndRelease().Trim();
         }
 
         protected override float TankMass(float defaultMass)

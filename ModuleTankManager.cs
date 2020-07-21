@@ -21,10 +21,10 @@ namespace AT_Utils
 
         public override string GetInfo()
         {
-            var info = $"Max. Volume: {Utils.formatVolume(Volume)}\n";
+            var info = $"<b>Max. Volume: {Utils.formatVolume(Volume)}</b>\n";
             if(ModuleSave != null)
                 info += SwitchableTankManager.GetInfo(this, ModuleSave);
-            return info;
+            return info.Trim();
         }
 
         protected override float TankCost(float defaultCost)

@@ -181,15 +181,15 @@ namespace AT_Utils
             base.Load(node);
             init_supported_types();
             var info = StringBuilderCache.Acquire();
-            info.Append(SwitchableTankType.TypesInfo(include, exclude));
+            info.AppendLine(SwitchableTankType.TypesInfo(include, exclude));
             var volumes = FromConfig<VolumeConfiguration>(node);
             // ReSharper disable once InvertIf
             if(volumes.Valid)
             {
-                info.AppendLine("Preconfigured Tanks:");
-                info.Append(volumes.Info());
+                info.AppendLine("\n<b>Preconfigured Tanks:</b>\n");
+                info.AppendLine(volumes.Info());
             }
-            return info.ToStringAndRelease();
+            return info.ToStringAndRelease().Trim();
         }
 
         private void init_supported_types()
