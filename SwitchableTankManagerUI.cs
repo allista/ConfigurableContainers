@@ -72,6 +72,8 @@ namespace AT_Utils
                 Close();
                 return;
             }
+            if(FlightGlobals.ready && manager.part != null)
+                Controller.gameObject.SetActive(manager.part.vessel == FlightGlobals.ActiveVessel);
             Controller.UpdateDisplay();
         }
     }
