@@ -1,9 +1,15 @@
-#Configurable Containers ChangeLog
+# Configurable Containers ChangeLog
 
-* **v2.5.0.1**
+* **v2.6.0 - New UI**
+    * **Reimplemented tank manager UI from scratch with uGUI framework**
+    * **Fixed counterparts rescaling with TweakScale**
+    * Improved tank types/configs tooltips by emphasizing with bold font
+    * Minor performance improvements
+
+* v2.5.0.1
     * Compiled against KSP-1.10
 
-* **v2.5.0**
+* v2.5.0
     * **Moved CC configs to AT_Utils GameData and removed CC-Core**
     * Added resource **max amount and max mass display**
     * **Added new patches** 
