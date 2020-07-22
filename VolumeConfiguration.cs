@@ -17,7 +17,7 @@ namespace AT_Utils
 
         public virtual string Info(float volume_conversion = 1)
         {
-            return $"{Utils.formatVolume(Volume * volume_conversion)}\n";
+            return $"{Utils.formatVolume(Volume * volume_conversion)}";
         }
 
         public virtual float AddMass(float volume_conversion = 1)
@@ -121,18 +121,22 @@ namespace AT_Utils
 
         public override string Info(float volume_conversion = 1)
         {
+            var haveResource = !string.IsNullOrEmpty(CurrentResource);
             var info = StringBuilderCache.Acquire();
-            info.Append($"- {TankType}");
-            if(!string.IsNullOrEmpty(CurrentResource))
-                info.Append($"/{CurrentResource}");
-            info.Append($"\n   {Utils.formatVolume(Volume * volume_conversion)}");
-            info.Append($"\n   {Utils.formatBigValue(ResourceAmount(true, volume_conversion), "u")}");
-            info.Append($"\n   {Utils.formatBigValue(ResourceMass(true, volume_conversion), "t")}");
+            info.Append($"- <b>{TankType}</b>");
+            if(haveResource)
+                info.Append($"\n   <b>{CurrentResource}</b>");
+            info.Append($"\n   <b>{Utils.formatVolume(Volume * volume_conversion)}</b>");
+            if(haveResource)
+            {
+                info.Append($"\n   <b>{Utils.formatBigValue(ResourceAmount(true, volume_conversion), "u")}</b>");
+                info.Append($"\n   {Utils.formatBigValue(ResourceMass(true, volume_conversion), "t")}");
+            }
             info.Append($"\n   {Cost(volume_conversion):F1}");
             if(InitialAmount > 0)
                 info.Append($"+{ResourceCost(false, volume_conversion):F1}");
-            info.Append(" Cr\n");
-            return info.ToStringAndRelease();
+            info.Append(" Cr");
+            return info.ToStringAndRelease().Trim();
         }
 
         public override bool ContainsType(string tank_type)
@@ -214,8 +218,16 @@ namespace AT_Utils
 
         public override string Info(float volume_conversion = 1)
         {
+            if(!Valid)
+                return $"{name}: configuration invalid";
+            var info = StringBuilderCache.Acquire();
             volume_conversion = Volume * volume_conversion / TotalVolume;
-            return Volumes.Aggregate("", (s, v) => s + v.Info(volume_conversion));
+            Volumes.ForEach(v =>
+            {
+                info.AppendLine(v.Info(volume_conversion));
+                info.AppendLine();
+            });
+            return info.ToStringAndRelease().Trim();
         }
 
         public override float AddMass(float volume_conversion = 1)

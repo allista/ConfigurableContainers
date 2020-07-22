@@ -169,6 +169,12 @@ namespace AT_Utils
             return null;
         }
 
+        public static string GetConfigInfo(string name, float volume_conversion = 1)
+        {
+            var config = GetConfig(name);
+            return config == null ? string.Empty : config.Info(volume_conversion);
+        }
+
         public static bool HaveUserConfig(string name)
         {
             return UserConfigs.ContainsKey(name);

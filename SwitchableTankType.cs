@@ -103,15 +103,16 @@ namespace AT_Utils
                 var _info = StringBuilderCache.Acquire();
                 _info.AppendLine("Tank can hold:");
                 foreach(var r in ResourceNames)
-                    _info.AppendLine($"- {Resources[r].Name}: {Utils.formatUnits(Resources[r].UnitsPerLiter)}/L");
+                    _info.AppendLine(
+                        $"- <b>{Resources[r].Name}</b>: {Utils.formatUnits(Resources[r].UnitsPerLiter)}/L");
                 var useful_volume = UsefulVolume(100);
                 if(useful_volume < 100)
-                    _info.AppendLine($"Only {useful_volume:F0}% of the volume is used for resources.");
+                    _info.AppendLine($"<b>Only {useful_volume:F0}% of the volume</b> is used for resources.");
                 if(Boiloff || Cooling)
-                    _info.AppendLine("Tank is thermally insulated.\nEquipped with boil-off valve.");
+                    _info.AppendLine("Tank is thermally <b>insulated</b>.\nEquipped with <b>boil-off</b> valve.");
                 if(Cooling)
-                    _info.AppendLine("Equipped with Active Cooling System.");
-                info = _info.ToStringAndRelease();
+                    _info.AppendLine("Equipped with <b>Active Cooling System</b>.");
+                info = _info.ToStringAndRelease().Trim();
                 return info;
             }
         }
@@ -126,15 +127,15 @@ namespace AT_Utils
             return volume * AddMassPerVolume;
         }
 
-        public float UsefulVolume(float volume)
+        public float GetEffectiveVolumeRatio()
         {
             var useful_volume = UsefulVolumeRatio;
             if(Boiloff || Cooling)
                 useful_volume -= CryogenicsParams.Instance.InsulationVolumeFraction;
-            if(useful_volume < 0)
-                return 0;
-            return volume * useful_volume;
+            return useful_volume < 0 ? 0 : useful_volume;
         }
+
+        public float UsefulVolume(float volume) => volume * GetEffectiveVolumeRatio();
 
         public override void Load(ConfigNode node)
         {
@@ -245,10 +246,10 @@ namespace AT_Utils
         /// </summary>
         public static string TypesInfo(string[] include = null, string[] exclude = null)
         {
-            var info = "Supported Tank Types:\n";
-            info += TankTypeNames(include, exclude)
-                .Aggregate("", (i, t) => string.Concat(i, "- ", t, "\n"));
-            return info;
+            var info = StringBuilderCache.Acquire();
+            info.AppendLine("<b>Supported Tank Types</b>:");
+            TankTypeNames(include, exclude).ForEach(t => info.AppendLine($"- {t}"));
+            return info.ToStringAndRelease().Trim();
         }
         #endregion
     }
@@ -260,14 +261,17 @@ namespace AT_Utils
     public class TankResource : ResourceWrapper<TankResource>
     {
         public float UnitsPerLiter { get; private set; }
+        public float UnitsPerVolume { get; private set; }
 
         public PartResourceDefinition def => PartResourceLibrary.Instance.GetDefinition(Name);
 
         public override void LoadDefinition(string resource_definition)
         {
             var upl = load_definition(resource_definition);
-            if(Valid)
-                UnitsPerLiter = upl;
+            if(!Valid)
+                return;
+            UnitsPerLiter = upl;
+            UnitsPerVolume = upl * 1000;
         }
     }
 }

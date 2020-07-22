@@ -78,13 +78,13 @@
     <ItemGroup>
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="SwitchableTankManager.cs" />
+        <Compile Include="SwitchableTankManagerUI.cs" />
         <Compile Include="SwitchableTankType.cs" />
         <Compile Include="ModuleTankManager.cs" />
         <Compile Include="ModuleSwitchableTank.cs" />
         <Compile Include="VolumeConfiguration.cs" />
         <Compile Include="AbstractResourceTank.cs" />
         <Compile Include="VolumeConfigsLibrary.cs" />
-        <Compile Include="SwitchableTankManagerGUI.cs" />
         <Compile Include="Cryogenics\CryogenicsParams.cs" />
         <Compile Include="Cryogenics\ResourceBoiloff.cs" />
         <Compile Include="Cryogenics\ActiveCooling.cs" />
@@ -101,6 +101,16 @@
             <Name>AT_Utils</Name>
             <Private>False</Private>
         </ProjectReference>
+        <ProjectReference Include="..\Unity\AT_Utils.UI.csproj">
+            <Project>{0b711e55-8312-144f-53ad-eda5a8cee04a}</Project>
+            <Name>AT_Utils.UI</Name>
+            <Private>False</Private>
+        </ProjectReference>
+        <ProjectReference Include="CC.UI\CC.UI.csproj">
+            <Project>{3e7aa3ab-1064-4a2e-9d8f-0e20b83a2249}</Project>
+            <Name>CC.UI</Name>
+            <Private>True</Private>
+        </ProjectReference>
     </ItemGroup>
     <ItemGroup>
         <None Include=".gitignore" />
@@ -110,36 +120,36 @@
         <Folder Include="Cryogenics\" />
     </ItemGroup>
     <ItemGroup>
-      <Content Include="ChangeLog.md" />
-      <Content Include="ConfigurableContainers-Intrusive.netkan" />
-      <Content Include="ConfigurableContainers.netkan" />
-      <Content Include="GameData\ConfigurableContainers\Parts\B9_Aerospace_ProceduralWings_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\Benjee10_X-37B_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\Bluedog_DB_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\DodoLabs_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\FuelTanksPlus_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\HangarResourceTanks.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\KerboNerdLaboratories.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\KWRocketry_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\MakingHistory_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\MiningExpansion_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\Mk2Expansion_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\Mk3Expansion_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\Mk3HypersonicSystems_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\ModRocketSys_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\MunarIndustries_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\NearFuturePropulsion_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\PlanetaryBaseInc_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\RaginCaucasian_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\ReStockPlus_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\SpaceY-Expanded_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\SpaceY-Lifters_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\SPS_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\Squad_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\StreamlineEnginesTanks_Patch.cfg" />
-      <Content Include="GameData\ConfigurableContainers\Parts\Tal-Tanks_Patch.cfg" />
-      <Content Include="make-release.sh" />
-      <Content Include="PatchContainers.py" />
-      <Content Include="README.md" />
+        <Content Include="ChangeLog.md" />
+        <Content Include="ConfigurableContainers-Intrusive.netkan" />
+        <Content Include="ConfigurableContainers.netkan" />
+        <Content Include="GameData\ConfigurableContainers\Parts\B9_Aerospace_ProceduralWings_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\Benjee10_X-37B_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\Bluedog_DB_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\DodoLabs_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\FuelTanksPlus_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\HangarResourceTanks.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\KerboNerdLaboratories.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\KWRocketry_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\MakingHistory_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\MiningExpansion_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\Mk2Expansion_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\Mk3Expansion_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\Mk3HypersonicSystems_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\ModRocketSys_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\MunarIndustries_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\NearFuturePropulsion_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\PlanetaryBaseInc_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\RaginCaucasian_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\ReStockPlus_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\SpaceY-Expanded_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\SpaceY-Lifters_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\SPS_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\Squad_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\StreamlineEnginesTanks_Patch.cfg" />
+        <Content Include="GameData\ConfigurableContainers\Parts\Tal-Tanks_Patch.cfg" />
+        <Content Include="make-release.sh" />
+        <Content Include="PatchContainers.py" />
+        <Content Include="README.md" />
     </ItemGroup>
 </Project>
