@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KSPBundleDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" UrlName="cc_ui.bundle" Name="cc_ui.bundle" CreatedTime="-8586057589157514928">
+  <Author>Allis Tauri</Author>
+  <Info>allista@gmail.com</Info>
+  <Assets>
+    <Asset Name="TankControls" Path="Assets/UI/CC/Prefabs/TankControls.prefab" Type="GameObject" Url="UI/CC/Prefabs/TankControls" AutoLoad="false" />
+    <Asset Name="TankManagerUI" Path="Assets/UI/CC/Prefabs/TankManagerUI.prefab" Type="GameObject" Url="UI/CC/Prefabs/TankManagerUI" AutoLoad="false" />
+  </Assets>
+  <Dependencies>
+    <Dependency>at_utils_ui.bundle</Dependency>
+  </Dependencies>
+</KSPBundleDefinition>
