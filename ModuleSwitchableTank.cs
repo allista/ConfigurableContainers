@@ -696,8 +696,7 @@ namespace AT_Utils
             }
             current_resource_name = Utils.ParseCamelCase(CurrentResource);
             boiloff?.SetResource(Resource);
-            if(part.Events != null)
-                part.SendEvent("resource_changed");
+            part.SendEvent("resource_changed", null, 0);
             return true;
         }
 
