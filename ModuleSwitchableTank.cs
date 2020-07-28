@@ -724,7 +724,7 @@ namespace AT_Utils
                 return;
             var volName = data.Get<string>("volName");
             var newTotalVolume = (float)data.Get<double>("newTotalVolume");
-            if(volName == "Tankage")
+            if(volName == "Tankage" && !newTotalVolume.Equals(Volume))
                 SetVolume(newTotalVolume, HighLogic.LoadedSceneIsEditor);
         }
 
@@ -830,7 +830,8 @@ namespace AT_Utils
     {
         protected override void on_rescale(ModulePair<ModuleSwitchableTank> mp, Scale scale)
         {
-            mp.module.SetVolume(mp.module.Volume * scale.relative.volume, true);
+            if(!scale.relative.volume.Equals(1))
+                mp.module.SetVolume(mp.module.Volume * scale.relative.volume, true);
         }
     }
 }
