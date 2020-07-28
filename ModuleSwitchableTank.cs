@@ -149,7 +149,7 @@ namespace AT_Utils
 
         public PartResource Resource { get; private set; }
         public float Usage => Resource != null ? (float)(Resource.amount / Resource.maxAmount) : 0;
-        public float ResourceDensity => Resource != null ? Resource.info.density : 0;
+        public float ResourceDensity => Resource?.info.density ?? 0;
         public float ResourceMass => Resource != null ? (float)(Resource.amount * Resource.info.density) : 0;
         public float ResourceMaxMass => Resource != null ? (float)(Resource.maxAmount * Resource.info.density) : 0;
         public string ResourceInUse => Resource != null ? Resource.resourceName : string.Empty;
@@ -318,14 +318,11 @@ namespace AT_Utils
             CurrentResource = tank.CurrentResource;
             Volume = tank.Volume;
             InitialAmount = tank.InitialAmount;
-//            this.Log("Initialized from part in flight: TankType {}, CurrentResource {}, Volume {}, InitialAmount {}", 
-//                     TankType, CurrentResource, Volume, InitialAmount);//debug
         }
 
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
-//            this.Log("OnLoad: ModuleSave: {}", node);//debug
             //if the config comes from TankManager, save its config
             if(node.HasValue(SwitchableTankManager.MANAGED))
             {
@@ -374,9 +371,9 @@ namespace AT_Utils
         ///     Removes the given SwitchableTank from the list of all tanks
         ///     whose CurrentResource is checked upon resource switching.
         /// </summary>
-        public bool UnregisterOtherTank(ModuleSwitchableTank tank)
+        public void UnregisterOtherTank(ModuleSwitchableTank tank)
         {
-            return other_tanks.Remove(tank);
+            other_tanks.Remove(tank);
         }
 
         /// <summary>
@@ -850,9 +847,11 @@ namespace AT_Utils
         }
 
 #if DEBUG
+        [UsedImplicitly]
         [KSPField(isPersistant = true, guiActive = true, guiActiveEditor = false, guiName = "Part", guiUnits = "°C")]
         public string PartTemperatureDisplay = "0";
 
+        [UsedImplicitly]
         [KSPField(isPersistant = true, guiActive = true, guiActiveEditor = false, guiName = "Skin", guiUnits = "°C")]
         public string SkinTemperatureDisplay = "0";
 #endif
