@@ -184,7 +184,7 @@ namespace AT_Utils
             if(ModuleSaveFromPrefab && scale.Equals(1) && !abs_scale.Equals(1))
                 scale = abs_scale;
             if(!scale.Equals(1))
-                Rescale(scale * scale * scale);
+                Rescale(scale * scale * scale, HighLogic.LoadedSceneIsEditor);
         }
 
         //workaround for ConfigNode non-serialization
