@@ -562,10 +562,10 @@ namespace AT_Utils
                 return;
             var max_amount = Resource.maxAmount;
             Resource.maxAmount = MaxResourceInVolume;
+            if(update_amount && max_amount > 0)
+                Resource.amount *= Resource.maxAmount / max_amount;
             if(Resource.amount > Resource.maxAmount)
                 Resource.amount = Resource.maxAmount;
-            else if(update_amount && max_amount > 0)
-                Resource.amount *= Resource.maxAmount / max_amount;
             part.UpdatePartMenu();
         }
 
