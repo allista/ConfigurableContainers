@@ -72,14 +72,20 @@ namespace AT_Utils
         IList<string> ITankManager.SupportedTypes => SupportedTypes;
         IList<string> ITankManager.SupportedTankConfigs => VolumeConfigsLibrary.UserConfigs.Keys;
 
-        private float total_volume = -1;
-
         /// <summary>
         ///     Maximum total volume of all tanks in m^3. It is used for reference and in tank controls.
         /// </summary>
-        public float Volume = -1;
+        public float Volume
+        {
+            get => volume;
+            set
+            {
+                volume = value;
+                InvalidateCaches();
+            }
+        }
 
-        float ITankManager.Volume => Volume;
+        private float volume;
 
         private float availableVolume = -1;
         private float availableVolumePercent = -1;
