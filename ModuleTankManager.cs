@@ -148,19 +148,19 @@ namespace AT_Utils
 
         public void Rescale(float relative_scale, bool update_amounts = false)
         {
-            tank_manager?.RescaleTanks(relative_scale, update_amounts);
-            SetVolume(Volume * relative_scale);
-        }
-
-        public void SetVolume(float volume)
-        {
-            if(tank_manager != null)
-            {
-                if(tank_manager.TanksVolume > volume)
-                    volume = tank_manager.TanksVolume;
-                tank_manager.Volume = volume;
-            }
-            Volume = volume;
+            Volume *= relative_scale;
+            if(tank_manager == null)
+                return;
+            // temporarily set tank manager volume to max.float
+            // to be able to rescale all tanks without clamping
+            tank_manager.Volume = float.MaxValue;
+            tank_manager.RescaleTanks(relative_scale, update_amounts);
+            // then check if the resulting tanks volume exceeds the rescaled total volume
+            // and increase the later if needed
+            if(tank_manager.TanksVolume > Volume)
+                Volume = tank_manager.TanksVolume;
+            // finally, update tank manager volume
+            tank_manager.Volume = Volume;
         }
 
         //interface for ProceduralParts
