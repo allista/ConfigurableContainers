@@ -5,6 +5,7 @@
 //
 //  Copyright (c) 2016 Allis Tauri
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CC.UI;
@@ -556,7 +557,8 @@ namespace AT_Utils
         ///     Optionally updates the amount of current resource.
         /// </summary>
         /// <param name="update_amount">If set to <c>true</c> also updates amount.</param>
-        public void UpdateMaxAmount(bool update_amount = false)
+        /// /// <param name="update_counterparts">If true, also update symmetry parts.</param>
+        public void UpdateMaxAmount(bool update_amount = false, bool update_counterparts = false)
         {
             if(Resource == null)
                 return;
@@ -567,6 +569,8 @@ namespace AT_Utils
             if(Resource.amount > Resource.maxAmount)
                 Resource.amount = Resource.maxAmount;
             part.UpdatePartMenu();
+            if(update_counterparts)
+                update_symmetry_tanks(t => t.UpdateMaxAmount(update_amount));
         }
 
         /// <summary>
@@ -575,7 +579,8 @@ namespace AT_Utils
         /// </summary>
         /// <param name="volume">New tank volume.</param>
         /// <param name="update_amount">If set to <c>true</c> also updates amount.</param>
-        public void SetVolume(float volume, bool update_amount = false)
+        /// <param name="update_counterparts">If true, also update symmetry parts.</param>
+        public void SetVolume(float volume, bool update_amount = false, bool update_counterparts = false)
         {
             if(volume < 0)
                 volume = 0;
@@ -584,7 +589,11 @@ namespace AT_Utils
             UpdateMaxAmount(update_amount);
             boiloff?.UpdateInsulation();
             manager?.InvalidateCaches();
+            if(update_counterparts)
+                update_symmetry_tanks(t => t.SetVolume(volume, update_amount));
         }
+
+        void ITankInfo.SetVolume(float volume, bool update_amount) => SetVolume(volume, update_amount, true);
 
         /// <summary>
         /// Change current tank type
@@ -593,6 +602,7 @@ namespace AT_Utils
         public void ChangeTankType(string tankTypeName)
         {
             Fields[nameof(TankType)].SetValue(tankTypeName, this);
+            update_symmetry_tanks(t => t.Fields[nameof(TankType)].SetValue(tankTypeName, t));
         }
 
         /// <summary>
@@ -602,6 +612,7 @@ namespace AT_Utils
         public void ChangeResource(string resourceName)
         {
             Fields[nameof(CurrentResource)].SetValue(resourceName, this);
+            update_symmetry_tanks(t => t.Fields[nameof(CurrentResource)].SetValue(resourceName, t));
         }
 
         /// <summary>
@@ -612,6 +623,7 @@ namespace AT_Utils
         public void SetAmount(float newAmount)
         {
             Amount = newAmount;
+            update_symmetry_tanks(t => t.Amount = newAmount);
         }
 
         /// <summary>
@@ -621,7 +633,8 @@ namespace AT_Utils
         /// </summary>
         /// <returns><c>true</c>, if resource was successfully switched, <c>false</c> otherwise.</returns>
         /// <param name="new_resource">New resource name.</param>
-        public bool ForceSwitchResource(string new_resource)
+        /// <param name="update_counterparts">If true, also update symmetry parts.</param>
+        public bool ForceSwitchResource(string new_resource, bool update_counterparts = false)
         {
             //if nothing to do, return true
             if(Resource != null && Resource.resourceName == new_resource)
@@ -644,7 +657,10 @@ namespace AT_Utils
                 Resource.amount = 0;
             TankType = new_type.name;
             CurrentResource = new_resource;
-            return change_tank_type();
+            var result =  change_tank_type();
+            if(update_counterparts)
+                update_symmetry_tanks(t => t.ForceSwitchResource(new_resource));
+            return result;
         }
 
         private bool init_resource()
@@ -783,6 +799,23 @@ namespace AT_Utils
             {
                 Utils.Message("Cannot change the type of the already constructed tank");
                 TankType = tank_type.name;
+            }
+        }
+
+        private void update_symmetry_tanks(Action<ModuleSwitchableTank> action)
+        {
+            if(part.symmetryCounterparts.Count == 0)
+                return;
+            foreach(var p in part.symmetryCounterparts)
+            {
+                var otherTank = p.Modules.GetModules<ModuleSwitchableTank>().SingleOrDefault(t => t.id == id);
+                if(otherTank == null)
+                {
+                    this.Error("counterparts should have ModuleSwitchableTank "
+                               + $"module with ID: {id}, but {p.GetID()} does not.");
+                    continue;
+                }
+                action(otherTank);
             }
         }
 
