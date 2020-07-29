@@ -472,14 +472,14 @@ namespace AT_Utils
                 Utils.EnableField(f);
             }
             update_boiloff_control();
-            part.UpdatePartMenu();
+            part.UpdatePartMenu(true);
         }
 
         private void update_res_control()
         {
             Fields[nameof(CurrentResource)].guiName = Resource == null ? RES_UNMANAGED : RES_MANAGED;
             update_boiloff_control();
-            part.UpdatePartMenu();
+            part.UpdatePartMenu(true);
         }
 
         private void disable_part_controls()
@@ -568,9 +568,9 @@ namespace AT_Utils
                 Resource.amount *= Resource.maxAmount / max_amount;
             if(Resource.amount > Resource.maxAmount)
                 Resource.amount = Resource.maxAmount;
-            part.UpdatePartMenu();
             if(update_counterparts)
                 update_symmetry_tanks(t => t.UpdateMaxAmount(update_amount));
+            part.UpdatePartMenu(true);
         }
 
         /// <summary>

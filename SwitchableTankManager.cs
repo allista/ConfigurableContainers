@@ -426,7 +426,7 @@ namespace AT_Utils
                 onTankRemoved(tank);
             if(update_counterparts)
                 update_symmetry_managers(m => m.RemoveTank(m.GetTank(tank.id), false, notify));
-            part.UpdatePartMenu();
+            part.UpdatePartMenu(true);
             return true;
         }
 
