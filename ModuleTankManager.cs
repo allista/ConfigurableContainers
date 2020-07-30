@@ -148,19 +148,19 @@ namespace AT_Utils
 
         public void Rescale(float relative_scale, bool update_amounts = false)
         {
-            tank_manager?.RescaleTanks(relative_scale, update_amounts);
-            SetVolume(Volume * relative_scale);
-        }
-
-        public void SetVolume(float volume)
-        {
-            if(tank_manager != null)
-            {
-                if(tank_manager.TanksVolume > volume)
-                    volume = tank_manager.TanksVolume;
-                tank_manager.Volume = volume;
-            }
-            Volume = volume;
+            Volume *= relative_scale;
+            if(tank_manager == null)
+                return;
+            // temporarily set tank manager volume to max.float
+            // to be able to rescale all tanks without clamping
+            tank_manager.Volume = float.MaxValue;
+            tank_manager.RescaleTanks(relative_scale, update_amounts);
+            // then check if the resulting tanks volume exceeds the rescaled total volume
+            // and increase the later if needed
+            if(tank_manager.TanksVolume > Volume)
+                Volume = tank_manager.TanksVolume;
+            // finally, update tank manager volume
+            tank_manager.Volume = Volume;
         }
 
         //interface for ProceduralParts
@@ -170,7 +170,7 @@ namespace AT_Utils
         {
             var volName = data.Get<string>("volName");
             var newTotalVolume = (float)data.Get<double>("newTotalVolume");
-            if(volName == "Tankage")
+            if(volName == "Tankage" && !newTotalVolume.Equals(Volume))
                 Rescale(newTotalVolume / Volume, HighLogic.LoadedSceneIsEditor);
         }
 
@@ -180,11 +180,8 @@ namespace AT_Utils
         private void OnPartScaleChanged(BaseEventDetails data)
         {
             var scale = data.Get<float>("factorRelative");
-            var abs_scale = data.Get<float>("factorAbsolute");
-            if(ModuleSaveFromPrefab && scale.Equals(1) && !abs_scale.Equals(1))
-                scale = abs_scale;
             if(!scale.Equals(1))
-                Rescale(scale * scale * scale);
+                Rescale(scale * scale * scale, HighLogic.LoadedSceneIsEditor);
         }
 
         //workaround for ConfigNode non-serialization
@@ -222,7 +219,8 @@ namespace AT_Utils
     {
         protected override void on_rescale(ModulePair<ModuleTankManager> mp, Scale scale)
         {
-            mp.module.Rescale(scale.relative.volume, true);
+            if(!scale.relative.volume.Equals(1))
+                mp.module.Rescale(scale.relative.volume, true);
         }
     }
 }

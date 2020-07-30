@@ -1,6 +1,16 @@
 # Configurable Containers ChangeLog
 
-* **v2.6.0 - New UI**
+* **v2.6.1**
+    * **Parts**
+        * **Hangar**: allow surface attachment of all the containers
+    * Fixed CC behaviour in symmetry groups
+    * Fixed resource amount update when tank volume is changed
+    (by APR or TweakScale)
+    * Fixed part cloning when the part is resized by TweakScale
+    * Fixed UI not showing when the `VolumeConfigs.user` file is absent
+    * Using bundle shipped with AT_Utils
+
+* v2.6.0 - **New UI**
     * **Reimplemented tank manager UI from scratch with uGUI framework**
     * **Fixed counterparts rescaling with TweakScale**
     * Improved tank types/configs tooltips by emphasizing with bold font

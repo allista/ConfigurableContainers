@@ -84,8 +84,13 @@ namespace CC.UI
             addTankControl.UpdateTankTypes();
         }
 
-        private void updateConfigsDropdownTooltip(int index) =>
-            configsDropdownTooltip.SetText(tankManager.GetTypeInfo(tankManager.SupportedTankConfigs[index]));
+        private void updateConfigsDropdownTooltip(int index)
+        {
+            if(index >= 0 && index < tankManager.SupportedTankConfigs.Count)
+                configsDropdownTooltip.SetText(tankManager.GetTypeInfo(tankManager.SupportedTankConfigs[index]));
+            else
+                configsDropdownTooltip.SetText("Select tank preset to edit");
+        }
 
         private void onConfigNameChanged(string newConfigName) =>
             addConfigButton.SetInteractable(addUpdateEnabled && !string.IsNullOrEmpty(newConfigName));

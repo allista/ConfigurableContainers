@@ -72,15 +72,22 @@ namespace AT_Utils
         IList<string> ITankManager.SupportedTypes => SupportedTypes;
         IList<string> ITankManager.SupportedTankConfigs => VolumeConfigsLibrary.UserConfigs.Keys;
 
-        private float total_volume = -1;
-
         /// <summary>
         ///     Maximum total volume of all tanks in m^3. It is used for reference and in tank controls.
         /// </summary>
-        public float Volume = -1;
+        public float Volume
+        {
+            get => volume;
+            set
+            {
+                volume = value;
+                InvalidateCaches();
+            }
+        }
 
-        float ITankManager.Volume => Volume;
+        private float volume;
 
+        private float tanks_volume = -1;
         private float availableVolume = -1;
         private float availableVolumePercent = -1;
 
@@ -125,9 +132,9 @@ namespace AT_Utils
         {
             get
             {
-                if(total_volume < 0)
-                    total_volume = tanks.Aggregate(0f, (v, t) => v + t.Volume);
-                return total_volume;
+                if(tanks_volume < 0)
+                    tanks_volume = tanks.Aggregate(0f, (v, t) => v + t.Volume);
+                return tanks_volume;
             }
         }
 
@@ -157,7 +164,7 @@ namespace AT_Utils
 
         public void InvalidateCaches()
         {
-            total_volume = -1;
+            tanks_volume = -1;
             availableVolume = -1;
             availableVolumePercent = -1;
         }
@@ -213,7 +220,7 @@ namespace AT_Utils
         {
             base.Load(node);
             tanks.Clear();
-            total_volume = -1;
+            InvalidateCaches();
             init_supported_types();
             if(node.HasValue(MANAGED))
             {
@@ -329,9 +336,7 @@ namespace AT_Utils
                 return false;
             }
             tanks.Add(tank);
-            total_volume = -1;
-            availableVolume = -1;
-            availableVolumePercent = -1;
+            InvalidateCaches();
             if(notify)
                 onTankAdded(tank);
             if(update_counterparts)
@@ -416,14 +421,12 @@ namespace AT_Utils
             tanks.Remove(tank);
             tanks.ForEach(t => t.UnregisterOtherTank(tank));
             part.RemoveModule(tank);
-            total_volume = -1;
-            availableVolume = -1;
-            availableVolumePercent = -1;
+            InvalidateCaches();
             if(notify)
                 onTankRemoved(tank);
             if(update_counterparts)
                 update_symmetry_managers(m => m.RemoveTank(m.GetTank(tank.id), false, notify));
-            part.UpdatePartMenu();
+            part.UpdatePartMenu(true);
             return true;
         }
 
@@ -470,7 +473,7 @@ namespace AT_Utils
             if(relative_scale <= 0)
                 return;
             tanks.ForEach(t => t.SetVolume(t.Volume * relative_scale, update_amounts));
-            total_volume = -1;
+            InvalidateCaches();
         }
 
         private void update_symmetry_managers(Action<SwitchableTankManager> action)
