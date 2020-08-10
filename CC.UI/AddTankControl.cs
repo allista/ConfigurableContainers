@@ -129,7 +129,7 @@ namespace CC.UI
             var newVolume = currentUnits == VolumeUnits.CUBIC_METERS
                 ? partsToVolume(part)
                 : part * 100;
-            volumeField.SetTextWithoutNotify(newVolume.ToString("R"));
+            volumeField.SetTextWithoutNotify(newVolume.ToString("G9"));
             if(!updateState)
                 return;
             if(tankManager.AvailableVolume > 0)
