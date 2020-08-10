@@ -77,15 +77,15 @@ namespace AT_Utils
         /// </summary>
         public float Volume
         {
-            get => volume;
+            get => totalVolume;
             set
             {
-                volume = value;
+                totalVolume = value;
                 InvalidateCaches();
             }
         }
 
-        private float volume;
+        private float totalVolume;
 
         private float tanks_volume = -1;
         private float availableVolume = -1;
