@@ -1,4 +1,4 @@
-﻿//   SwitchableTankManager.cs
+//   SwitchableTankManager.cs
 //
 //  Author:
 //       Allis Tauri <allista@gmail.com>
@@ -106,7 +106,7 @@ namespace AT_Utils
             get
             {
                 if(availableVolumePercent < 0)
-                    availableVolumePercent = AvailableVolume / Volume;
+                    availableVolumePercent = AvailableVolume / Volume * 100;
                 return availableVolume;
             }
         }
