@@ -89,7 +89,6 @@ namespace AT_Utils
 
         private float tanksVolume = -1;
         private float availableVolume = -1;
-        private float availableVolumePercent = -1;
 
         public float AvailableVolume
         {
@@ -97,16 +96,6 @@ namespace AT_Utils
             {
                 if(availableVolume < 0)
                     availableVolume = Volume - TanksVolume;
-                return availableVolume;
-            }
-        }
-
-        public float AvailableVolumePercent
-        {
-            get
-            {
-                if(availableVolumePercent < 0)
-                    availableVolumePercent = AvailableVolume / Volume * 100;
                 return availableVolume;
             }
         }
@@ -166,7 +155,6 @@ namespace AT_Utils
         {
             tanksVolume = -1;
             availableVolume = -1;
-            availableVolumePercent = -1;
         }
 
         public void ClampNewVolume(float oldVolume, ref float newVolume)

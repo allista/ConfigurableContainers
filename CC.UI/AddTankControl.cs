@@ -181,7 +181,7 @@ namespace CC.UI
                     info = tankManager.OnVolumeChanged(tankType, newValue);
                     break;
                 case VolumeUnits.PARTS:
-                    if(newValue > tankManager.AvailableVolumePercent)
+                    if(newValue > 100)
                     {
                         volumeNotOk("Entered volume is greater than the available volume");
                         return;

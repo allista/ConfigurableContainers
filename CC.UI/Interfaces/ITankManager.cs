@@ -19,7 +19,6 @@ namespace CC.UI
         IList<string> SupportedTankConfigs { get; }
         float Volume { get; }
         float AvailableVolume { get; }
-        float AvailableVolumePercent { get; }
         IReadOnlyCollection<ITankInfo> Tanks { get; }
         ITankManagerCapabilities Capabilities { get; }
 
