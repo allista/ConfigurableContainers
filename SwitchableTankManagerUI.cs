@@ -32,8 +32,6 @@ namespace AT_Utils
                 pos = manager.uiPos;
         }
 
-        private void toggleColors() => Controller.ToggleStylesUI();
-
         private void highlightPart(PointerEventData _)
         {
             var part = manager?.part;
