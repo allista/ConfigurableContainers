@@ -43,8 +43,8 @@ namespace AT_Utils
     {
         public CCModInfo()
         {
-            MinKSPVersion = new Version(1, 9, 0);
-            MaxKSPVersion = new Version(1, 10, 0);
+            MinKSPVersion = new Version(1, 11, 1);
+            MaxKSPVersion = new Version(1, 11, 1);
 
             VersionURL =
                 "https://github.com/allista/ConfigurableContainers/tree/master/GameData/ConfigurableContainers/ConfigurableContainers.version";
