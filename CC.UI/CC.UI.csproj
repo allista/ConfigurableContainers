@@ -61,6 +61,7 @@
         <ProjectReference Include="..\..\Unity\AT_Utils.UI.csproj">
             <Project>{0b711e55-8312-144f-53ad-eda5a8cee04a}</Project>
             <Name>AT_Utils.UI</Name>
+            <Private>False</Private>
         </ProjectReference>
     </ItemGroup>
     <ItemGroup>
