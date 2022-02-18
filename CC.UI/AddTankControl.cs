@@ -129,7 +129,7 @@ namespace CC.UI
             var newVolume = currentUnits == VolumeUnits.CUBIC_METERS
                 ? partsToVolume(part)
                 : part * 100;
-            volumeField.SetTextWithoutNotify(newVolume.ToString("R"));
+            volumeField.SetTextWithoutNotify(newVolume.ToString("G9"));
             if(!updateState)
                 return;
             if(tankManager.AvailableVolume > 0)
@@ -181,7 +181,7 @@ namespace CC.UI
                     info = tankManager.OnVolumeChanged(tankType, newValue);
                     break;
                 case VolumeUnits.PARTS:
-                    if(newValue > tankManager.AvailableVolumePercent)
+                    if(newValue > 100)
                     {
                         volumeNotOk("Entered volume is greater than the available volume");
                         return;

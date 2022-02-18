@@ -77,19 +77,18 @@ namespace AT_Utils
         /// </summary>
         public float Volume
         {
-            get => volume;
+            get => totalVolume;
             set
             {
-                volume = value;
+                totalVolume = value;
                 InvalidateCaches();
             }
         }
 
-        private float volume;
+        private float totalVolume;
 
-        private float tanks_volume = -1;
+        private float tanksVolume = -1;
         private float availableVolume = -1;
-        private float availableVolumePercent = -1;
 
         public float AvailableVolume
         {
@@ -97,16 +96,6 @@ namespace AT_Utils
             {
                 if(availableVolume < 0)
                     availableVolume = Volume - TanksVolume;
-                return availableVolume;
-            }
-        }
-
-        public float AvailableVolumePercent
-        {
-            get
-            {
-                if(availableVolumePercent < 0)
-                    availableVolumePercent = AvailableVolume / Volume;
                 return availableVolume;
             }
         }
@@ -132,9 +121,9 @@ namespace AT_Utils
         {
             get
             {
-                if(tanks_volume < 0)
-                    tanks_volume = tanks.Aggregate(0f, (v, t) => v + t.Volume);
-                return tanks_volume;
+                if(tanksVolume < 0)
+                    tanksVolume = tanks.Aggregate(0f, (v, t) => v + t.Volume);
+                return tanksVolume;
             }
         }
 
@@ -164,9 +153,8 @@ namespace AT_Utils
 
         public void InvalidateCaches()
         {
-            tanks_volume = -1;
+            tanksVolume = -1;
             availableVolume = -1;
-            availableVolumePercent = -1;
         }
 
         public void ClampNewVolume(float oldVolume, ref float newVolume)

@@ -1,6 +1,12 @@
 # Configurable Containers ChangeLog
 
-* **v2.6.1**
+
+* **v2.6.2**
+    * Compatible with KSP-1.11.1
+    * UI: using G9 formatter instead of R for better performance
+    * API: removed `ITankManager.AvailableVolumePercent`
+
+* v2.6.1
     * **Parts**
         * **Hangar**: allow surface attachment of all the containers
     * Fixed CC behaviour in symmetry groups
