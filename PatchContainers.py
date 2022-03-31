@@ -1,8 +1,8 @@
 import os
 import re
 
-from KSPUtils import ConfigNode, NamedObject, Part, Module, Resource, SearchQuery, SearchTerm
-from KSPUtils.Collections import ValueCollection
+from KSPUtils.config_node_utils import ConfigNode, NamedObject, Part, Module, Resource
+from KSPUtils.config_node_utils.search import SearchQuery, SearchTerm
 
 
 class TankType(NamedObject):
@@ -127,7 +127,7 @@ class Patcher(object):
     def add_patches(part, patch, addons):
         for term, addon in addons:
             if term.match(part):
-                if isinstance(addon, ValueCollection.Value):
+                if isinstance(addon, NamedObject.Value):
                     patch.AddValueItem(addon)
                 elif isinstance(addon, NamedObject):
                     patch.AddChild(addon)
