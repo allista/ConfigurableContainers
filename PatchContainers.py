@@ -2,10 +2,16 @@ import os
 import re
 
 from KSPUtils.config_node_utils import ConfigNode, NamedObject, Part, Module, Resource
+from KSPUtils.config_node_utils.named_object import ChildrenDict, ValueProperty
 from KSPUtils.config_node_utils.search import SearchQuery, SearchTerm
 
 
 class TankType(NamedObject):
+    type = 'TANKTYPE'
+
+    UsefulVolumeRatio = ValueProperty(float)
+    TankCostPerSurface = ValueProperty(float)
+
     def __init__(self):
         NamedObject.__init__(self)
         self.UnitsPerLiter = dict()
@@ -23,15 +29,10 @@ class TankType(NamedObject):
         return list(self.UnitsPerLiter.keys())
 
 
-TankType.register('TANKTYPE')
-TankType.mirror_value('UsefulVolumeRatio', float)
-TankType.mirror_value('TankCostPerSurface', float)
+class TanksLib(NamedObject):
+    type = 'TANKSLIB'
+    types = ChildrenDict(TankType)
 
-
-class TanksLib(NamedObject): pass
-
-
-TanksLib.setup_children_dict('types', 'TANKTYPE')
 
 FLOAT_DECIMALS = 6
 
@@ -41,47 +42,45 @@ def round_float(val):
 
 
 class ModuleTankManager(Module):
+    Volume = ValueProperty(round_float)
+    DoCostPatch = ValueProperty(bool)
+    DoMassPatch = ValueProperty(bool)
+    IncludeTankTypes = ValueProperty(str)
+    ExcludeTankTypes = ValueProperty(str)
+
     def __init__(self):
-        NamedObject.__init__(self)
+        Module.__init__(self)
         self.name = 'ModuleTankManager'
 
 
-ModuleTankManager.mirror_value('Volume', round_float)
-ModuleTankManager.mirror_value('DoCostPatch', bool)
-ModuleTankManager.mirror_value('DoMassPatch', bool)
-ModuleTankManager.mirror_value('IncludeTankTypes')
-ModuleTankManager.mirror_value('ExcludeTankTypes')
-
-
 class ModuleTank(Module):
+    Volume = ValueProperty(round_float)
+    InitialAmount = ValueProperty(round_float)
+    TankType = ValueProperty(str)
+    CurrentResource = ValueProperty(str)
+    ChooseTankType = ValueProperty(bool)
+    DoCostPatch = ValueProperty(bool)
+    DoMassPatch = ValueProperty(bool)
+    IncludeTankTypes = ValueProperty(str)
+    ExcludeTankTypes = ValueProperty(str)
+
     def __init__(self):
-        NamedObject.__init__(self)
+        Module.__init__(self)
         self.name = 'ModuleSwitchableTank'
-
-
-ModuleTank.mirror_value('Volume', round_float)
-ModuleTank.mirror_value('InitialAmount', round_float)
-ModuleTank.mirror_value('TankType')
-ModuleTank.mirror_value('CurrentResource')
-ModuleTank.mirror_value('ChooseTankType', bool)
-ModuleTank.mirror_value('DoCostPatch', bool)
-ModuleTank.mirror_value('DoMassPatch', bool)
-ModuleTank.mirror_value('IncludeTankTypes')
-ModuleTank.mirror_value('ExcludeTankTypes')
 
 
 class Tank(NamedObject):
     type = 'TANK'
 
+    Volume = ValueProperty(round_float)
+    InitialAmount = ValueProperty(round_float)
+    TankType = ValueProperty(str)
+    CurrentResource = ValueProperty(str)
+
     def __init__(self, name=None):
         NamedObject.__init__(self)
         if name: self.name = name
 
-
-Tank.mirror_value('Volume', round_float)
-Tank.mirror_value('InitialAmount', round_float)
-Tank.mirror_value('TankType')
-Tank.mirror_value('CurrentResource')
 
 common_patch_spec = ':HAS[' \
                     '!MODULE[InterstellarFuelSwitch],' \
