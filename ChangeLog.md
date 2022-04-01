@@ -1,4 +1,4 @@
-# Configurable Containers ChangeLog
+# Configurable Containers Change Log
 
 ## v2.6.2
 
