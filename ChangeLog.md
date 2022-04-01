@@ -1,5 +1,10 @@
 # Configurable Containers Change Log
 
+## v2.6.2.1 / 2022-04-01
+
+* Compiled for KSP 1.12.3
+* Internal project changes for CI/CD
+
 ## v2.6.2
 
 * Compatible with KSP-1.11.1

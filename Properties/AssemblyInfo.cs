@@ -27,7 +27,7 @@ using System.Reflection;
 #if NIGHTBUILD
 [assembly: AssemblyVersion("2.6.*")]
 #else
-[assembly: AssemblyVersion("2.6.2")]
+[assembly: AssemblyVersion("2.6.2.1")]
 #endif
 [assembly: KSPAssembly("ConfigurableContainers", 2, 6)]
 
